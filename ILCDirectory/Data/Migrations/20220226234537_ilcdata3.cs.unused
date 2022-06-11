@@ -1,0 +1,731 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace ILCDirectory.Data.Migrations
+{
+    public partial class ilcdata3 : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "BoxNumber",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "BuildingCode",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "CubicleNumber",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "DeliveryCode",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "DirectPhone",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryAddress",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryBuilding",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryCity",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryHomePhone",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryInclude",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryName",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryOfficePhone",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryRoom",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryWorkgroup",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryZip",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "FieldOfService",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "MailListFlag",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "MailOnly",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "MailSortName",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "Member",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "OfficeFAX",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "OfficePhone",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "Position",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "RoomNumber",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "SpecialContactInfo",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "SpecialForwardingInstructions",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "SpecialHandlingInstructions",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "Supervisor",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "WoCode",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "WorkgroupCode",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "WorkgroupCodeOld",
+                table: "People");
+
+            migrationBuilder.DropColumn(
+                name: "ArrivalDate",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "DepartureDate",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "Email",
+                table: "Addresses");
+
+            migrationBuilder.RenameColumn(
+                name: "PurposeOfVisit",
+                table: "Addresses",
+                newName: "SpecialHandlingInstructions");
+
+            migrationBuilder.RenameColumn(
+                name: "ContactPhone",
+                table: "Addresses",
+                newName: "SpecialForwardingInstructions");
+
+            migrationBuilder.RenameColumn(
+                name: "ContactPerson",
+                table: "Addresses",
+                newName: "SpecialContactInfo");
+
+            migrationBuilder.AddColumn<string>(
+                name: "AddressLine3",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "AddressLine4",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "BoxNumber",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "BuildingCode",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "CubicleNumber",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DeliveryCode",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectPhone",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryAddress",
+                table: "Addresses",
+                type: "nvarchar(max)",
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryBuilding",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryCity",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryHomePhone",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<bool>(
+                name: "DirectoryInclude",
+                table: "Addresses",
+                type: "bit",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryName",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryOfficePhone",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryRoom",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryWorkgroup",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryZip",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<bool>(
+                name: "IncludeInDirectory",
+                table: "Addresses",
+                type: "bit",
+                nullable: false,
+                defaultValue: false);
+
+            migrationBuilder.AddColumn<bool>(
+                name: "IsActive",
+                table: "Addresses",
+                type: "bit",
+                nullable: false,
+                defaultValue: false);
+
+            migrationBuilder.AddColumn<bool>(
+                name: "MailListFlag",
+                table: "Addresses",
+                type: "bit",
+                nullable: true);
+
+            migrationBuilder.AddColumn<bool>(
+                name: "MailOnly",
+                table: "Addresses",
+                type: "bit",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "MailSortName",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "OfficeFAX",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "OfficePhone",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "RoomNumber",
+                table: "Addresses",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "AddressLine3",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "AddressLine4",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "BoxNumber",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "BuildingCode",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "CubicleNumber",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "DeliveryCode",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "DirectPhone",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryAddress",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryBuilding",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryCity",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryHomePhone",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryInclude",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryName",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryOfficePhone",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryRoom",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryWorkgroup",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "DirectoryZip",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "IncludeInDirectory",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "IsActive",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "MailListFlag",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "MailOnly",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "MailSortName",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "OfficeFAX",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "OfficePhone",
+                table: "Addresses");
+
+            migrationBuilder.DropColumn(
+                name: "RoomNumber",
+                table: "Addresses");
+
+            migrationBuilder.RenameColumn(
+                name: "SpecialHandlingInstructions",
+                table: "Addresses",
+                newName: "PurposeOfVisit");
+
+            migrationBuilder.RenameColumn(
+                name: "SpecialForwardingInstructions",
+                table: "Addresses",
+                newName: "ContactPhone");
+
+            migrationBuilder.RenameColumn(
+                name: "SpecialContactInfo",
+                table: "Addresses",
+                newName: "ContactPerson");
+
+            migrationBuilder.AddColumn<string>(
+                name: "BoxNumber",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "BuildingCode",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "CubicleNumber",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DeliveryCode",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectPhone",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryAddress",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryBuilding",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryCity",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryHomePhone",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<bool>(
+                name: "DirectoryInclude",
+                table: "People",
+                type: "bit",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryName",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryOfficePhone",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryRoom",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryWorkgroup",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "DirectoryZip",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "FieldOfService",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<bool>(
+                name: "MailListFlag",
+                table: "People",
+                type: "bit",
+                nullable: true);
+
+            migrationBuilder.AddColumn<bool>(
+                name: "MailOnly",
+                table: "People",
+                type: "bit",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "MailSortName",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<bool>(
+                name: "Member",
+                table: "People",
+                type: "bit",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "OfficeFAX",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "OfficePhone",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "Position",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "RoomNumber",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "SpecialContactInfo",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "SpecialForwardingInstructions",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "SpecialHandlingInstructions",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "Supervisor",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "WoCode",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<int>(
+                name: "WorkgroupCode",
+                table: "People",
+                type: "int",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "WorkgroupCodeOld",
+                table: "People",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<DateTime>(
+                name: "ArrivalDate",
+                table: "Addresses",
+                type: "datetime",
+                nullable: true);
+
+            migrationBuilder.AddColumn<DateTime>(
+                name: "DepartureDate",
+                table: "Addresses",
+                type: "datetime",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "Email",
+                table: "Addresses",
+                type: "nvarchar(100)",
+                maxLength: 100,
+                nullable: false,
+                defaultValue: "");
+        }
+    }
+}

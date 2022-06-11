@@ -1,0 +1,47 @@
+﻿@page
+@model ILCDirectory.Views.People.IndexModel
+
+@{
+    ViewData["Title"] = "People Index";
+}
+
+<h1>People</h1><h4>Find Person</h4>
+<p>
+    <div><input /> <button>Search (name, address, workgroup)</button> <input id="localOnlyCheckbox" type="checkbox" /> <label for="localOnlyCheckbox">Local Only</label></div>
+</p>
+
+<p>
+    <a asp-page="Create">Create New Person</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Name (Last (Maiden), First (Nickname))
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Persons[0].LanguagesSpoken)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Persons) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastName)@Html.DisplayFor(modelItem => item.MaidenName), 
+                @Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.NickName)
+                    
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LanguagesSpoken)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.PersonId">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.PersonId">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.PersonId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

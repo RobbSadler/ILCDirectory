@@ -1,0 +1,165 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace ILCDirectory.Data.Migrations
+{
+    public partial class ilcdata2 : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "tblDeletedPerson");
+
+            migrationBuilder.DropTable(
+                name: "tblSuffix");
+
+            migrationBuilder.DropPrimaryKey(
+                name: "PK_tblOtherMail",
+                table: "tblOtherMail");
+
+            migrationBuilder.DropPrimaryKey(
+                name: "PK_tblMailDelivery",
+                table: "tblMailDelivery");
+
+            migrationBuilder.RenameTable(
+                name: "tblOtherMail",
+                newName: "OtherMail");
+
+            migrationBuilder.RenameTable(
+                name: "tblMailDelivery",
+                newName: "MailDelivery");
+
+            migrationBuilder.RenameColumn(
+                name: "OtherMailID",
+                table: "OtherMail",
+                newName: "OtherMailId");
+
+            migrationBuilder.RenameColumn(
+                name: "MailDeliveryID",
+                table: "MailDelivery",
+                newName: "MailDeliveryId");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Gender",
+                table: "People",
+                type: "nvarchar(1)",
+                maxLength: 1,
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "char(1)",
+                oldUnicode: false,
+                oldFixedLength: true,
+                oldMaxLength: 1);
+
+            migrationBuilder.AlterColumn<DateTime>(
+                name: "Birthdate",
+                table: "People",
+                type: "datetime2",
+                nullable: true,
+                oldClrType: typeof(DateTime),
+                oldType: "datetime",
+                oldNullable: true);
+
+            migrationBuilder.AddPrimaryKey(
+                name: "PK_OtherMail",
+                table: "OtherMail",
+                column: "OtherMailId");
+
+            migrationBuilder.AddPrimaryKey(
+                name: "PK_MailDelivery",
+                table: "MailDelivery",
+                column: "MailDeliveryId");
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropPrimaryKey(
+                name: "PK_OtherMail",
+                table: "OtherMail");
+
+            migrationBuilder.DropPrimaryKey(
+                name: "PK_MailDelivery",
+                table: "MailDelivery");
+
+            migrationBuilder.RenameTable(
+                name: "OtherMail",
+                newName: "tblOtherMail");
+
+            migrationBuilder.RenameTable(
+                name: "MailDelivery",
+                newName: "tblMailDelivery");
+
+            migrationBuilder.RenameColumn(
+                name: "OtherMailId",
+                table: "tblOtherMail",
+                newName: "OtherMailID");
+
+            migrationBuilder.RenameColumn(
+                name: "MailDeliveryId",
+                table: "tblMailDelivery",
+                newName: "MailDeliveryID");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Gender",
+                table: "People",
+                type: "char(1)",
+                unicode: false,
+                fixedLength: true,
+                maxLength: 1,
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(1)",
+                oldMaxLength: 1);
+
+            migrationBuilder.AlterColumn<DateTime>(
+                name: "Birthdate",
+                table: "People",
+                type: "datetime",
+                nullable: true,
+                oldClrType: typeof(DateTime),
+                oldType: "datetime2",
+                oldNullable: true);
+
+            migrationBuilder.AddPrimaryKey(
+                name: "PK_tblOtherMail",
+                table: "tblOtherMail",
+                column: "OtherMailID");
+
+            migrationBuilder.AddPrimaryKey(
+                name: "PK_tblMailDelivery",
+                table: "tblMailDelivery",
+                column: "MailDeliveryID");
+
+            migrationBuilder.CreateTable(
+                name: "tblDeletedPerson",
+                columns: table => new
+                {
+                    DeletedPersonID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AuditTrail = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
+                    ID = table.Column<int>(type: "int", nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
+                    NickName = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_tblDeletedPerson", x => x.DeletedPersonID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "tblSuffix",
+                columns: table => new
+                {
+                    SuffixID = table.Column<int>(type: "int", nullable: false),
+                    SuffixName = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_tblSuffix", x => x.SuffixID);
+                });
+        }
+    }
+}
