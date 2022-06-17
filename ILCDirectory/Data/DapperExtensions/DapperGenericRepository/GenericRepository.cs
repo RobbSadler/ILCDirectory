@@ -15,7 +15,7 @@ namespace DapperGenericRepository
 {
     public abstract class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        private static IEnumerable<string> _listOfProperties;
+        private static readonly IEnumerable<string> _listOfProperties;
         private static string _selectFields = string.Empty;
         private readonly string _connectionString;
         private readonly string _tableName;
@@ -33,7 +33,7 @@ namespace DapperGenericRepository
 
         public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await LoadFields(async () =>
+            return await GenericRepository<T>.LoadFields(async () =>
             {
                 using var connection = CreateConnection();
                 return await connection.QueryAsyncWithToken<T>($"SELECT {_selectFields} FROM {_tableName}",
@@ -43,7 +43,7 @@ namespace DapperGenericRepository
 
         public async Task<T> GetAsync(object id, CancellationToken cancellationToken = default)
         {
-            return await LoadFields(async () =>
+            return await GenericRepository<T>.LoadFields(async () =>
             {
                 using var connection = CreateConnection();
                 var result =
@@ -102,7 +102,7 @@ namespace DapperGenericRepository
                 await dbConnection.ExecuteAsyncWithToken(insertQuery, t, tran, cancellationToken: cancellationToken);
                 tran.Commit();
             }
-            catch (Exception e)
+            catch
             {
                 tran.Rollback();
                 throw;
@@ -127,9 +127,9 @@ namespace DapperGenericRepository
             return conn;
         }
 
-        private TU LoadFields<TU>(Func<TU> method, bool includeId = false)
+        private static TU LoadFields<TU>(Func<TU> method, bool includeId = false)
         {
-            if (string.IsNullOrEmpty(_selectFields)) _selectFields = GenerateSelectFields(_listOfProperties, includeId);
+            if (string.IsNullOrEmpty(_selectFields)) _selectFields = GenericRepository<T>.GenerateSelectFields(_listOfProperties, includeId);
             return method.Invoke();
         }
 
@@ -141,19 +141,19 @@ namespace DapperGenericRepository
                 select prop.Name).ToList();
         }
 
-        private void IgnoreId(string property, Action action)
+        private static void IgnoreId(string property, Action action)
         {
             if (!property.Equals("Id")) action.Invoke();
         }
 
-        private string GenerateSelectFields(IEnumerable<string> properties, bool includeId)
+        private static string GenerateSelectFields(IEnumerable<string> properties, bool includeId)
         {
             var fields = new StringBuilder();
             foreach (var property in properties)
             {
                 if (includeId == false)
                 {
-                    IgnoreId(property, () => { fields.Append($"{property},"); });
+                    GenericRepository<T>.IgnoreId(property, () => { fields.Append($"{property},"); });
                 }
                 else
                 {
@@ -169,21 +169,21 @@ namespace DapperGenericRepository
         {
             var insertQuery = new StringBuilder($"INSERT INTO {_tableName} ");
 
-            insertQuery.Append("(");
+            insertQuery.Append('(');
             foreach (var listOfProperty in _listOfProperties)
             {
                 //TODO: extract this check
-                IgnoreId(listOfProperty, () => { insertQuery.Append($"[{listOfProperty}],"); });
+                GenericRepository<T>.IgnoreId(listOfProperty, () => { insertQuery.Append($"[{listOfProperty}],"); });
             }
 
             insertQuery.Remove(insertQuery.Length - 1, 1).Append(") VALUES (");
 
             foreach (var listOfProperty in _listOfProperties)
             {
-                IgnoreId(listOfProperty, () => { insertQuery.Append($"@{listOfProperty},"); });
+                GenericRepository<T>.IgnoreId(listOfProperty, () => { insertQuery.Append($"@{listOfProperty},"); });
             }
 
-            insertQuery.Remove(insertQuery.Length - 1, 1).Append(")");
+            insertQuery.Remove(insertQuery.Length - 1, 1).Append(')');
 
             return insertQuery.ToString();
         }
@@ -194,7 +194,7 @@ namespace DapperGenericRepository
 
             foreach (var listOfProperty in _listOfProperties)
             {
-                IgnoreId(listOfProperty, () => { updateQuery.Append($"{listOfProperty}=@{listOfProperty},"); });
+                GenericRepository<T>.IgnoreId(listOfProperty, () => { updateQuery.Append($"{listOfProperty}=@{listOfProperty},"); });
             }
 
             updateQuery.Remove(updateQuery.Length - 1, 1); //remove last comma

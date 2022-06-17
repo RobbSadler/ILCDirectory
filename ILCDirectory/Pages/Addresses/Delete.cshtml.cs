@@ -1,24 +1,12 @@
-﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using ILCDirectory.Data;
-using ILCDirectory.Models;
-
-namespace ILCDirectory.Pages.Addresses
+﻿namespace ILCDirectory.Pages.Addresses
 {
     public class DeleteModel : PageModel
     {
         private readonly IAddressRepository _addressRepo;
-        private readonly IConfiguration _configuration;
 
-        public DeleteModel(IConfiguration configuration, IAddressRepository addressRepo)
+        public DeleteModel(IAddressRepository addressRepo)
         {
             _addressRepo = addressRepo;
-            _configuration = configuration;
         }
 
         [BindProperty]

@@ -1,11 +1,4 @@
-﻿#nullable disable
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-//using Microsoft.EntityFrameworkCore;
-using ILCDirectory.Data;
-using ILCDirectory.Models;
-
-namespace ILCDirectory.Pages.Addresses
+﻿namespace ILCDirectory.Pages.Addresses
 {
     public class DetailsModel : PageModel
     {

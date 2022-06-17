@@ -1,9 +1,4 @@
-﻿//using Microsoft.EntityFrameworkCore;
-//using ILCDirectory.Data;
-using ILCDirectory.Models;
-using Microsoft.AspNetCore.Authorization;
-
-namespace ILCDirectory.Views.People
+﻿namespace ILCDirectory.Views.People
 {
     [Authorize]
     public class IndexModel : PageModel
