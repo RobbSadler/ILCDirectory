@@ -4,14 +4,12 @@ namespace ILCDirectory.Data.Models
 {
     public partial class Person : GenericRepository<Person>
     {
-        public Person(IConfiguration configuration) : base(configuration[Constants.CONFIG_CONNECTION_STRING], "Person")
-        {
-        }
+        public Person(IConfiguration configuration) : base(configuration[Constants.CONFIG_CONNECTION_STRING], "Person") {}
 
         public int PersonId { get; set; }
         [DataType(DataType.Date)]
                 [DisplayName("DOBirth mm/dd/yyyy")]
-        public DateTime? Birthdate { get; set; }
+        public DateTime DateOfBirth { get; set; }
         public long FamilyId { get; set; }
         [StringLength(255)]
         public string Comment { get; set; }
@@ -39,7 +37,7 @@ namespace ILCDirectory.Data.Models
         [StringLength(255)]
         public bool DeleteFlag { get; set; }
         [StringLength(255)]
-        public string StatusCode { get; set; } // ??????????????
+        public string ClassificationCode { get; set; }
         [StringLength(255)]
         public string LanguagesSpoken { get; set; }
         [StringLength(2000)]
@@ -48,5 +46,8 @@ namespace ILCDirectory.Data.Models
         public DateTime DirectoryCorrectionForm { get; set; }
         [StringLength(120)]
         public string DirCorrFormNote { get; set; }
+        public DateTimeOffset CreateDate { get; set; }
+        public DateTimeOffset ModifiedDate { get; set; }
+        public string ModifiedByUser { get; set; }
     }
 }

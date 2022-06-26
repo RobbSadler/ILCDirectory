@@ -22,7 +22,7 @@ namespace DapperGenericRepository.Helpers
 
             foreach (var entity in list)
             {
-                var values = new object?[properties.Length];
+                var values = new object[properties.Length];
                 for (var i = 0; i < properties.Length; i++)
                 {
                     values[i] = properties[i].GetValue(entity);

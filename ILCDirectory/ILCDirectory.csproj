@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Nullable>annotations</Nullable>
+    <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-ILCDirectory-8FB58F47-8D34-4783-B92E-3A08962814E1</UserSecretsId>
   </PropertyGroup>

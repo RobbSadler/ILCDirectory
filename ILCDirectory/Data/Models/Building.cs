@@ -17,5 +17,10 @@ namespace ILCDirectory.Data.Models
         public string BuildingShortDesc { get; set; }
         [StringLength(255)]
         public string AuditTrail { get; set; }
+
+        public DateTimeOffset CreateDate { get; set; }
+        public DateTimeOffset ModifiedDate { get; set; }
+        public string ModifiedByUser { get; set; }
+
     }
 }

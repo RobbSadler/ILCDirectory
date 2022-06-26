@@ -28,8 +28,6 @@
         public Person ContactPerson { get; set; }
         [StringLength(255)]
         public string DepartComment { get; set; }
-        [Column(TypeName = "datetime")]
-        public DateTime? DateEntered { get; set; }
         [StringLength(2000)]
         public string AuditTrail { get; set; }
 
@@ -83,8 +81,9 @@
         [StringLength(255)]
         public string OfficePhone { get; set; }
 
-
-
+        public DateTimeOffset CreateDate { get; set; }
+        public DateTimeOffset ModifiedDate { get; set; }
+        public string ModifiedByUser {  get; set; }
 
     }
 }

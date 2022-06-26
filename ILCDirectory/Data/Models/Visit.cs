@@ -7,19 +7,18 @@ namespace ILCDirectory.Data.Models
 {
     public class Visit
     {
-        /*
-         * Arrival 
-         * Departure
-         * PurposeOfVisit
-         * DepartComment
-         */
-
-        [StringLength(255)]
-        public string PurposeOfVisit { get; set; }
-        [Column(TypeName = "datetime")]
-        public DateTime? ArrivalDate { get; set; }
-        [Column(TypeName = "datetime")]
-        public DateTime? DepartureDate { get; set; }
+        [Key]
+        public int VisitId { get; set; }
+        [StringLength(50)]
+        public string Description { get; set; }
+        public int FamilyId { get; set; }
+        public int PrimaryPersonId { get; set; }
+        public DateTime ArrivalDate { get; set; }
+        public DateTime DepartureDate { get; set; }
+        public string DepartComment { get; set; }
+        public DateTimeOffset CreateDateTime { get; set; }
+        public DateTimeOffset ModifiedDateTime { get; set; }
+        public string ModifiedByUserName { get; set; }
 
     }
 }
