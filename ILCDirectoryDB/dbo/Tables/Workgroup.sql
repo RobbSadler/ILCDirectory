@@ -13,8 +13,6 @@
     [CreateDateTime]     DATETIMEOFFSET (7) DEFAULT (getdate()) NOT NULL,
     [ModifiedDateTime]   DATETIMEOFFSET (7) DEFAULT (getdate()) NOT NULL,
     [ModifiedByUserName] NVARCHAR (256)     DEFAULT ('system') NOT NULL,
+    [DDDId]              INT                NULL,
     CONSTRAINT [pk_Workgroup] PRIMARY KEY CLUSTERED ([WorkgroupId] ASC)
 );
-
-
-

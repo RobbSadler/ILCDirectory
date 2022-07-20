@@ -7,6 +7,7 @@
     [CreateDateTime]     DATETIMEOFFSET (7) DEFAULT (getdate()) NOT NULL,
     [ModifiedDateTime]   DATETIMEOFFSET (7) DEFAULT (getdate()) NOT NULL,
     [ModifiedByUserName] NVARCHAR (256)     NOT NULL,
+    [DDDId]              INT                NULL,
     CONSTRAINT [PK_CityCodes] PRIMARY KEY CLUSTERED ([CityCodeId] ASC)
 );
 

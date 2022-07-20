@@ -14,14 +14,16 @@
     [CreateDateTime]     DATETIMEOFFSET (7) DEFAULT (getdate()) NOT NULL,
     [ModifiedDateTime]   DATETIMEOFFSET (7) DEFAULT (getdate()) NOT NULL,
     [ModifiedByUserName] NVARCHAR (256)     DEFAULT ('system') NOT NULL,
+    [DDDId]              INT                NULL,
     CONSTRAINT [PK_Vehicle] PRIMARY KEY CLUSTERED ([VehicleId] ASC),
     CONSTRAINT [FK_Vehicle_Person] FOREIGN KEY ([VehicleOwner]) REFERENCES [dbo].[Person] ([PersonId])
 );
 
 
 
-
 GO
 CREATE NONCLUSTERED INDEX [IX_Vehicle_VehicleOwner]
     ON [dbo].[Vehicle]([VehicleOwner] ASC);
+
+
 

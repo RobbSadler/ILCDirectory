@@ -8,7 +8,7 @@ namespace ILCDirectory.Data.Models
     public partial class Vehicle
     {
         public int VehicleId { get; set; }
-        public int VehicleOwner { get; set; }
+        public int OwnerPersonId { get; set; }
         public int? Year { get; set; }
         [StringLength(32)]
         public string Color { get; set; }
@@ -27,9 +27,8 @@ namespace ILCDirectory.Data.Models
         public DateTime? PermitExpires { get; set; }
         [StringLength(2000)]
         public string AuditTrail { get; set; }
-
-        //[ForeignKey(nameof(VehicleOwner))]
-        //[InverseProperty(nameof(Person.Vehicles))]
-        public virtual Person VehicleOwnerNavigation { get; set; }
+        public DateTimeOffset CreateDate { get; set; }
+        public DateTimeOffset ModifiedDate { get; set; }
+        public string ModifiedByUser { get; set; }
     }
 }

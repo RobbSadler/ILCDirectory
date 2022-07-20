@@ -15,7 +15,18 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddSingleton<IAddressRepository, AddressRepository>();
+builder.Services.AddSingleton<IBuildingRepository, BuildingRepository>();
+builder.Services.AddSingleton<ICityCodeRepository, CityCodeRepository>();
+builder.Services.AddSingleton<IClassificationRepository, ClassificationRepository>();
+builder.Services.AddSingleton<IEmailRepository, EmailRepository>();
+builder.Services.AddSingleton<IFamilyRepository, FamilyRepository>();
+builder.Services.AddSingleton<IMailDeliveryRepository, MailDeliveryRepository>();
+builder.Services.AddSingleton<IOtherMailRepository, OtherMailRepository>();
 builder.Services.AddSingleton<IPersonRepository, PersonRepository>();
+builder.Services.AddSingleton<IVehicleRepository, VehicleRepository>();
+builder.Services.AddSingleton<IVisitRepository, VisitRepository>();
+builder.Services.AddSingleton<IWoRepository, WoRepository>();
+builder.Services.AddSingleton<IWorkgroupRepository, WorkgroupRepository>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddRazorPages();

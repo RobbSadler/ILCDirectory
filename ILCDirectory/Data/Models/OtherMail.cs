@@ -16,5 +16,8 @@ namespace ILCDirectory.Data.Models
         public int? DeliveryCode { get; set; }
         [StringLength(500)]
         public string Comments { get; set; }
+        public DateTimeOffset CreateDateTime { get; set; }
+        public DateTimeOffset ModifiedDateTime { get; set; }
+        public string ModifiedByUserName { get; set; }
     }
 }

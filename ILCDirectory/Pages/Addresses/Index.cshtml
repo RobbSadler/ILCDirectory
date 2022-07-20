@@ -41,49 +41,7 @@
                 @Html.DisplayNameFor(model => model.Addresses[0].ZipCode)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].HomePhone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].CellPhone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].DepartComment)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].DateEntered)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Addresses[0].AuditTrail)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].DirectoryAddress)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].DirectoryBuilding)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].DirectoryCity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].DirectoryHomePhone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].DirectoryInclude)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].DirectoryName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].DirectoryOfficePhone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].DirectoryRoom)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].DirectoryWorkgroup)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].DirectoryZip)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Addresses[0].BoxNumber)
@@ -117,15 +75,6 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Addresses[0].CubicleNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].DirectPhone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].OfficeFax)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].OfficePhone)
             </th>
             <th></th>
         </tr>
@@ -161,49 +110,10 @@
                 @Html.DisplayFor(modelItem => item.ZipCode)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.HomePhone)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CellPhone)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DepartComment)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateEntered)
+                @Html.DisplayFor(modelItem => item.ModifiedDateTime)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.AuditTrail)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DirectoryAddress)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DirectoryBuilding)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DirectoryCity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DirectoryHomePhone)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DirectoryInclude)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DirectoryName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DirectoryOfficePhone)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DirectoryRoom)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DirectoryWorkgroup)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DirectoryZip)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.BoxNumber)
@@ -237,15 +147,6 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CubicleNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DirectPhone)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.OfficeFax)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.OfficePhone)
             </td>
             <td>
                 <a asp-page="./Edit" asp-route-id="@item.AddressId">Edit</a> |

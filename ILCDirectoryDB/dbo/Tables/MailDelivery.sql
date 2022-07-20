@@ -6,6 +6,7 @@
     [CreateDateTime]     DATETIMEOFFSET (7) DEFAULT (getdate()) NOT NULL,
     [ModifiedDateTime]   DATETIMEOFFSET (7) DEFAULT (getdate()) NOT NULL,
     [ModifiedByUserName] NVARCHAR (256)     DEFAULT ('system') NOT NULL,
+    [DDDId]              INT                NULL,
     CONSTRAINT [PK_MailDelivery] PRIMARY KEY CLUSTERED ([MailDeliveryId] ASC)
 );
 

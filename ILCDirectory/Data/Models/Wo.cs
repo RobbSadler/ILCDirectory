@@ -13,5 +13,8 @@ namespace ILCDirectory.Data.Models
         public string WoCode { get; set; }
         [StringLength(255)]
         public string WoEntity { get; set; }
+        DateTimeOffset CreateDateTime {  get; set; }
+        DateTimeOffset ModifiedDateTime {  get; set; }
+        string ModifiedByUserName { get; set; }
     }
 }

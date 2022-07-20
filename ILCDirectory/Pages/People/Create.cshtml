@@ -66,9 +66,9 @@
     <div class="row g-3">
         <div class="col-lg-3">
             <div class="form-group">
-                <label asp-for="Person.Birthdate" class="control-label"></label>
-                <input asp-for="Person.Birthdate" class="form-control" />
-                <span asp-validation-for="Person.Birthdate" class="text-danger"></span>
+                <label asp-for="Person.DateOfBirth" class="control-label"></label>
+                <input asp-for="Person.DateOfBirth" class="form-control" />
+                <span asp-validation-for="Person.DateOfBirth" class="text-danger"></span>
             </div>
         </div>
         <div class="col-auto">
@@ -79,7 +79,14 @@
         </div>
         <div class="col-auto">
             <div class="form-group pt-4">
-                <select asp-for="Person.MaritalStatus" asp-items="Html.GetEnumSelectList<MaritalStatus>()"><option value="">Marital Status</option></select>
+                <select asp-for="Person.MaritalStatus">
+                    <option value="">Marital Status</option>
+                    <option value="S">Single</option>
+                    <option value="M">Married</option>
+                    <option value="D">Divorced</option>
+                    <option value="U">Unmarried</option>
+                    <option value="W">Widowed</option>
+                </select>
                 <span asp-validation-for="Person.MaritalStatus" class="text-danger"></span>
             </div>
         </div>

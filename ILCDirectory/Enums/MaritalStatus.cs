@@ -10,5 +10,16 @@ namespace ILCDirectory.Enums
         public const string Single	    = "S";
         public const string Unmarried	= "U";
         public const string Widowed     = "W";
+
+        public static Dictionary<string, string> GetMaritalStatusDictionary () { 
+            return new Dictionary<string, string> { 
+                {"Unspecified","0"},
+                {"Divorced","D"},
+                {"Married","M"},
+                {"Single","S"},
+                {"Unmarried","U"},
+                {"Widowed","W"}
+            }; 
+        }
     }
 }

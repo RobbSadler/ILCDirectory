@@ -2,34 +2,31 @@
 
 namespace ILCDirectory.Data.Models
 {
-    public partial class Person : GenericRepository<Person>
+    public partial class Person
     {
-        public Person(IConfiguration configuration) : base(configuration[Constants.CONFIG_CONNECTION_STRING], "Person") {}
-
         public int PersonId { get; set; }
-        [DataType(DataType.Date)]
-                [DisplayName("DOBirth mm/dd/yyyy")]
-        public DateTime DateOfBirth { get; set; }
-        public long FamilyId { get; set; }
-        [StringLength(255)]
-        public string Comment { get; set; }
-        [StringLength(25)]
         public string FirstName { get; set; }
-        [StringLength(1)]
-        public string Gender { get; set; }
+        [StringLength(25)]
+        public string MiddleName { get; set; }
         [StringLength(25)]
         public string LastName { get; set; }
         [StringLength(25)]
         [DisplayFormat(DataFormatString = " ({0})")]
         public string MaidenName { get; set; }
-        [StringLength(1)]
-        public string MaritalStatus { get; set; }
-        [StringLength(25)]
-        public string MiddleName { get; set; }
         [StringLength(25)]
         [DisplayFormat(DataFormatString = "({0})")]
         public string NickName { get; set; }
-        public int? SpouseId { get; set; }
+        [StringLength(1)]
+        public string MaritalStatus { get; set; }
+        [DataType(DataType.Date)]
+        [DisplayName("DOBirth mm/dd/yyyy")]
+        public DateTime DateOfBirth { get; set; }
+        [StringLength(1)]
+        public string Gender { get; set; }
+        public int ParentOfFamilyId { get; set; }
+        public int ChildOfFamilyId { get; set; }
+        [StringLength(255)]
+        public string Comment { get; set; }
         [StringLength(50)]
         public string Suffix { get; set; }
         [StringLength(50)]
@@ -46,8 +43,8 @@ namespace ILCDirectory.Data.Models
         public DateTime DirectoryCorrectionForm { get; set; }
         [StringLength(120)]
         public string DirCorrFormNote { get; set; }
-        public DateTimeOffset CreateDate { get; set; }
-        public DateTimeOffset ModifiedDate { get; set; }
-        public string ModifiedByUser { get; set; }
+        public DateTimeOffset CreateDateTime { get; set; }
+        public DateTimeOffset ModifiedDateTime { get; set; }
+        public string ModifiedByUserName { get; set; }
     }
 }

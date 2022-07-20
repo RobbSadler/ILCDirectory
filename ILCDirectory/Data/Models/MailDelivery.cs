@@ -13,7 +13,8 @@ namespace ILCDirectory.Data.Models
         public string DeliveryCode { get; set; }
         [StringLength(255)]
         public string DeliveryLocation { get; set; }
-        [StringLength(2000)]
-        public string AuditTrail { get; set; }
+        public DateTimeOffset CreateDateTime { get; set; }
+        public DateTimeOffset ModifiedDateTime { get; set; }
+        public string ModifiedByUserName { get; set; }
     }
 }

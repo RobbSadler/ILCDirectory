@@ -61,7 +61,7 @@
     <Folder Include="Security\" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="dbo\Tables\Wos.sql" />
+    <Build Include="dbo\Tables\Wo.sql" />
     <Build Include="dbo\Tables\Workgroup.sql" />
     <Build Include="dbo\Tables\Vehicle.sql" />
     <Build Include="dbo\Tables\Title.sql" />
@@ -81,8 +81,6 @@
     <Build Include="dbo\Tables\Address.sql" />
     <Build Include="dbo\Tables\Visit.sql" />
     <Build Include="dbo\Tables\PhoneNumber.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <RefactorLog Include="ILCDirectoryDB.refactorlog" />
+    <Build Include="dbo\Tables\Email.sql" />
   </ItemGroup>
 </Project>

@@ -11,9 +11,10 @@ namespace ILCDirectory.Data.Models
         [Key]
         public int ClassificationId { get; set; }
         [StringLength(255)]
-        public string ClassificationCode { get; set; }
+        public string Code { get; set; }
         [StringLength(255)]
         public string Description { get; set; }
+        public string AuditTrail { get; set; }
         [StringLength(255)]
         public DateTimeOffset CreateDate { get; set; }
         public DateTimeOffset ModifiedDate { get; set; }
