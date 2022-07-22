@@ -8,15 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Data\Migrations\**" />
-    <Content Remove="Data\Migrations\**" />
-    <EmbeddedResource Remove="Data\Migrations\**" />
-    <None Remove="Data\Migrations\**" />
+    <Compile Remove="AuthenticationData\Migrations\**" />
+    <Content Remove="AuthenticationData\Migrations\**" />
+    <EmbeddedResource Remove="AuthenticationData\Migrations\**" />
+    <None Remove="AuthenticationData\Migrations\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Data\ApplicationDbContext.cs.unused" />
-    <None Remove="Data\ILCDirectoryDBContext.cs.unused" />
+    <None Remove="AuthenticationData\ApplicationDbContext.cs.unused" />
+    <None Remove="AuthenticationData\ILCDirectoryDBContext.cs.unused" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +34,11 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.2" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ILCDirectory.Data\ILCDirectory.Data.csproj" />
+    <ProjectReference Include="..\ILCDirectory.DB\ILCDirectory.DB.sqlproj" />
   </ItemGroup>
 
 </Project>

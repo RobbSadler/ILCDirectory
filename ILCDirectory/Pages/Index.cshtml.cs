@@ -1,4 +1,4 @@
-﻿using ILCDirectory.Data;
+﻿using ILCDirectory.AuthenticationData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 

@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILCDirectoryDBMigrator", "ILCDirectoryDBMigrator\ILCDirectoryDBMigrator.csproj", "{E3CCBE54-E2E0-42D2-B91B-46EC4D6DB4C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILCDirectoryDBMigrator", "ILCDirectory.DBMigrator\ILCDirectoryDBMigrator.csproj", "{E3CCBE54-E2E0-42D2-B91B-46EC4D6DB4C7}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "ILCDirectoryDB", "ILCDirectoryDB\ILCDirectoryDB.sqlproj", "{FD725F9A-AFB2-4D16-9314-B77E39BF67A5}"
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "ILCDirectory.DB", "ILCDirectory.DB\ILCDirectory.DB.sqlproj", "{FD725F9A-AFB2-4D16-9314-B77E39BF67A5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILCDirectory.Data", "ILCDirectory.Data\ILCDirectory.Data.csproj", "{7FABB716-36CB-4A07-8E0F-CE97ACBC0499}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,6 +25,10 @@ Global
 		{FD725F9A-AFB2-4D16-9314-B77E39BF67A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD725F9A-AFB2-4D16-9314-B77E39BF67A5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FD725F9A-AFB2-4D16-9314-B77E39BF67A5}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{7FABB716-36CB-4A07-8E0F-CE97ACBC0499}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FABB716-36CB-4A07-8E0F-CE97ACBC0499}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FABB716-36CB-4A07-8E0F-CE97ACBC0499}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FABB716-36CB-4A07-8E0F-CE97ACBC0499}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
