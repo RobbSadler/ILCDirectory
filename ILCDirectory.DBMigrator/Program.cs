@@ -35,16 +35,20 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
     OleDbDataAdapter daClassification = new OleDbDataAdapter(cmdClassification);
     DataSet dsetClassification = new DataSet();
     daClassification.Fill(dsetClassification);
+    var classificationRepo = new ClassificationRepository(config);
     foreach (DataRow classificationRow in dsetClassification.Tables[0].Rows)
     {
+        var classification = new Classification()
+        {
+            ClassificationId = (int)classificationRow["ClassificationID"],
+            ClassificationCode = (string)classificationRow["StatusCode"],
+            Description = (string)classificationRow["StatusDescription"]
+        };
         classificationDictionary.Add(
-            (int)classificationRow["ClassificationId"], 
-            new Classification() {
-                ClassificationId = (int)classificationRow["ClassificationID"],
-                ClassificationCode = (string)classificationRow["StatusCode"],
-                Description = (string)classificationRow["StatusDescription"]
-            });
+            (int)classificationRow["ClassificationId"], classification);
+        await classificationRepo.InsertAsync(classification);
     }
+
 
     // Person
     OleDbCommand personCmd = new OleDbCommand("select TOP 1 * from Person", connect);
@@ -81,7 +85,7 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
     }
 
     // select TOP 1000 * from person p inner join Addresses a ON a.ID = p.ID ORDER BY p.ID DESC
-    // 
+    // vehicle.vehicleowner to person.ID
 
 
     connect.Close();
