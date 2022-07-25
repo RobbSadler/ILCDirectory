@@ -49,9 +49,8 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
         await classificationRepo.InsertAsync(classification);
     }
 
-
     // Person
-    OleDbCommand personCmd = new OleDbCommand("select TOP 1 * from Person", connect);
+    OleDbCommand personCmd = new OleDbCommand("select * from Person", connect);
     OleDbDataAdapter daPerson = new OleDbDataAdapter(personCmd);
     DataSet dsetPerson = new DataSet();
     daPerson.Fill(dsetPerson);
@@ -84,8 +83,54 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
         await personRepo.InsertAsync(person);
     }
 
+    // Address
+    OleDbCommand addressCmd = new OleDbCommand("select * from Address", connect);
+    OleDbDataAdapter daAddress = new OleDbDataAdapter(addressCmd);
+    DataSet dsetAddress = new DataSet();
+    daAddress.Fill(dsetAddress);
+
+    var addressRepo = new AddressRepository(config);
+    foreach (DataRow srcRow in dsetAddress.Tables[0].Rows)
+    {
+        var address = new Address();
+        address.DDDId = (int)srcRow["ID"];
+        address.AuditTrail = srcRow["AuditTrail"].ToString();
+        address.AddressLine1 = srcRow["AddressLine1"].ToString();
+        address.AddressLine2 = srcRow["AddressLine2"].ToString();
+        address.AddressLine3 = srcRow["AddressLine3"].ToString();
+        address.AddressLine3 = srcRow["AddressLine4"].ToString();
+        address.BoxNumber = srcRow["BoxNumber"]
+        address.CreateDateTime = DateTimeOffset.Now;
+        address.ModifiedDateTime = DateTimeOffset.Now;
+        await addressRepo.InsertAsync(address);
+    }
+
+    // Vehicle
+    OleDbCommand vehicleCmd = new OleDbCommand("select * from Vehicle", connect);
+    OleDbDataAdapter daVehicle = new OleDbDataAdapter(vehicleCmd);
+    DataSet dsetVehicle = new DataSet();
+    daVehicle.Fill(dsetVehicle);
+
+    var vehicleRepo = new VehicleRepository(config);
+    foreach (DataRow srcRow in dsetVehicle.Tables[0].Rows)
+    {
+        var vehicle = new Vehicle();
+        vehicle.DDDId = (int)srcRow["ID"];
+        vehicle.AuditTrail = srcRow["AuditTrail"].ToString();
+        vehicle.Color = srcRow["Color"].ToString();
+        vehicle.Make = srcRow["Make"].ToString();
+        vehicle.Model = srcRow["Model"].ToString();
+        vehicle.OwnerPersonId = (int)srcRow["VehicleOwner"];
+        vehicle.PermitExpires = srcRow["PermitExpires"] != null ? DateTime.Parse(srcRow["PermitExpires"].ToString()) : null;
+        vehicle.PermitNumber = (int)srcRow["PermitNumber"];
+        vehicle.PermitType = srcRow["PermitType"].ToString();
+        vehicle.ModifiedByUserName = "ILCDirectoryMigrator";
+        vehicle.CreateDateTime = DateTimeOffset.Now;
+        vehicle.ModifiedDateTime = DateTimeOffset.Now;
+        await vehicleRepo.InsertAsync(vehicle);
+    }
+
     // select TOP 1000 * from person p inner join Addresses a ON a.ID = p.ID ORDER BY p.ID DESC
-    // vehicle.vehicleowner to person.ID
 
 
     connect.Close();

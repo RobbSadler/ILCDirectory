@@ -27,9 +27,9 @@ namespace ILCDirectory.Data.Models
         public DateTime? PermitExpires { get; set; }
         [StringLength(2000)]
         public string AuditTrail { get; set; }
-        public DateTimeOffset CreateDate { get; set; }
-        public DateTimeOffset ModifiedDate { get; set; }
-        public string ModifiedByUser { get; set; }
+        public DateTimeOffset CreateDateTime { get; set; }
+        public DateTimeOffset ModifiedDateTime { get; set; }
+        public string ModifiedByUserName { get; set; }
         public int DDDId { get; set; }
     }
 }
