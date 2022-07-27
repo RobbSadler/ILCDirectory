@@ -99,7 +99,7 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
         address.AddressLine2 = srcRow["AddressLine2"].ToString();
         address.AddressLine3 = srcRow["AddressLine3"].ToString();
         address.AddressLine3 = srcRow["AddressLine4"].ToString();
-        address.BoxNumber = srcRow["BoxNumber"]
+        //address.BoxNumber = srcRow["BoxNumber"]
         address.CreateDateTime = DateTimeOffset.Now;
         address.ModifiedDateTime = DateTimeOffset.Now;
         await addressRepo.InsertAsync(address);
