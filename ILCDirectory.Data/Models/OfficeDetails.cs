@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ILCDirectory.Data.Models
 {
-    public class WorkInfo
+    public class OfficeDetails
     {
+        public int OfficeDetailsId {  get; set; }
         /*
          * WorkGroup
          * Position
@@ -25,10 +27,11 @@ namespace ILCDirectory.Data.Models
         public string WoCode { get; set; }
         public int? WorkgroupCode { get; set; }
         [StringLength(255)]
-        public string WorkgroupCodeOld { get; set; }
-        public bool? Member { get; set; }
+        //public string WorkgroupCodeOld { get; set; }
+        //public bool? Member { get; set; } this is unused in source DB
         [StringLength(255)]
         public string FieldOfService { get; set; }
-        public int DDDId {  get; set; }
+        public int DDDId { get; set; }
+
     }
 }

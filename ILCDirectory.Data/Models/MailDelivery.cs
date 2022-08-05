@@ -13,6 +13,12 @@ namespace ILCDirectory.Data.Models
         public string DeliveryCode { get; set; }
         [StringLength(255)]
         public string DeliveryLocation { get; set; }
+        [StringLength(255)]
+        public string BoxNumber { get; set; }
+        [StringLength(255)]
+        public string SpecialForwardingInstructions { get; set; }
+        [StringLength(255)]
+        public string SpecialHandlingInstructions { get; set; }
         public DateTimeOffset CreateDateTime { get; set; }
         public DateTimeOffset ModifiedDateTime { get; set; }
         public string ModifiedByUserName { get; set; }

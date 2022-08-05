@@ -21,14 +21,8 @@
         public int ContactPersonId { get; set; }
         [StringLength(255)]
         public string SpecialContactInfo { get; set; }
-        [StringLength(255)]
-        public string SpecialForwardingInstructions { get; set; }
-        [StringLength(255)]
-        public string SpecialHandlingInstructions { get; set; }
         [StringLength(2000)]
         public string AuditTrail { get; set; }
-        [StringLength(255)]
-        public string BoxNumber { get; set; }
         [StringLength(255)]
         public string BuildingCode { get; set; }
         [StringLength(255)]

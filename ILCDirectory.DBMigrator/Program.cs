@@ -98,8 +98,11 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
         address.AddressLine1 = srcRow["AddressLine1"].ToString();
         address.AddressLine2 = srcRow["AddressLine2"].ToString();
         address.AddressLine3 = srcRow["AddressLine3"].ToString();
-        address.AddressLine3 = srcRow["AddressLine4"].ToString();
-        address.BoxNumber = srcRow["BoxNumber"]
+        address.AddressLine4 = srcRow["AddressLine4"].ToString();
+        address.City = srcRow["City"].ToString();
+        address.ContactPersonId = (int)srcRow["ContactPersonId"];
+        address.
+        address.IncludeInDirectory = (bool)srcRow["IncludeInDirectory"];
         address.CreateDateTime = DateTimeOffset.Now;
         address.ModifiedDateTime = DateTimeOffset.Now;
         await addressRepo.InsertAsync(address);
