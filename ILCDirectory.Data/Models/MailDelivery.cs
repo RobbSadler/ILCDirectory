@@ -12,9 +12,11 @@ namespace ILCDirectory.Data.Models
         [StringLength(255)]
         public string DeliveryCode { get; set; }
         [StringLength(255)]
-        public string DeliveryLocation { get; set; }
-        [StringLength(255)]
         public string BoxNumber { get; set; }
+        public bool IncludeInSort { get; set; }
+        public bool InMailListsOnly { get; set; }
+        [StringLength(255)]
+        public string SpecialContactInfo { get; set; }
         [StringLength(255)]
         public string SpecialForwardingInstructions { get; set; }
         [StringLength(255)]

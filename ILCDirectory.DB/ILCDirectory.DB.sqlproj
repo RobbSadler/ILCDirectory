@@ -84,6 +84,7 @@
     <Build Include="dbo\Tables\PhoneNumber.sql" />
     <Build Include="dbo\Tables\Email.sql" />
     <Build Include="dbo\Tables\OfficeDetails.sql" />
+    <Build Include="dbo\Tables\DeliveryCode.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="ILCDirectory.DB.refactorlog" />

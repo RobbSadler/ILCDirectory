@@ -56,6 +56,9 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
     daPerson.Fill(dsetPerson);
 
     var personRepo = new PersonRepository(config);
+    var addressRepo = new AddressRepository(config);
+    var officeDetailsRepo = new OfficeDetailsRepository(config);
+
     foreach(DataRow srcRow in dsetPerson.Tables[0].Rows)
     {
         var person = new Person();
@@ -81,6 +84,17 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
         person.CreateDateTime = DateTimeOffset.Now;
         person.ModifiedDateTime = DateTimeOffset.Now;
         await personRepo.InsertAsync(person);
+
+        // pull out directory address info
+        var address = new Address();
+        address.AddressLine1 = srcRow["DirectoryAddress"].ToString();
+        address.City = srcRow["DirectoryCity"].ToString();
+        address.ZipCode = srcRow["DirectoryZIP"].ToString();
+        await addressRepo.InsertAsync(address);
+
+        // pull out Office Info
+        var officeDetails = new OfficeDetails();
+        officeDetails.BuildingId = (int?)srcRow["BuildingCode"];
     }
 
     // Address
@@ -89,7 +103,6 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
     DataSet dsetAddress = new DataSet();
     daAddress.Fill(dsetAddress);
 
-    var addressRepo = new AddressRepository(config);
     foreach (DataRow srcRow in dsetAddress.Tables[0].Rows)
     {
         var address = new Address();
@@ -101,7 +114,7 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
         address.AddressLine4 = srcRow["AddressLine4"].ToString();
         address.City = srcRow["City"].ToString();
         address.ContactPersonId = (int)srcRow["ContactPersonId"];
-        address.
+
         address.IncludeInDirectory = (bool)srcRow["IncludeInDirectory"];
         address.CreateDateTime = DateTimeOffset.Now;
         address.ModifiedDateTime = DateTimeOffset.Now;
