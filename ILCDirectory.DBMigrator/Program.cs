@@ -7,7 +7,7 @@ using System.Configuration;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
 
-using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\\Users\\robb\\Downloads\\DDD data-20220302T224527Z-001\\DDD data\\DDD-tables.accdb;Persist Security Info=False;"))
+using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\\Users\\robb\\Downloads\\DDDdata-20220302T224527Z-001\\DDDdata\\DDD-tables.accdb;Persist Security Info=False;"))
 {
     var configurationBuilder = new ConfigurationBuilder();
     configurationBuilder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
@@ -20,15 +20,50 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
 
     connect.Open();
 
-    // Title
-    OleDbCommand cmdTitle = new OleDbCommand("select * from tblTitle", connect);
-    OleDbDataAdapter daTitle = new OleDbDataAdapter(cmdTitle);
-    DataSet dsetTitle = new DataSet();
-    daTitle.Fill(dsetTitle);
-    foreach (DataRow titleRow in dsetTitle.Tables[0].Rows)
+    // Building
+    OleDbCommand cmdBuilding = new OleDbCommand("select * from tblBuildings", connect);
+    OleDbDataAdapter daBuilding = new OleDbDataAdapter(cmdBuilding);
+    DataSet dsetBuilding = new DataSet();
+    daBuilding.Fill(dsetBuilding);
+    var buildingRepo = new BuildingRepository(config);
+    foreach (DataRow buildingRow in dsetBuilding.Tables[0].Rows)
     {
-        titleDictionary.Add((int)titleRow["TitleId"], (string)titleRow["TitleName"]);
+        var building = new Building()
+        {
+            BuildingId = (int)buildingRow["BuildingID"],
+            BuildingCode = buildingRow["BuildingCode"].ToString(),
+            BuildingLongDesc = buildingRow["BuildingLongDesc"].ToString(),
+            BuildingShortDesc = buildingRow["BuildingShortDesc"].ToString(),
+        };
+        await buildingRepo.InsertAsync(building);
     }
+
+
+
+    // CityInfo
+    var cityCodeCity = new Dictionary<string, string>();
+    OleDbCommand cmdCityCode = new OleDbCommand("select * from tblCityCodes", connect);
+    OleDbDataAdapter daCityCode = new OleDbDataAdapter(cmdCityCode);
+    DataSet dsetCityCode = new DataSet();
+    daCityCode.Fill(dsetCityCode);
+    var cityCodeRepo = new CityCodeRepository(config);
+    foreach (DataRow cityCodeRow in dsetCityCode.Tables[0].Rows)
+    {
+        if (cityCodeRow["CityCode"] == null || cityCodeRow["CityCode"] == "---")
+            continue;
+
+        cityCodeCity.Add(cityCodeRow["CityCode"].ToString(), cityCodeRow["CityLongDesc"].ToString());
+        var cityCode = new CityCode()
+        {
+            CityCodeId = (int)cityCodeRow["CityCodeID"],
+            Code = cityCodeRow["CityCode"].ToString(),
+            LongDesc = cityCodeRow["CityCodeLongDesc"].ToString(),
+            ShortDesc = cityCodeRow["CityCodeShortDesc"].ToString(),
+        };
+        await cityCodeRepo.InsertAsync(cityCode);
+    }
+
+
 
     // Classification
     OleDbCommand cmdClassification = new OleDbCommand("select * from tblClassification", connect);
@@ -47,6 +82,16 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
         classificationDictionary.Add(
             (int)classificationRow["ClassificationId"], classification);
         await classificationRepo.InsertAsync(classification);
+    }
+
+    // Title
+    OleDbCommand cmdTitle = new OleDbCommand("select * from tblTitle", connect);
+    OleDbDataAdapter daTitle = new OleDbDataAdapter(cmdTitle);
+    DataSet dsetTitle = new DataSet();
+    daTitle.Fill(dsetTitle);
+    foreach (DataRow titleRow in dsetTitle.Tables[0].Rows)
+    {
+        titleDictionary.Add((int)titleRow["TitleId"], (string)titleRow["TitleName"]);
     }
 
     // Person
