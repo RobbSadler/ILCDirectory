@@ -19,6 +19,8 @@
     [AuditTrail]              NVARCHAR (MAX)     NULL,
     [DirectoryCorrectionForm] DATETIME           NULL,
     [DirCorrFormNote]         NVARCHAR (120)     NULL,
+    [IsDeceased]              BIT                DEFAULT (0) NOT NULL,
+    [IsDeleted]               BIT                DEFAULT (0) NOT NULL,
     [CreateDateTime]          DATETIMEOFFSET (7) CONSTRAINT [DF__Person__CreateDa__7B264821] DEFAULT (getdate()) NOT NULL,
     [ModifiedDateTime]        DATETIMEOFFSET (7) CONSTRAINT [DF__Person__Modified__7C1A6C5A] DEFAULT (getdate()) NOT NULL,
     [ModifiedByUserName]      NVARCHAR (256)     CONSTRAINT [DF__Person__Modified__7D0E9093] DEFAULT ('system') NOT NULL,
