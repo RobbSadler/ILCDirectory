@@ -1,4 +1,32 @@
-﻿CREATE TABLE [dbo].[Address] (
+﻿CREATE TABLE AddressHistory
+(
+    [AddressId]                     INT                 NOT NULL,
+    [AddressLine1]                  NVARCHAR (255)      NOT NULL,
+    [AddressLine2]                  NVARCHAR (255)      NULL,
+    [AddressLine3]                  NVARCHAR (255)      NULL,
+    [AddressLine4]                  NVARCHAR (255)      NULL,
+    [City]                          NVARCHAR (255)      NOT NULL,
+    [State]                         NVARCHAR (50)       NOT NULL,
+    [ZipCode]                       NVARCHAR (12)       NOT NULL,
+    [ContactPersonId]               INT                 NULL,
+    [SpecialContactInfo]            NVARCHAR (255)      NULL,
+    [AuditTrail]                    VARCHAR (2000)      NULL,
+    [DeliveryCode]                  NVARCHAR (255)      NULL,
+    [IncludeInDirectory]            BIT                 NOT NULL,
+    [MailListFlag]                  BIT                 NULL,
+    [MailOnly]                      BIT                 NULL,
+    [MailSortName]                  NVARCHAR (255)      NULL,
+    [RoomNumber]                    NVARCHAR (255)      NULL,
+    [CreateDateTime]                DATETIMEOFFSET (7)  NOT NULL,
+    [ModifiedDateTime]              DATETIMEOFFSET (7)  NOT NULL,
+    [ModifiedByUserName]            NVARCHAR (256)      NOT NULL,
+    [DDDId]                         INT                 NULL,
+    [ValidFrom]                     DATETIME2           NOT NULL,
+    [ValidTo]                       DATETIME2           NOT NULL,
+);
+GO
+
+CREATE TABLE [dbo].[Address] (
     [AddressId]                     INT                IDENTITY (1, 1) NOT NULL,
     [AddressLine1]                  NVARCHAR (255)     NOT NULL,
     [AddressLine2]                  NVARCHAR (255)     CONSTRAINT [DF__tmp_ms_xx__Addre__24285DB4] DEFAULT (N'') NULL,
@@ -18,42 +46,38 @@
     [RoomNumber]                    NVARCHAR (255)     CONSTRAINT [DF__tmp_ms_xx__RoomN__2DB1C7EE] DEFAULT (N'') NULL,
     [CreateDateTime]                DATETIMEOFFSET (7) CONSTRAINT [DF__tmp_ms_xx__Creat__2EA5EC27] DEFAULT (getdate()) NOT NULL,
     [ModifiedDateTime]              DATETIMEOFFSET (7) CONSTRAINT [DF__tmp_ms_xx__Modif__2F9A1060] DEFAULT (getdate()) NOT NULL,
-    [ModifiedByUserName]            NVARCHAR (256)     CONSTRAINT [DF__tmp_ms_xx__Modif__308E3499] DEFAULT ('system') NOT NULL,
-    [DDDId]                         INT                NULL,
+    [ModifiedByUserName]            NVARCHAR (256)      NOT NULL,
+    [DDDId]                         INT                 NULL,
+    [ValidFrom]                     DATETIME2           NOT NULL,
+    [ValidTo]                       DATETIME2           NOT NULL,
     CONSTRAINT [PK_Addresses] PRIMARY KEY CLUSTERED ([AddressId] ASC)
-);
-
-
-
-
-
-
+)
+WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.AddressHistory));
 GO
+
+CREATE NONCLUSTERED INDEX IX_AddressHistory_ID_PERIOD_COLUMNS
+    ON AddressHistory (ValidTo, ValidFrom, AddressId);
+GO
+
 CREATE NONCLUSTERED INDEX [IX_Address_ZipCode]
     ON [dbo].[Address]([ZipCode] ASC);
-
 
 GO
 CREATE NONCLUSTERED INDEX [IX_Address_City]
     ON [dbo].[Address]([City] ASC);
 
-
 GO
 CREATE NONCLUSTERED INDEX [IX_Address_AddressLine4]
     ON [dbo].[Address]([AddressLine4] ASC);
-
 
 GO
 CREATE NONCLUSTERED INDEX [IX_Address_AddressLine3]
     ON [dbo].[Address]([AddressLine3] ASC);
 
-
 GO
 CREATE NONCLUSTERED INDEX [IX_Address_AddressLine2]
     ON [dbo].[Address]([AddressLine2] ASC);
 
-
 GO
 CREATE NONCLUSTERED INDEX [IX_Address_AddressLine1]
     ON [dbo].[Address]([AddressLine1] ASC);
-

@@ -70,7 +70,7 @@
     <Build Include="dbo\Tables\OtherMail.sql" />
     <Build Include="dbo\Tables\MailDelivery.sql" />
     <Build Include="dbo\Tables\Classification.sql" />
-    <Build Include="dbo\Tables\CityCode.sql" />
+    <Build Include="dbo\Tables\USCityInfo.sql" />
     <Build Include="dbo\Tables\Building.sql" />
     <Build Include="dbo\Tables\AspNetUserTokens.sql" />
     <Build Include="dbo\Tables\AspNetUsers.sql" />

@@ -1,13 +1,5 @@
-﻿// See https://aka.ms/new-console-template for more information
-using ILCDirectory.Data;
-using ILCDirectory.Data.Models;
-using System.Data;
-using System.Data.OleDb;
-using System.Configuration;
-using Microsoft.Extensions.Configuration;
-using System.Reflection;
-
-using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\\Users\\robb\\Downloads\\DDDdata-20220302T224527Z-001\\DDDdata\\DDD-tables.accdb;Persist Security Info=False;"))
+﻿using (OleDbConnection connect = new OleDbConnection(
+        "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\\git\\SIL\\DDD-Tables.accdb;Persist Security Info=False;"))
 {
     var configurationBuilder = new ConfigurationBuilder();
     configurationBuilder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
@@ -38,32 +30,19 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
         await buildingRepo.InsertAsync(building);
     }
 
-
-
-    // CityInfo
+    // USCityInfo - create a temporary dictionary to look up city codes and map to city names as we populate addresses
     var cityCodeCity = new Dictionary<string, string>();
     OleDbCommand cmdCityCode = new OleDbCommand("select * from tblCityCodes", connect);
     OleDbDataAdapter daCityCode = new OleDbDataAdapter(cmdCityCode);
     DataSet dsetCityCode = new DataSet();
     daCityCode.Fill(dsetCityCode);
-    var cityCodeRepo = new CityCodeRepository(config);
     foreach (DataRow cityCodeRow in dsetCityCode.Tables[0].Rows)
     {
         if (cityCodeRow["CityCode"] == null || cityCodeRow["CityCode"] == "---")
             continue;
 
         cityCodeCity.Add(cityCodeRow["CityCode"].ToString(), cityCodeRow["CityLongDesc"].ToString());
-        var cityCode = new CityCode()
-        {
-            CityCodeId = (int)cityCodeRow["CityCodeID"],
-            Code = cityCodeRow["CityCode"].ToString(),
-            LongDesc = cityCodeRow["CityCodeLongDesc"].ToString(),
-            ShortDesc = cityCodeRow["CityCodeShortDesc"].ToString(),
-        };
-        await cityCodeRepo.InsertAsync(cityCode);
     }
-
-
 
     // Classification
     OleDbCommand cmdClassification = new OleDbCommand("select * from tblClassification", connect);
@@ -77,7 +56,9 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
         {
             ClassificationId = (int)classificationRow["ClassificationID"],
             ClassificationCode = (string)classificationRow["StatusCode"],
-            Description = (string)classificationRow["StatusDescription"]
+            Description = (string)classificationRow["StatusDescription"],
+            ModifiedDate = DateTime.Now,
+            ModifiedByUser = "Data Migrator"
         };
         classificationDictionary.Add(
             (int)classificationRow["ClassificationId"], classification);
@@ -135,6 +116,10 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
         address.AddressLine1 = srcRow["DirectoryAddress"].ToString();
         address.City = srcRow["DirectoryCity"].ToString();
         address.ZipCode = srcRow["DirectoryZIP"].ToString();
+        
+        address.IsActive = true;                                    // TODO: which way to default?
+        address.IsVerified = true;
+
         await addressRepo.InsertAsync(address);
 
         // pull out Office Info
@@ -143,7 +128,7 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
     }
 
     // Address
-    OleDbCommand addressCmd = new OleDbCommand("select * from Address", connect);
+    OleDbCommand addressCmd = new OleDbCommand("select * from Addresses", connect);
     OleDbDataAdapter daAddress = new OleDbDataAdapter(addressCmd);
     DataSet dsetAddress = new DataSet();
     daAddress.Fill(dsetAddress);
@@ -167,7 +152,7 @@ using (OleDbConnection connect = new OleDbConnection("Provider=Microsoft.ACE.OLE
     }
 
     // Vehicle
-    OleDbCommand vehicleCmd = new OleDbCommand("select * from Vehicle", connect);
+    OleDbCommand vehicleCmd = new OleDbCommand("select * from tblVehicle", connect);
     OleDbDataAdapter daVehicle = new OleDbDataAdapter(vehicleCmd);
     DataSet dsetVehicle = new DataSet();
     daVehicle.Fill(dsetVehicle);
