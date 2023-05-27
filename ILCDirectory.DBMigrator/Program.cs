@@ -12,6 +12,7 @@
 
     connect.Open();
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Building
     OleDbCommand cmdBuilding = new OleDbCommand("select * from tblBuildings", connect);
     OleDbDataAdapter daBuilding = new OleDbDataAdapter(cmdBuilding);
@@ -30,6 +31,7 @@
         await buildingRepo.InsertAsync(building);
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // USCityInfo - create a temporary dictionary to look up city codes and map to city names as we populate addresses
     var cityCodeCity = new Dictionary<string, string>();
     OleDbCommand cmdCityCode = new OleDbCommand("select * from tblCityCodes", connect);
@@ -38,12 +40,13 @@
     daCityCode.Fill(dsetCityCode);
     foreach (DataRow cityCodeRow in dsetCityCode.Tables[0].Rows)
     {
-        if (cityCodeRow["CityCode"] == null || cityCodeRow["CityCode"] == "---")
+        if (cityCodeRow["CityCode"] == null || cityCodeRow["CityCode"].ToString() == "---")
             continue;
 
         cityCodeCity.Add(cityCodeRow["CityCode"].ToString(), cityCodeRow["CityLongDesc"].ToString());
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Classification
     OleDbCommand cmdClassification = new OleDbCommand("select * from tblClassification", connect);
     OleDbDataAdapter daClassification = new OleDbDataAdapter(cmdClassification);
@@ -65,6 +68,27 @@
         await classificationRepo.InsertAsync(classification);
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Delivery Code
+    OleDbCommand cmdDeliveryCode = new OleDbCommand("select * from tblMailDelivery", connect);
+    OleDbDataAdapter daDeliveryCode = new OleDbDataAdapter(cmdDeliveryCode);
+    DataSet dsetDeliveryCode = new DataSet();
+    daDeliveryCode.Fill(dsetDeliveryCode);
+    var DeliveryCodeRepo = new DeliveryCodeRepository(config);
+    foreach (DataRow buildingRow in dsetBuilding.Tables[0].Rows)
+    {
+        var building = new Building()
+        {
+            BuildingId = (int)buildingRow["BuildingID"],
+            BuildingCode = buildingRow["BuildingCode"].ToString(),
+            BuildingLongDesc = buildingRow["BuildingLongDesc"].ToString(),
+            BuildingShortDesc = buildingRow["BuildingShortDesc"].ToString(),
+        };
+        await buildingRepo.InsertAsync(building);
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Title
     OleDbCommand cmdTitle = new OleDbCommand("select * from tblTitle", connect);
     OleDbDataAdapter daTitle = new OleDbDataAdapter(cmdTitle);
@@ -75,6 +99,7 @@
         titleDictionary.Add((int)titleRow["TitleId"], (string)titleRow["TitleName"]);
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Person
     OleDbCommand personCmd = new OleDbCommand("select * from Person", connect);
     OleDbDataAdapter daPerson = new OleDbDataAdapter(personCmd);
@@ -127,6 +152,7 @@
         officeDetails.BuildingId = (int?)srcRow["BuildingCode"];
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Address
     OleDbCommand addressCmd = new OleDbCommand("select * from Addresses", connect);
     OleDbDataAdapter daAddress = new OleDbDataAdapter(addressCmd);
@@ -151,6 +177,7 @@
         await addressRepo.InsertAsync(address);
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Vehicle
     OleDbCommand vehicleCmd = new OleDbCommand("select * from tblVehicle", connect);
     OleDbDataAdapter daVehicle = new OleDbDataAdapter(vehicleCmd);
