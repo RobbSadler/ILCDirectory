@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -7,16 +7,29 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var connectionString = builder.Configuration[Constants.CONFIG_CONNECTION_STRING];
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+    });
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    });
+
+builder.Services.AddTransient(m => new UserManager("string here for now"));
+builder.Services.AddDistributedMemoryCache();
+
+//builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+//    .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddSingleton<IAddressRepository, AddressRepository>();
 builder.Services.AddSingleton<IBuildingRepository, BuildingRepository>();
-builder.Services.AddSingleton<ICityCodeRepository, CityCodeRepository>();
+//builder.Services.AddSingleton<ICityCodeRepository, CityCodeRepository>();
 builder.Services.AddSingleton<IClassificationRepository, ClassificationRepository>();
 builder.Services.AddSingleton<IEmailRepository, EmailRepository>();
 builder.Services.AddSingleton<IFamilyRepository, FamilyRepository>();
@@ -36,7 +49,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    //app.UseMigrationsEndPoint();
+    app.UseDeveloperExceptionPage();
+    app.UseDatabaseErrorPage();
 }
 else
 {

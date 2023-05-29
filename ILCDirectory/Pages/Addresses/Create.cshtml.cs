@@ -1,5 +1,6 @@
 ﻿namespace ILCDirectory.Pages.Addresses
 {
+    [Authorize]
     public class CreateModel : PageModel
     {
         private readonly IConfiguration _configuration;

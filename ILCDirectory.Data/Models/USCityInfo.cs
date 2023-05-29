@@ -1,4 +1,4 @@
-﻿namespace ILCDirectory.Data.Models
+﻿/*namespace ILCDirectory.Data.Models
 {
     public partial class USCityInfo
     {
@@ -16,3 +16,4 @@
         public string ModifiedByUser { get; set; }
     }
 }
+*/

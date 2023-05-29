@@ -1,5 +1,6 @@
 ﻿namespace ILCDirectory.Views.People
 {
+    [Authorize]
     public class DetailsModel : PageModel
     {
         private readonly IPersonRepository _personRepo;

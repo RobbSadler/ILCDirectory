@@ -8,22 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="AuthenticationData\Migrations\**" />
-    <Content Remove="AuthenticationData\Migrations\**" />
-    <EmbeddedResource Remove="AuthenticationData\Migrations\**" />
-    <None Remove="AuthenticationData\Migrations\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="AuthenticationData\ApplicationDbContext.cs.unused" />
-    <None Remove="AuthenticationData\ILCDirectoryDBContext.cs.unused" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="AspNetSaml" Version="2.0.1" />
     <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.5">
       <PrivateAssets>all</PrivateAssets>

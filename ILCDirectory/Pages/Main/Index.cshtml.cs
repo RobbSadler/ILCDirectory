@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ILCDirectory.Pages.Main
 {
+    [Authorize]
     public class IndexModel : PageModel
     {
         private readonly IAddressRepository _addressRepository;
         private readonly IBuildingRepository _buildingRepository;
-        private readonly ICityCodeRepository _cityCodeRepository;
+        //private readonly ICityCodeRepository _cityCodeRepository;
         private readonly IClassificationRepository _classificationRepository;
         private readonly IEmailRepository _emailRepository;
         private readonly IFamilyRepository _familyRepository;
@@ -22,7 +23,7 @@ namespace ILCDirectory.Pages.Main
         public IndexModel(
             IAddressRepository addressRepository,
             IBuildingRepository buildingRepository,
-            ICityCodeRepository cityCodeRepository,
+            //ICityCodeRepository cityCodeRepository,
             IClassificationRepository classificationRepository,
             IEmailRepository emailRepository,
             IFamilyRepository familyRepository,
@@ -36,7 +37,7 @@ namespace ILCDirectory.Pages.Main
         {
             _addressRepository = addressRepository;
             _buildingRepository = buildingRepository;
-            _cityCodeRepository = cityCodeRepository;
+            //_cityCodeRepository = cityCodeRepository;
             _classificationRepository = classificationRepository;
             _emailRepository = emailRepository;
             _familyRepository = familyRepository;

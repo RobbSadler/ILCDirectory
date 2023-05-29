@@ -1,5 +1,6 @@
 ﻿namespace ILCDirectory.Pages.Addresses
 {
+    [Authorize]
     public class IndexModel : PageModel
     {
         private readonly IAddressRepository _addressRepo;
