@@ -1,4 +1,4 @@
-﻿namespace ILCDirectory.Data
+﻿namespace ILCDirectory.Data.Repositories
 {
     public class EmailRepository : GenericRepository<Email>, IEmailRepository
     {

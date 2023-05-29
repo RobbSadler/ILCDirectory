@@ -3,6 +3,7 @@
     public partial class Person
     {
         public int? PersonId { get; set; }
+        public int? FamilyId { get; set; }
         public string FirstName { get; set; }
         [StringLength(25)]
         public string MiddleName { get; set; }

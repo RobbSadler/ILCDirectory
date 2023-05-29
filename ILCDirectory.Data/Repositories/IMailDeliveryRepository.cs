@@ -1,4 +1,4 @@
-﻿namespace ILCDirectory.Data
+﻿namespace ILCDirectory.Data.Repositories
 {
     public interface IMailDeliveryRepository : IGenericRepository<MailDelivery>
     {

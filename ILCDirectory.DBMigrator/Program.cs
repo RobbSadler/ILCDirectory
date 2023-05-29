@@ -69,24 +69,24 @@
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Delivery Code
-    OleDbCommand cmdDeliveryCode = new OleDbCommand("select * from tblMailDelivery", connect);
-    OleDbDataAdapter daDeliveryCode = new OleDbDataAdapter(cmdDeliveryCode);
-    DataSet dsetDeliveryCode = new DataSet();
-    daDeliveryCode.Fill(dsetDeliveryCode);
-    var DeliveryCodeRepo = new DeliveryCodeRepository(config);
-    foreach (DataRow buildingRow in dsetBuilding.Tables[0].Rows)
+    // DeliveryCodeDescription
+    OleDbCommand cmdDeliveryCodeLocation = new OleDbCommand("select * from tblMailDelivery", connect);
+    OleDbDataAdapter daDeliveryCodeLocation = new OleDbDataAdapter(cmdDeliveryCodeLocation);
+    DataSet dsetDeliveryCodeLocation = new DataSet();
+    daDeliveryCodeLocation.Fill(dsetDeliveryCodeLocation);
+    var deliveryCodeLocationRepo = new DeliveryCodeLocationRepository(config);
+    foreach (DataRow row in dsetBuilding.Tables[0].Rows)
     {
-        var building = new Building()
+        var rowdata = new DeliveryCodeLocation()
         {
-            BuildingId = (int)buildingRow["BuildingID"],
-            BuildingCode = buildingRow["BuildingCode"].ToString(),
-            BuildingLongDesc = buildingRow["BuildingLongDesc"].ToString(),
-            BuildingShortDesc = buildingRow["BuildingShortDesc"].ToString(),
+            DeliveryCode = row["DeliveryCode"].ToString(),
+            DeliveryLocation = row["DeliveryLocation"].ToString(),
         };
-        await buildingRepo.InsertAsync(building);
+        await deliveryCodeLocationRepo.InsertAsync(rowdata);
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Email - inserted below from address where they existed previously 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Title
@@ -154,6 +154,8 @@
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Address
+    // addr repo config'd above
+    var emailRepo = new EmailRepository(config);
     OleDbCommand addressCmd = new OleDbCommand("select * from Addresses", connect);
     OleDbDataAdapter daAddress = new OleDbDataAdapter(addressCmd);
     DataSet dsetAddress = new DataSet();
@@ -175,6 +177,17 @@
         address.CreateDateTime = DateTimeOffset.Now;
         address.ModifiedDateTime = DateTimeOffset.Now;
         await addressRepo.InsertAsync(address);
+
+        if (srcRow["Email"] == null || srcRow["Email"].ToString().Length > 0)
+        {
+            var email = new Email
+            {
+                DDDId = (int)srcRow["ID"],
+                EmailAddress = srcRow["Email"].ToString(),
+                EmailAddressType = ILCDirectory.Data.Enums.EmailAddressType.Personal,
+            };
+            await emailRepo.InsertAsync(email);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

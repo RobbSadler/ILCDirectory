@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace ILCDirectory.Data.Models
 {
-    public class DeliveryCodeDescription
+    public class DeliveryCodeLocation
     {
-        string DeliveryCode { get; set; }
-        string Description { get; set; }
+        public string DeliveryCode { get; set; }
+        public string DeliveryLocation { get; set; }
         public DateTimeOffset CreateDateTime { get; set; }
         public DateTimeOffset ModifiedDateTime { get; set; }
         public string ModifiedByUserName { get; set; }

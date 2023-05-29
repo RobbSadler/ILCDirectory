@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[DeliveryCode]
+﻿CREATE TABLE [dbo].[DeliveryCodeLocation]
 (
 	[DeliveryCode] NVARCHAR(30) NOT NULL PRIMARY KEY,
     [DeliveryLocation]   NVARCHAR (255)     NOT NULL,
