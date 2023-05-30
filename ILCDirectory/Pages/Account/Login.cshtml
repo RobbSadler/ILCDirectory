@@ -1,8 +1,8 @@
 ﻿@page
-@model ILCDirectory.Models.LoginInfo
+@model ILCDirectory.Pages.Account.LoginModel
 
 @{
-    ViewData["Title"] = "Log On";
+    ViewData["Title"] = "Log in";
 }
 
 <h2>Log On</h2>
@@ -13,7 +13,7 @@
 <div class="row">
     <div class="col-md-4">
         <form method="post">
-            <div asp-validation-summary="All" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="EmailAddress"></label>
                 <input asp-for="EmailAddress" class="form-control" />
@@ -33,12 +33,12 @@
                 </div>
             </div>
             <div class="form-group">
-                <button type="submit" class="btn btn-default">Log On</button>
+                <input type="submit" value="Log On" class="btn btn-primary"/>
             </div>
         </form>
     </div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+        <partial name="_ValidationScriptsPartial" />
 }
