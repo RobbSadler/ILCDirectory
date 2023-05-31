@@ -21,7 +21,7 @@ builder.Services.AddAuthentication(options =>
         options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     });
 
-builder.Services.AddTransient(m => new UserManager("string here for now"));
+//builder.Services.AddTransient(m => new UserManager("string here for now"));
 builder.Services.AddDistributedMemoryCache();
 
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -40,6 +40,7 @@ builder.Services.AddSingleton<IVehicleRepository, VehicleRepository>();
 builder.Services.AddSingleton<IVisitRepository, VisitRepository>();
 builder.Services.AddSingleton<IWoRepository, WoRepository>();
 builder.Services.AddSingleton<IWorkgroupRepository, WorkgroupRepository>();
+builder.Services.AddSingleton<IUserManager, UserManager>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddRazorPages();

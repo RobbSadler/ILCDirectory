@@ -6,7 +6,8 @@ namespace ILCDirectory.Pages.Account
 {
     public class LoginModel : PageModel
     {
-        private readonly UserManager _userManager;
+        private readonly IUserManager _userManager;
+        //private readonly IRoleRepository _roleRepo;
 
         [Required]
         [Display(Name = "Email address")]
@@ -20,7 +21,7 @@ namespace ILCDirectory.Pages.Account
         [Display(Name = "Remember me?")]
         public bool RememberMe { get; set; }
 
-        public LoginModel(UserManager userManager)
+        public LoginModel(IUserManager userManager)
         {
             _userManager = userManager;
         }
@@ -29,7 +30,7 @@ namespace ILCDirectory.Pages.Account
         {
         }
 
-        public async Task<IActionResult> OnPost()
+        public async Task<IActionResult> OnPost(LoginModel loginModel)
         {
             if (!ModelState.IsValid)
                 return Page();
@@ -37,7 +38,7 @@ namespace ILCDirectory.Pages.Account
             try
             {
                 //authenticate
-                await _userManager.SignIn(this.HttpContext, this);
+                await _userManager.SignIn(this.HttpContext, loginModel);
                 return RedirectToAction("Index", "Main", null);
             }
             catch (Exception ex)

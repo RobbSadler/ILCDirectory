@@ -7,29 +7,29 @@ using ILCDirectory.Pages.Account;
 
 namespace ILCDirectory.Authentication
 {
-    public class UserManager
+    public class UserManager : IUserManager
     {
         string _connectionString;
 
-        public UserManager(string connectionString)
+        public UserManager() //string connectionString)
         {
-            _connectionString = connectionString;
+            //_connectionString = connectionString;
         }
 
         public async Task SignIn(HttpContext httpContext, LoginModel loginInfo, bool isPersistent = false)
         {
-            using (var con = new SqlConnection(_connectionString))
-            {
+            //using (var con = new SqlConnection(_connectionString))
+            //{
                 var successUser = loginInfo; // change this
 
                 ClaimsIdentity identity = new ClaimsIdentity(this.GetUserClaims(successUser), CookieAuthenticationDefaults.AuthenticationScheme);
                 ClaimsPrincipal principal = new ClaimsPrincipal(identity);
 
                 await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-            }
+            //}
         }
 
-        public async void SignOut(HttpContext httpContext)
+        public async Task SignOut(HttpContext httpContext)
         {
             await httpContext.SignOutAsync();
         }
