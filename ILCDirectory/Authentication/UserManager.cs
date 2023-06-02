@@ -16,7 +16,7 @@ namespace ILCDirectory.Authentication
             //_connectionString = connectionString;
         }
 
-        public async Task SignIn(HttpContext httpContext, LoginModel loginInfo, bool isPersistent = false)
+        public async Task SignIn(HttpContext httpContext, LoginInfo loginInfo, bool isPersistent = false)
         {
             //using (var con = new SqlConnection(_connectionString))
             //{
@@ -34,7 +34,7 @@ namespace ILCDirectory.Authentication
             await httpContext.SignOutAsync();
         }
 
-        private IEnumerable<Claim> GetUserClaims(LoginModel user) // change this model to match our authentication model
+        private IEnumerable<Claim> GetUserClaims(LoginInfo user) // change this model to match our authentication model
         {
             List<Claim> claims = new List<Claim>();
 

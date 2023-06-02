@@ -1,6 +1,6 @@
 ﻿@page
 @using ILCDirectory.Data.Enums
-@model ILCDirectory.Views.People.CreateModel
+@model ILCDirectory.Pages.People.CreateModel
 
 @{
     ViewData["Title"] = "Create";
@@ -100,6 +100,7 @@
             <span asp-validation-for="Person.Comment" class="text-danger"></span>
         </div>
     </div>
+    <div class="row g-3">
         <div class="col-auto">
             <div class="form-group pt-4">
                 <input type="submit" value="Create" class="btn btn-primary" />

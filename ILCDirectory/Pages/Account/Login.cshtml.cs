@@ -1,6 +1,4 @@
 using ILCDirectory.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ILCDirectory.Pages.Account
 {
@@ -8,29 +6,22 @@ namespace ILCDirectory.Pages.Account
     {
         private readonly IUserManager _userManager;
         //private readonly IRoleRepository _roleRepo;
+        private readonly ILogger<LoginModel> _logger;
 
-        [Required]
-        [Display(Name = "Email address")]
-        public string EmailAddress { get; set; }
-
-        [Required]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
-        public string Password { get; set; }
-
-        [Display(Name = "Remember me?")]
-        public bool RememberMe { get; set; }
-
-        public LoginModel(IUserManager userManager)
+        public LoginModel(IUserManager userManager, ILogger<LoginModel> logger)
         {
             _userManager = userManager;
+            _logger = logger;
         }
 
         public void OnGet()
         {
         }
 
-        public async Task<IActionResult> OnPost(LoginModel loginModel)
+        [BindProperty]
+        public LoginInfo LoginInfo { get; set; }
+
+        public async Task<IActionResult> OnPost()
         {
             if (!ModelState.IsValid)
                 return Page();
@@ -38,11 +29,12 @@ namespace ILCDirectory.Pages.Account
             try
             {
                 //authenticate
-                await _userManager.SignIn(this.HttpContext, loginModel);
-                return RedirectToAction("Index", "Main", null);
+                await _userManager.SignIn(this.HttpContext, LoginInfo);
+                return RedirectToPage("/Main/Index");
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error logging in user {0}", LoginInfo.EmailAddress);
                 ModelState.AddModelError("summary", ex.Message);
                 return Page();
             }

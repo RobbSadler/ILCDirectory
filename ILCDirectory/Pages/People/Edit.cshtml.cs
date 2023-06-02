@@ -1,4 +1,4 @@
-﻿namespace ILCDirectory.Views.People
+﻿namespace ILCDirectory.Pages.People
 {
     [Authorize]
     public class EditModel : PageModel
