@@ -15,6 +15,11 @@ namespace ILCDirectory.Pages.Account
 
         public async Task<IActionResult> OnGet()
         {
+            return await OnPost();                
+        }
+
+        public async Task<IActionResult> OnPost()
+        {
             try
             {
                 await _userManager.SignOut(this.HttpContext);
@@ -25,6 +30,6 @@ namespace ILCDirectory.Pages.Account
                 _logger.LogError(ex, "Error logging out");
                 throw;
             }
-        }
+        }   
     }
 }
