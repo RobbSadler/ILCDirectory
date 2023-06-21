@@ -3,7 +3,6 @@
     public partial class Person
     {
         public int? PersonId { get; set; }
-        public int? FamilyId { get; set; }
         public string FirstName { get; set; }
         [StringLength(25)]
         public string MiddleName { get; set; }
@@ -22,8 +21,8 @@
         public DateTime? DateOfBirth { get; set; }
         [StringLength(1)]
         public string Gender { get; set; }
-        public int ParentOfFamilyId { get; set; }
-        public int ChildOfFamilyId { get; set; }
+        public int? ParentOfFamilyId { get; set; }
+        public int? ChildOfFamilyId { get; set; }
         [StringLength(255)]
         public string Comment { get; set; }
         [StringLength(50)]

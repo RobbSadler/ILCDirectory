@@ -4,7 +4,7 @@
 	Use this freely under the Apache license (see https://choosealicense.com/licenses/apache-2.0/)
 */
 
-using System;
+/*using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -262,12 +262,12 @@ namespace Saml
 					xw.WriteAttributeString("AllowCreate", "true");
 					xw.WriteEndElement();
 
-					/*xw.WriteStartElement("samlp", "RequestedAuthnContext", "urn:oasis:names:tc:SAML:2.0:protocol");
+					*//*xw.WriteStartElement("samlp", "RequestedAuthnContext", "urn:oasis:names:tc:SAML:2.0:protocol");
 					xw.WriteAttributeString("Comparison", "exact");
 					xw.WriteStartElement("saml", "AuthnContextClassRef", "urn:oasis:names:tc:SAML:2.0:assertion");
 					xw.WriteString("urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport");
 					xw.WriteEndElement();
-					xw.WriteEndElement();*/
+					xw.WriteEndElement();*//*
 
 					xw.WriteEndElement();
 				}
@@ -310,4 +310,4 @@ namespace Saml
 			return url;
 		}
 	}
-}
+}*/
