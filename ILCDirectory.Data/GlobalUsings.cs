@@ -10,8 +10,6 @@ global using System.Data.SqlClient;
 global using System.Text;
 global using System.Threading.Tasks;
 
-global using Dapper;
-global using DapperGenericRepository;
 global using ILCDirectory.Data;
 global using ILCDirectory.Data.Enums;
 global using ILCDirectory.Data.Helpers;

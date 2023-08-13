@@ -9,11 +9,11 @@
         public string ClassificationCode { get; set; }
         [StringLength(255)]
         public string Description { get; set; }
-        public string AuditTrail { get; set; }
+        public string Notes { get; set; }
         [StringLength(255)]
-        public DateTimeOffset CreateDate { get; set; }
-        public DateTimeOffset ModifiedDate { get; set; }
-        public string ModifiedByUser { get; set; }
+        public DateTimeOffset CreateDateTime { get; set; }
+        public DateTimeOffset ModifiedDateTime { get; set; }
+        public string ModifiedByUserName { get; set; }
         public int DDDId { get; set; }
     }
 }

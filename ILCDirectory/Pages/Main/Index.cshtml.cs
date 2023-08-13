@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ILCDirectory.Pages.Main
 {
-    [Authorize]
+    //[Authorize]
     public class IndexModel : PageModel
     {
         private readonly IAddressRepository _addressRepository;
@@ -55,6 +55,13 @@ namespace ILCDirectory.Pages.Main
         public async Task OnGetAsync()
         {
             Persons = (IList<Person>)(await _personRepository.GetAllAsync());
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task OnPostAsync()
+        {
+            RedirectToPage("/Main");
         }
     }
 }

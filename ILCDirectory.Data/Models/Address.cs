@@ -22,7 +22,7 @@
         [StringLength(255)]
         public string SpecialContactInfo { get; set; }
         [StringLength(2000)]
-        public string AuditTrail { get; set; }
+        public string Notes { get; set; }
         [StringLength(255)]
         public string BuildingCode { get; set; }
         [StringLength(255)]

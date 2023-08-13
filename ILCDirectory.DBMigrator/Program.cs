@@ -1,4 +1,8 @@
-﻿using (OleDbConnection connect = new OleDbConnection(
+﻿using ILCDirectory.Data.Helpers;
+using ILCDirectory.Data.Models;
+using SqlocityNetCore;
+
+using (OleDbConnection connect = new OleDbConnection(
         "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\\git\\SIL\\DDD-Tables.accdb;Persist Security Info=False;"))
 {
     var configurationBuilder = new ConfigurationBuilder();
@@ -14,11 +18,13 @@
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Building
+
     OleDbCommand cmdBuilding = new OleDbCommand("select * from tblBuildings", connect);
     OleDbDataAdapter daBuilding = new OleDbDataAdapter(cmdBuilding);
     DataSet dsetBuilding = new DataSet();
     daBuilding.Fill(dsetBuilding);
     var buildingRepo = new BuildingRepository(config);
+    var allCurrentBuildingRows = await buildingRepo.GetAllAsync();
     foreach (DataRow buildingRow in dsetBuilding.Tables[0].Rows)
     {
         var building = new Building()
@@ -27,8 +33,10 @@
             BuildingCode = buildingRow["BuildingCode"].ToString(),
             BuildingLongDesc = buildingRow["BuildingLongDesc"].ToString(),
             BuildingShortDesc = buildingRow["BuildingShortDesc"].ToString(),
+            ModifiedByUserName = "Data Migrator"
         };
-        await buildingRepo.InsertAsync(building);
+        if (!allCurrentBuildingRows.Any(b => b.BuildingId == building.BuildingId))
+            await buildingRepo.InsertAsync(building);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +51,8 @@
         if (cityCodeRow["CityCode"] == null || cityCodeRow["CityCode"].ToString() == "---")
             continue;
 
-        cityCodeCity.Add(cityCodeRow["CityCode"].ToString(), cityCodeRow["CityLongDesc"].ToString());
+        if (!cityCodeCity.ContainsKey(cityCodeRow["CityCode"].ToString()))
+            cityCodeCity.Add(cityCodeRow["CityCode"].ToString(), cityCodeRow["CityLongDesc"].ToString());
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,6 +62,7 @@
     DataSet dsetClassification = new DataSet();
     daClassification.Fill(dsetClassification);
     var classificationRepo = new ClassificationRepository(config);
+    var allCurrentClassificationRows = await classificationRepo.GetAllAsync();
     foreach (DataRow classificationRow in dsetClassification.Tables[0].Rows)
     {
         var classification = new Classification()
@@ -60,12 +70,15 @@
             ClassificationId = (int)classificationRow["ClassificationID"],
             ClassificationCode = (string)classificationRow["StatusCode"],
             Description = (string)classificationRow["StatusDescription"],
-            ModifiedDate = DateTime.Now,
-            ModifiedByUser = "Data Migrator"
+            ModifiedDateTime = DateTime.Now,
+            ModifiedByUserName = "Data Migrator"
         };
-        classificationDictionary.Add(
-            (int)classificationRow["ClassificationId"], classification);
-        await classificationRepo.InsertAsync(classification);
+
+        if (!classificationDictionary.ContainsKey((int)classificationRow["ClassificationId"]))
+            classificationDictionary.Add((int)classificationRow["ClassificationId"], classification);
+
+        if (!allCurrentClassificationRows.Any(c => c.ClassificationId == classification.ClassificationId))
+            await classificationRepo.InsertAsync(classification);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,14 +88,17 @@
     DataSet dsetDeliveryCodeLocation = new DataSet();
     daDeliveryCodeLocation.Fill(dsetDeliveryCodeLocation);
     var deliveryCodeLocationRepo = new DeliveryCodeLocationRepository(config);
+    var allCurrentDeliveryCodeLocationRows = await deliveryCodeLocationRepo.GetAllAsync();
     foreach (DataRow row in dsetBuilding.Tables[0].Rows)
     {
         var rowdata = new DeliveryCodeLocation()
         {
             DeliveryCode = row["DeliveryCode"].ToString(),
             DeliveryLocation = row["DeliveryLocation"].ToString(),
+            ModifiedByUserName = "Data Migrator"
         };
-        await deliveryCodeLocationRepo.InsertAsync(rowdata);
+        if (!allCurrentDeliveryCodeLocationRows.Any(d => d.DeliveryCode == rowdata.DeliveryCode))
+            await deliveryCodeLocationRepo.InsertAsync(rowdata);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,25 +112,33 @@
     daTitle.Fill(dsetTitle);
     foreach (DataRow titleRow in dsetTitle.Tables[0].Rows)
     {
-        titleDictionary.Add((int)titleRow["TitleId"], (string)titleRow["TitleName"]);
+        if (!titleDictionary.ContainsKey((int)titleRow["TitleId"]))
+            titleDictionary.Add((int)titleRow["TitleId"], (string)titleRow["TitleName"]);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Person
+
     OleDbCommand personCmd = new OleDbCommand("select * from Person", connect);
     OleDbDataAdapter daPerson = new OleDbDataAdapter(personCmd);
     DataSet dsetPerson = new DataSet();
     daPerson.Fill(dsetPerson);
 
     var personRepo = new PersonRepository(config);
+    var allPersonRows = await personRepo.GetAllAsync();
     var addressRepo = new AddressRepository(config);
+    var allAddressRows = await addressRepo.GetAllAsync();
     var officeDetailsRepo = new OfficeDetailsRepository(config);
+    var allOfficeDetailsRows = await officeDetailsRepo.GetAllAsync();
 
     foreach(DataRow srcRow in dsetPerson.Tables[0].Rows)
     {
+        if ((bool)srcRow["DeleteFlag"] == true)
+            continue;
+
         var person = new Person();
         person.DDDId = (int)srcRow["ID"];
-        person.AuditTrail = srcRow["AuditTrail"].ToString();
+        person.Notes = srcRow["AuditTrail"].ToString();
         person.ClassificationCode = classificationDictionary[(int)srcRow["StatusCode"]].ClassificationCode;
         person.Comment = srcRow["Comment"].ToString();
         person.DateOfBirth = (DateTime?)srcRow["BirthDate"];
@@ -131,25 +155,52 @@
         person.Gender = srcRow["Gender"].ToString();
         person.LanguagesSpoken = srcRow["LanguagesSpoken"].ToString();
         person.MaritalStatus = srcRow["MaritalStatus"].ToString();
+        person.
         person.ModifiedByUserName = "ILCDirectoryMigrator";
         person.CreateDateTime = DateTimeOffset.Now;
         person.ModifiedDateTime = DateTimeOffset.Now;
-        await personRepo.InsertAsync(person);
+        person.ModifiedByUserName = "Data Migrator";
+
+        if (!allPersonRows.Any(p => p.DDDId == person.DDDId))
+            await personRepo.InsertAsync(person);
+
+        // get personId so we can associate below
+        var conn = Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
+        var cmd = Sqlocity.GetDatabaseCommand(conn);
+        var personId = await cmd.SetCommandText("select PersonId from Person where DDDId = @DDDId")
+            .AddParameter("@DDDId", person.DDDId)
+            .ExecuteScalarAsync<int>();
 
         // pull out directory address info
         var address = new Address();
         address.AddressLine1 = srcRow["DirectoryAddress"].ToString();
         address.City = srcRow["DirectoryCity"].ToString();
+        address.RoomNumber = srcRow["DirectoryRoom"].ToString();
         address.ZipCode = srcRow["DirectoryZIP"].ToString();
-        
+        address.MailListFlag = (bool)srcRow["MailListFlag"];
+        address.MailOnly = (bool)srcRow["MailOnly"];
+        address.MailSortName = srcRow["MailSortName"].ToString();
+        address.CubicleNumber = srcRow["CubicleNumber"].ToString();
+        address.BuildingCode = srcRow["BuildingCode"].ToString();
+        address.SpecialContactInfo = srcRow["SpecialContactInfo"].ToString();
         address.IsActive = true;                                    // TODO: which way to default?
         address.IsVerified = true;
 
-        await addressRepo.InsertAsync(address);
+        if (!allAddressRows.Any(a => a.AddressLine1 == address.AddressLine1 && a.City == address.City && a.ZipCode == address.ZipCode))
+            await addressRepo.InsertAsync(address);
 
         // pull out Office Info
         var officeDetails = new OfficeDetails();
+        
+        officeDetails.DDDId = (int)srcRow["ID"];
+        officeDetails.PersonId = personId;
         officeDetails.BuildingId = (int?)srcRow["BuildingCode"];
+        officeDetails.CubicleNumber = srcRow["CubicleNumber"].ToString();
+        officeDetails.IncludeInDirectory = (bool)srcRow["IncludeInDirectory"];
+        officeDetails.Position = srcRow["Position"].ToString();
+        officeDetails.RoomNumber = srcRow["RoomNumber"].ToString();
+        officeDetails.WoCode = srcRow["WO_Code"].ToString();
+        officeDetails.WorkgroupCode = (int?)srcRow["WorkgroupCode"];
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -165,7 +216,7 @@
     {
         var address = new Address();
         address.DDDId = (int)srcRow["ID"];
-        address.AuditTrail = srcRow["AuditTrail"].ToString();
+        address.Notes = srcRow["AuditTrail"].ToString();
         address.AddressLine1 = srcRow["AddressLine1"].ToString();
         address.AddressLine2 = srcRow["AddressLine2"].ToString();
         address.AddressLine3 = srcRow["AddressLine3"].ToString();
@@ -176,6 +227,7 @@
         address.IncludeInDirectory = (bool)srcRow["IncludeInDirectory"];
         address.CreateDateTime = DateTimeOffset.Now;
         address.ModifiedDateTime = DateTimeOffset.Now;
+        address.ModifiedByUserName = "Data Migrator";
         await addressRepo.InsertAsync(address);
 
         if (srcRow["Email"] == null || srcRow["Email"].ToString().Length > 0)
@@ -202,7 +254,7 @@
     {
         var vehicle = new Vehicle();
         vehicle.DDDId = (int)srcRow["ID"];
-        vehicle.AuditTrail = srcRow["AuditTrail"].ToString();
+        vehicle.Notes = srcRow["AuditTrail"].ToString();
         vehicle.Color = srcRow["Color"].ToString();
         vehicle.Make = srcRow["Make"].ToString();
         vehicle.Model = srcRow["Model"].ToString();
@@ -213,11 +265,9 @@
         vehicle.ModifiedByUserName = "ILCDirectoryMigrator";
         vehicle.CreateDateTime = DateTimeOffset.Now;
         vehicle.ModifiedDateTime = DateTimeOffset.Now;
+        vehicle.ModifiedByUserName = "Data Migrator";
         await vehicleRepo.InsertAsync(vehicle);
     }
-
-    // select TOP 1000 * from person p inner join Addresses a ON a.ID = p.ID ORDER BY p.ID DESC
-
 
     connect.Close();
 }

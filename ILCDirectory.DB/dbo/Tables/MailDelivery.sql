@@ -7,7 +7,7 @@
     [SpecialContactInfo]            NVARCHAR (255)      NULL,
     [SpecialForwardingInstructions] NVARCHAR (255)      NULL,
     [SpecialHandlingInstructions]   NVARCHAR (255)      NULL,
-    [AuditTrail]                    NVARCHAR (2000)     NOT NULL,
+    [Notes]                         NVARCHAR (2000)     NULL,
     [CreateDateTime]                DATETIMEOFFSET (7)  DEFAULT (getdate()) NOT NULL,
     [ModifiedDateTime]              DATETIMEOFFSET (7)  DEFAULT (getdate()) NOT NULL,
     [ModifiedByUserName]            NVARCHAR (256)      DEFAULT ('system') NOT NULL,

@@ -9,7 +9,7 @@
     [ZipCode]                       NVARCHAR (12)      NOT NULL,
     [ContactPersonId]               INT                NULL,
     [SpecialContactInfo]            NVARCHAR (255)     NULL,
-    [AuditTrail]                    VARCHAR (2000)     NULL,
+    [Notes]                         VARCHAR (2000)     NULL,
     [DeliveryCode]                  NVARCHAR (255)     DEFAULT (N'') NULL,
     [IncludeInDirectory]            BIT                DEFAULT (CONVERT([bit],(0))) NOT NULL,
     [MailListFlag]                  BIT                NULL,

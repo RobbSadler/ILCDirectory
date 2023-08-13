@@ -26,7 +26,7 @@ namespace ILCDirectory.Data.Models
         [Column(TypeName = "datetime")]
         public DateTime? PermitExpires { get; set; }
         [StringLength(2000)]
-        public string AuditTrail { get; set; }
+        public string Notes { get; set; }
         public DateTimeOffset CreateDateTime { get; set; }
         public DateTimeOffset ModifiedDateTime { get; set; }
         public string ModifiedByUserName { get; set; }

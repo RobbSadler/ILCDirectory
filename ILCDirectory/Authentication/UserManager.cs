@@ -4,6 +4,7 @@ using System.Data;
 using System.Security.Claims;
 using ILCDirectory.Models;
 using ILCDirectory.Pages.Account;
+using Saml;
 
 namespace ILCDirectory.Authentication
 {
@@ -20,7 +21,7 @@ namespace ILCDirectory.Authentication
         {
             //using (var con = new SqlConnection(_connectionString))
             //{
-                var successUser = loginInfo; // change this
+            var successUser = loginInfo; // change this
 
                 ClaimsIdentity identity = new ClaimsIdentity(this.GetUserClaims(successUser), CookieAuthenticationDefaults.AuthenticationScheme);
                 ClaimsPrincipal principal = new ClaimsPrincipal(identity);

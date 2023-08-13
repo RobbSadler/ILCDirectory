@@ -32,11 +32,22 @@
         [StringLength(255)]
         public bool DeleteFlag { get; set; }
         [StringLength(255)]
+        public string Position { get; set; }
+        [StringLength(255)]
+        public string SupervisorName { get; set; }
+        [StringLength(255)]
+        public string SupervisorNotes { get; set; }
+        [StringLength(255)]
+        public string WoCode { get; set; }
+        public int? WorkgroupCode { get; set; }
+        [StringLength(255)]
+        public string FieldOfService { get; set; }
+        [StringLength(255)]
         public string ClassificationCode { get; set; }
         [StringLength(255)]
         public string LanguagesSpoken { get; set; }
         [StringLength(2000)]
-        public string AuditTrail { get; set; }
+        public string Notes { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime? DirectoryCorrectionForm { get; set; }
         [StringLength(120)]

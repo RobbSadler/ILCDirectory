@@ -11,10 +11,10 @@
         [StringLength(255)]
         public string BuildingShortDesc { get; set; }
         [StringLength(255)]
-        public string AuditTrail { get; set; }
-        public DateTimeOffset CreateDate { get; set; }
-        public DateTimeOffset ModifiedDate { get; set; }
-        public string ModifiedByUser { get; set; }
+        public string Notes { get; set; }
+        public DateTimeOffset CreateDateTime { get; set; }
+        public DateTimeOffset ModifiedDateTime { get; set; }
+        public string ModifiedByUserName { get; set; }
         public int DDDId { get; set; }
 
     }
