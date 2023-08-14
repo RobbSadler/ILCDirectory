@@ -9,10 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.143" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
-    <PackageReference Include="SqlocityNetCore" Version="1.0.0" />
+    <PackageReference Include="SqlocityNetCore" Version="1.0.0.681" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
     <PackageReference Include="System.Data.OleDb" Version="7.0.0" />
   </ItemGroup>
