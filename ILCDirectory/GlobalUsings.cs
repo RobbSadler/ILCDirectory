@@ -11,7 +11,6 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.RazorPages;
 global using Microsoft.Extensions.Configuration;
 
-global using Dapper;
 global using ILCDirectory.Authentication;
 global using ILCDirectory.Data;
 global using ILCDirectory.Data.Enums;
