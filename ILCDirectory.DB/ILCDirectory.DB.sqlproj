@@ -86,6 +86,7 @@
     <Build Include="dbo\Tables\OfficeDetails.sql" />
     <Build Include="dbo\Tables\DeliveryCodeLocation.sql" />
     <Build Include="dbo\Tables\Family.sql" />
+    <Build Include="dbo\Tables\AddressWord.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="ILCDirectory.DB.refactorlog" />
