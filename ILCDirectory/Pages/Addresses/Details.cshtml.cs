@@ -3,13 +3,13 @@
     [Authorize]
     public class DetailsModel : PageModel
     {
-        private readonly IAddressRepository _addressRepo;
-        private readonly IConfiguration _configuration;
+        private readonly IILCDirectoryRepository _repo;
+        private readonly IConfiguration _cfg;
 
-        public DetailsModel(IConfiguration configuration, IAddressRepository addressRepo)
+        public DetailsModel(IConfiguration cfg, IILCDirectoryRepository repo)
         {
-            _addressRepo = addressRepo;
-            _configuration = configuration;
+            _repo = repo;
+            _cfg = cfg;
         }
 
         public Address Address { get; set; }
@@ -20,12 +20,12 @@
             {
                 return NotFound();
             }
-            var connectionString = _configuration["ILCDirectory:ConnectionString"];
+            var connectionString = _cfg["ILCDirectory:ConnectionString"];
             using (var connection = new SqlConnection(connectionString))
             {
 
             }
-            Address = await _addressRepo.GetAsync(id);
+            Address = await _repo.GetAddressAsync(_cfg, id);
 
             if (Address == null)
             {

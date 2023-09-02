@@ -6,11 +6,13 @@ namespace ILCDirectory.Pages.Main
     //[Authorize]
     public class IndexModel : PageModel
     {
-        private readonly IILCDirectoryRepository _ilcDirectoryRepository;
+        private readonly IILCDirectoryRepository _repo;
+        private readonly IConfiguration _cfg;
 
-        public IndexModel(IILCDirectoryRepository ilcDirectoryRepository)
+        public IndexModel(IConfiguration cfg, IILCDirectoryRepository repo)
         {
-            _ilcDirectoryRepository = ilcDirectoryRepository;
+            _repo = repo;
+            _cfg = cfg;
         }
 
         public IList<Person> Persons { get; set; }
@@ -18,7 +20,7 @@ namespace ILCDirectory.Pages.Main
 
         public async Task OnGetAsync()
         {
-            Persons = (IList<Person>)(await _ilcDirectoryRepository.GetAllPersonsAsync());
+            Persons = await _repo.GetAllPersonsAsync(_cfg);
         }
 
         [HttpPost]

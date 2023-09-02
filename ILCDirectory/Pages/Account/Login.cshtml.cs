@@ -15,8 +15,28 @@ namespace ILCDirectory.Pages.Account
             _logger = logger;
         }
 
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGet()
         {
+
+
+
+            try
+            {
+                //authenticate
+                await _userManager.SignIn(this.HttpContext, new LoginInfo { EmailAddress = "robb@robbsadler.com" });
+                return RedirectToPage("/Main/Index");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error logging in user {0}", LoginInfo.EmailAddress);
+                ModelState.AddModelError("summary", ex.Message);
+                return Page();
+            }
+            return RedirectToPage("/Main/Index");
+
+
+
+
             var context = HttpContext;
             var samlEndpoint = "https://stubidp.sustainsys.com/e64887c8-c492-49e3-94d5-08d4471ee265/";
 

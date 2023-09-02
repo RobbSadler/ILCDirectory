@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace ILCDirectory.Data.Models
 {
-    internal class SearchResult
+    public class SearchResult
     {
+        public string Token { get; set; }
+
     }
 }

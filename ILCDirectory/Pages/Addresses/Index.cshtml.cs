@@ -3,17 +3,19 @@
     [Authorize]
     public class IndexModel : PageModel
     {
-        private readonly IAddressRepository _addressRepo;
+        private readonly IILCDirectoryRepository _repo;
+        private readonly IConfiguration _cfg;
         public IList<Address> Addresses { get;set; }
 
-        public IndexModel(IAddressRepository addressRepo)
+        public IndexModel(IConfiguration cfg, IILCDirectoryRepository repo)
         {
-            _addressRepo = addressRepo;
+            _repo = repo;
+            _cfg = cfg;
         }
 
         public async Task OnGetAsync()
         {
-            Addresses = (IList<Address>)await _addressRepo.GetAllAsync();
+            Addresses = await _repo.GetAllAddressesAsync(_cfg);
         }
     }
 }

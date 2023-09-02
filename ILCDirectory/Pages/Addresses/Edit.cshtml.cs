@@ -3,11 +3,13 @@
     [Authorize]
     public class EditModel : PageModel
     {
-        private readonly IAddressRepository _addressRepo;
+        private readonly IILCDirectoryRepository _repo;
+        private readonly IConfiguration _cfg;
 
-        public EditModel(IAddressRepository addressRepo)
+        public EditModel(IConfiguration cfg, IILCDirectoryRepository repo)
         {
-            _addressRepo = addressRepo;
+            _repo = repo;
+            _cfg = cfg;
         }
 
         [BindProperty]
@@ -20,7 +22,7 @@
                 return NotFound();
             }
 
-            Address = await _addressRepo.GetAsync(id);
+            Address = await _repo.GetAddressAsync(_cfg, id);
 
             if (Address == null)
             {
@@ -38,7 +40,7 @@
                 return Page();
             }
 
-            await _addressRepo.UpdateAsync(Address);
+            await _repo.UpdateAddressAsync(_cfg,Address);
 
             return RedirectToPage("./Index");
         }
