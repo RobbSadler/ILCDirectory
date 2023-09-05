@@ -3,11 +3,11 @@
     [Authorize]
     public class DetailsModel : PageModel
     {
-        private readonly IPersonRepository _personRepo;
+        private readonly IILCDirectoryRepository _ilcDirectoryRepository;
 
-        public DetailsModel(IPersonRepository personRepo)
+        public DetailsModel(IILCDirectoryRepository ilcDirectoryRepository)
         {
-            _personRepo = personRepo;
+            _ilcDirectoryRepository = ilcDirectoryRepository;
         }
 
         public Person Person { get; set; }
@@ -19,7 +19,7 @@
                 return NotFound();
             }
 
-            Person = await _personRepo.GetAsync(id);
+            Person = await _ilcDirectoryRepository.GetAsync(id);
 
             if (Person == null)
             {

@@ -10,10 +10,10 @@ namespace ILCDirectory.Data.Repositories
     {
         Task<Person> GetPersonAsync(int? id);
         Task<IList<Person>> GetAllPersonsAsync();
-        Task<Person> FindPersonAsync(string searchTerm);
+        //Task<Person> FindPersonAsync(string searchTerm);
 
         Task<Address> GetAddressAsync(int? id);
         Task<IList<Address>> GetAllAddressesAsync();
-        Task<IList<Address>> FindAddressesAsync(string searchTerm);
+        //Task<IList<Address>> FindAddressesAsync(string searchTerm);
     }
 }

@@ -3,12 +3,12 @@
     [Authorize]
     public class DetailsModel : PageModel
     {
-        private readonly IAddressRepository _addressRepo;
+        private readonly IILCDirectoryRepository _ilcDirectoryRepository;
         private readonly IConfiguration _configuration;
 
-        public DetailsModel(IConfiguration configuration, IAddressRepository addressRepo)
+        public DetailsModel(IConfiguration configuration, IILCDirectoryRepository ilcDirectoryRepository)
         {
-            _addressRepo = addressRepo;
+            _ilcDirectoryRepository = ilcDirectoryRepository;
             _configuration = configuration;
         }
 

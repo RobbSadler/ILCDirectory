@@ -1,19 +1,21 @@
-﻿namespace ILCDirectory.Pages.Addresses
+﻿using ILCDirectory.Data.Repositories;
+
+namespace ILCDirectory.Pages.Addresses
 {
     [Authorize]
     public class IndexModel : PageModel
     {
-        private readonly IAddressRepository _addressRepo;
+        private readonly IILCDirectoryRepository _ilcDirectoryRepository;
         public IList<Address> Addresses { get;set; }
 
-        public IndexModel(IAddressRepository addressRepo)
+        public IndexModel(IILCDirectoryRepository ilcDirectoryRepository)
         {
-            _addressRepo = addressRepo;
+            _ilcDirectoryRepository = ilcDirectoryRepository;
         }
 
         public async Task OnGetAsync()
         {
-            Addresses = (IList<Address>)await _addressRepo.GetAllAsync();
+            Addresses = await _ilcDirectoryRepository.GetAllAddressesAsync();
         }
     }
 }
