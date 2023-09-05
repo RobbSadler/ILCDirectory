@@ -3,11 +3,13 @@
     [Authorize]
     public class IndexModel : PageModel
     {
-        private readonly IPersonRepository _personRepo;
+        private readonly IILCDirectoryRepository _repo;
+        private readonly IConfiguration _cfg;
 
-        public IndexModel(IPersonRepository personRepo)
+        public IndexModel(IConfiguration cfg, IILCDirectoryRepository repo)
         {
-            _personRepo = personRepo;
+            _repo = repo;
+            _cfg = cfg;
         }
 
         public IList<Person> Persons { get; set; }
@@ -15,7 +17,7 @@
 
         public async Task OnGetAsync()
         {
-            Persons = (IList<Person>)(await _personRepo.GetAllAsync());
+            Persons = await _repo.GetAllPersonsAsync(_cfg);
         }
     }
 }

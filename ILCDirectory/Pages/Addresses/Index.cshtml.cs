@@ -5,17 +5,19 @@ namespace ILCDirectory.Pages.Addresses
     [Authorize]
     public class IndexModel : PageModel
     {
-        private readonly IILCDirectoryRepository _ilcDirectoryRepository;
+        private readonly IILCDirectoryRepository _repo;
+        private readonly IConfiguration _cfg;
         public IList<Address> Addresses { get;set; }
 
-        public IndexModel(IILCDirectoryRepository ilcDirectoryRepository)
+        public IndexModel(IConfiguration cfg, IILCDirectoryRepository repo)
         {
-            _ilcDirectoryRepository = ilcDirectoryRepository;
+            _repo = repo;
+            _cfg = cfg;
         }
 
         public async Task OnGetAsync()
         {
-            Addresses = await _ilcDirectoryRepository.GetAllAddressesAsync();
+            Addresses = await _repo.GetAllAddressesAsync(_cfg);
         }
     }
 }

@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
-    <PackageReference Include="SqlocityNetCore" Version="1.0.0.681" />
+    <PackageReference Include="SqlocityNetCore" Version="1.0.0.2023090205" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
   </ItemGroup>
 
