@@ -4,7 +4,6 @@ using System.Data;
 using System.Security.Claims;
 using ILCDirectory.Models;
 using ILCDirectory.Pages.Account;
-using Saml;
 
 namespace ILCDirectory.Authentication
 {

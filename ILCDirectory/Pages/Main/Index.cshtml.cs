@@ -16,6 +16,9 @@ namespace ILCDirectory.Pages.Main
         }
 
         public IList<Person> Persons { get; set; }
+        public Person SelectedPerson { get; set; }
+        public Address SelectedAddress { get; set; }
+
         public Family Family { get; set; }
 
         public async Task OnGetAsync()

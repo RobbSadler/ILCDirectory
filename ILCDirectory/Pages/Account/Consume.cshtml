@@ -7,38 +7,6 @@
 
 <h2>Login</h2>
 <p>
-    Please enter your user name and password.
+    Thank you for logging in!
 </p>
 
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="LoginInfo.EmailAddress"></label>
-                <input asp-for="LoginInfo.EmailAddress" class="form-control" />
-                <span asp-validation-for="LoginInfo.EmailAddress" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LoginInfo.Password"></label>
-                <input asp-for="LoginInfo.Password" class="form-control" />
-                <span asp-validation-for="LoginInfo.Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <div class="checkbox">
-                    <label asp-for="LoginInfo.RememberMe">
-                        <input asp-for="LoginInfo.RememberMe" />
-                        @Html.DisplayNameFor(m => m.LoginInfo.RememberMe)
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Log On" class="btn btn-primary"/>
-            </div>
-        </form>
-    </div>
-</div>
-
-@section Scripts {
-        <partial name="_ValidationScriptsPartial" />
-}

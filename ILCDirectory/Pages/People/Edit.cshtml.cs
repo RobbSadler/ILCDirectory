@@ -40,7 +40,7 @@
                 return Page();
             }
 
-            await _repo.UpdatePersonAsync(_cfg,Person);
+            //await _repo.UpdatePersonAsync(_cfg,Person);
 
             return RedirectToPage("./Index");
         }

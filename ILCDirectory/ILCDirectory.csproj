@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetSaml" Version="2.1.0" />
+    <PackageReference Include="Sustainsys.Saml2.AspNetCore2" Version="2.9.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
   </ItemGroup>
 
