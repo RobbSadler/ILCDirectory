@@ -4,6 +4,7 @@ using Sustainsys.Saml2.AspNetCore2;
 
 namespace ILCDirectory.Pages.Account
 {
+    [AllowAnonymous]
     public class LoginModel : PageModel
     {
         private readonly ILogger<LoginModel> _logger;
