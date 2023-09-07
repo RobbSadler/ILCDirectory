@@ -9,8 +9,6 @@ namespace ILCDirectory.Authentication
 {
     public class UserManager : IUserManager
     {
-        string _connectionString;
-
         public UserManager() //string connectionString)
         {
             //_connectionString = connectionString;

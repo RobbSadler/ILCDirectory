@@ -17,4 +17,12 @@
     <ProjectReference Include="..\ILCDirectory.DB\ILCDirectory.DB.sqlproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\Shared\_LeftPanel.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Shared\_LeftPanel.cshtml" />
+  </ItemGroup>
+
 </Project>
