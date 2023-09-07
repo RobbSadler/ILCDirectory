@@ -95,7 +95,7 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
 
     private DbConnection GetConnection(IConfiguration config)
     {
-        return Sqlocity.CreateDbConnection(config.GetConnectionString("ILCDirectory"));
+        return Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
     }
 
     //private void ParseAndAggregateIncomingAddress(IConfiguration config, Address address, DbConnection conn = null)
