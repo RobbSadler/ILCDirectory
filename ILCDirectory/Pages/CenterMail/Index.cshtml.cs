@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace ILCDirectory.Pages.Main
+namespace ILCDirectory.Pages.CenterMail
 {
     //[Authorize]
     public class IndexModel : PageModel
