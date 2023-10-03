@@ -25,6 +25,8 @@
 			myLayout = $('body').layout({
 				west__minSize: 100
 				, east__minSize: 100
+                , south__size: 60
+                , north__size: 60
 			});
 
 		});
@@ -34,7 +36,7 @@
 <body>
 
 	<!-- manually attach allowOverflow method to pane -->
-	<div class="ui-layout-north">
+	<div class="ui-layout-north overflow-scroll">
         <header>
             <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white box-shadow mb-1">
                 <div class="container">
@@ -65,32 +67,25 @@
         </header>
     </div>
 
-	<div class="ui-layout-west">
-		This is the west pane, closable, slidable and resizable
-		<p><button onclick="myLayout.close('west')">Close Me</button></p>
+    <div class="ui-layout-west overflow-scroll">
+		Address Detail Pane
 	</div>
 
-    <div class="ui-layout-south footer text-muted">
+    <div class="ui-layout-south footer text-muted overflow-scroll">
         <div class="container">
             &copy; 2022 - ILCDirectory - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
-        <p><button onclick="myLayout.toggle('north')">Toggle North Pane</button></p>
 	</div>
 
-	<div class="ui-layout-east">
-		East
-		<p><button onclick="myLayout.close('east')">Close Me</button></p>
+    <div class="ui-layout-east overflow-scroll">
+		Family Detail Pane
+		@*<p><button onclick="myLayout.close('east')">Close Me</button></p>*@
 	</div>
 
-	<div class="ui-layout-center">
-		This center pane auto-sizes to fit the space <I>between</I> the 'border-panes'
-		<p>This layout uses default options, except for a minSize on East and West panes</p>
-		<p>The Close and Toggle buttons are examples of <B>custom buttons</B></p>
-
-        <p><button onclick="myLayout.toggle('south')">Toggle South</button></p>
-
-		@RenderBody() <!-- Render the main content of each view -->
-	</div>
+	<div class="ui-layout-center overflow-scroll">
+        @*<p><button onclick="myLayout.toggle('north')">Collapse Top Pane</button></p>*@
+        @RenderBody() <!-- Render the main content of each view -->
+    </div>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
