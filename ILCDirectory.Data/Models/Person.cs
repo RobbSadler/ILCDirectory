@@ -21,8 +21,6 @@
         public DateTime? DateOfBirth { get; set; }
         [StringLength(1)]
         public string Gender { get; set; }
-        public int? ParentOfFamilyId { get; set; }
-        public int? ChildOfFamilyId { get; set; }
         [StringLength(255)]
         public string Comment { get; set; }
         [StringLength(50)]
@@ -46,6 +44,8 @@
         public string ClassificationCode { get; set; }
         [StringLength(255)]
         public string LanguagesSpoken { get; set; }
+        public bool IncludeInDirectory { get; set; }
+
         [StringLength(2000)]
         public string Notes { get; set; }
         [Column(TypeName = "datetime")]

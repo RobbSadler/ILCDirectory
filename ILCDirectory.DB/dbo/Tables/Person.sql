@@ -9,8 +9,7 @@
     [MaritalStatus]           NVARCHAR (1)       NOT NULL,
     [MiddleName]              NVARCHAR (25)      NULL,
     [NickName]                NVARCHAR (25)      NULL,
-    [ChildOfFamilyId]         INT                NULL,
-    [ParentOfFamilyId]        INT                NULL,
+    [HouseholdId]             INT                NULL,
     [Suffix]                  NVARCHAR (50)      NULL,
     [Title]                   NVARCHAR (50)      NULL,
 	[Position]				  NVARCHAR(255)      NULL,
@@ -27,14 +26,14 @@
     [DirCorrFormNote]         NVARCHAR (120)     NULL,
     [IsDeceased]              BIT                DEFAULT (0) NOT NULL,
     [IsDeleted]               BIT                DEFAULT (0) NOT NULL,
+    [IncludeInDirectory]      BIT                DEFAULT (CONVERT([bit],(0))) NOT NULL,
     [CreateDateTime]          DATETIMEOFFSET (7) CONSTRAINT [DF__Person__CreateDa__7B264821] DEFAULT (getdate()) NOT NULL,
     [ModifiedDateTime]        DATETIMEOFFSET (7) CONSTRAINT [DF__Person__Modified__7C1A6C5A] DEFAULT (getdate()) NOT NULL,
     [ModifiedByUserName]      NVARCHAR (256)     CONSTRAINT [DF__Person__Modified__7D0E9093] DEFAULT ('system') NOT NULL,
     [DDDId]              INT                NULL,
-    CONSTRAINT [PK_People] PRIMARY KEY CLUSTERED ([PersonId] ASC)
+    CONSTRAINT [PK_People] PRIMARY KEY CLUSTERED ([PersonId] ASC),
+    FOREIGN KEY ([HouseholdId]) REFERENCES [dbo].[Household] ([HouseholdId])
 );
-
-
 
 GO
 CREATE NONCLUSTERED INDEX [IX_Person_LastName]

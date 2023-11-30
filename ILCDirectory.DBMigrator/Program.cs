@@ -1,18 +1,24 @@
 ﻿using ILCDirectory.Data.Helpers;
 using ILCDirectory.Data.Models;
+using ILCDirectory.Data.Repositories;
+using Microsoft.Data.SqlClient;
 using SqlocityNetCore;
+using System.Data.Common;
 
 using (OleDbConnection connect = new OleDbConnection(
         "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\\git\\SIL\\DDD-Tables.accdb;Persist Security Info=False;"))
 {
+    DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
     var configurationBuilder = new ConfigurationBuilder();
     configurationBuilder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
     configurationBuilder.AddUserSecrets(typeof(Program).GetTypeInfo().Assembly, optional: false);
     IConfigurationRoot config = configurationBuilder.Build();
+    var modifiedByUserName = "ILCDirectoryMigrator";
 
     // lookup dictionaries
     var titleDictionary = new Dictionary<int, string>();
     var classificationDictionary = new Dictionary<int, Classification>();
+    var repo = new ILCDirectoryRepository();
 
     connect.Open();
 
@@ -23,8 +29,7 @@ using (OleDbConnection connect = new OleDbConnection(
     OleDbDataAdapter daBuilding = new OleDbDataAdapter(cmdBuilding);
     DataSet dsetBuilding = new DataSet();
     daBuilding.Fill(dsetBuilding);
-    var buildingRepo = new BuildingRepository(config);
-    var allCurrentBuildingRows = await buildingRepo.GetAllAsync();
+    var allCurrentBuildingRows = await repo.GetAllBuildingsAsync(config);
     foreach (DataRow buildingRow in dsetBuilding.Tables[0].Rows)
     {
         var building = new Building()
@@ -33,10 +38,10 @@ using (OleDbConnection connect = new OleDbConnection(
             BuildingCode = buildingRow["BuildingCode"].ToString(),
             BuildingLongDesc = buildingRow["BuildingLongDesc"].ToString(),
             BuildingShortDesc = buildingRow["BuildingShortDesc"].ToString(),
-            ModifiedByUserName = "Data Migrator"
+            ModifiedByUserName = "Data Migrator",
         };
         if (!allCurrentBuildingRows.Any(b => b.BuildingId == building.BuildingId))
-            await buildingRepo.InsertAsync(building);
+            await repo.InsertBuildingAsync(config, building, true);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,7 +53,7 @@ using (OleDbConnection connect = new OleDbConnection(
     daCityCode.Fill(dsetCityCode);
     foreach (DataRow cityCodeRow in dsetCityCode.Tables[0].Rows)
     {
-        if (cityCodeRow["CityCode"] == null || cityCodeRow["CityCode"].ToString() == "---")
+        if (cityCodeRow["CityCode"] == DBNull.Value || cityCodeRow["CityCode"].ToString() == "---")
             continue;
 
         if (!cityCodeCity.ContainsKey(cityCodeRow["CityCode"].ToString()))
@@ -61,24 +66,26 @@ using (OleDbConnection connect = new OleDbConnection(
     OleDbDataAdapter daClassification = new OleDbDataAdapter(cmdClassification);
     DataSet dsetClassification = new DataSet();
     daClassification.Fill(dsetClassification);
-    var classificationRepo = new ClassificationRepository(config);
-    var allCurrentClassificationRows = await classificationRepo.GetAllAsync();
+    var allCurrentClassificationRows = await repo.GetAllClassificationsAsync(config);
     foreach (DataRow classificationRow in dsetClassification.Tables[0].Rows)
     {
+        if (classificationRow["StatusCode"] == DBNull.Value)
+            continue;
+
         var classification = new Classification()
         {
             ClassificationId = (int)classificationRow["ClassificationID"],
             ClassificationCode = (string)classificationRow["StatusCode"],
             Description = (string)classificationRow["StatusDescription"],
             ModifiedDateTime = DateTime.Now,
-            ModifiedByUserName = "Data Migrator"
+            ModifiedByUserName = modifiedByUserName
         };
 
         if (!classificationDictionary.ContainsKey((int)classificationRow["ClassificationId"]))
             classificationDictionary.Add((int)classificationRow["ClassificationId"], classification);
 
         if (!allCurrentClassificationRows.Any(c => c.ClassificationId == classification.ClassificationId))
-            await classificationRepo.InsertAsync(classification);
+            await repo.InsertClassificationAsync(config, classification, true);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,18 +94,33 @@ using (OleDbConnection connect = new OleDbConnection(
     OleDbDataAdapter daDeliveryCodeLocation = new OleDbDataAdapter(cmdDeliveryCodeLocation);
     DataSet dsetDeliveryCodeLocation = new DataSet();
     daDeliveryCodeLocation.Fill(dsetDeliveryCodeLocation);
-    var deliveryCodeLocationRepo = new DeliveryCodeLocationRepository(config);
-    var allCurrentDeliveryCodeLocationRows = await deliveryCodeLocationRepo.GetAllAsync();
-    foreach (DataRow row in dsetBuilding.Tables[0].Rows)
+    var allCurrentDeliveryCodeLocationRows = await repo.GetAllDeliveryCodeLocationsAsync(config);
+    // this table contains duplicate delivery codes, so we need to combine the delivery location values into a single string
+    // and then insert a single row for each delivery code
+    Dictionary<string, string> deliveryCodeLocation = new ();
+    foreach (DataRow row in dsetDeliveryCodeLocation.Tables[0].Rows)
     {
+        if (row["DeliveryCode"] == DBNull.Value)
+            continue;
+
+        if (!deliveryCodeLocation.ContainsKey((string)row["DeliveryCode"]))
+            deliveryCodeLocation.Add((string)row["DeliveryCode"], (string)row["DeliveryLocation"]);
+        else
+            deliveryCodeLocation[(string)row["DeliveryCode"]] += ", " + (string)row["DeliveryLocation"];
+    }
+    foreach (KeyValuePair<string, string> item in deliveryCodeLocation)
+    {
+        if (allCurrentDeliveryCodeLocationRows.Any(d => d.DeliveryCode == item.Key))
+            continue;
+
         var rowdata = new DeliveryCodeLocation()
         {
-            DeliveryCode = row["DeliveryCode"].ToString(),
-            DeliveryLocation = row["DeliveryLocation"].ToString(),
-            ModifiedByUserName = "Data Migrator"
+            DeliveryCode = item.Key,
+            DeliveryLocation = item.Value,
+            ModifiedByUserName = modifiedByUserName
         };
-        if (!allCurrentDeliveryCodeLocationRows.Any(d => d.DeliveryCode == rowdata.DeliveryCode))
-            await deliveryCodeLocationRepo.InsertAsync(rowdata);
+        
+        await repo.InsertDeliveryCodeLocationAsync(config, rowdata);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,12 +146,9 @@ using (OleDbConnection connect = new OleDbConnection(
     DataSet dsetPerson = new DataSet();
     daPerson.Fill(dsetPerson);
 
-    var personRepo = new PersonRepository(config);
-    var allPersonRows = await personRepo.GetAllAsync();
-    var addressRepo = new AddressRepository(config);
-    var allAddressRows = await addressRepo.GetAllAsync();
-    var officeDetailsRepo = new OfficeDetailsRepository(config);
-    var allOfficeDetailsRows = await officeDetailsRepo.GetAllAsync();
+    var allPersonRows = await repo.GetAllPersonsAsync(config);
+    var allAddressRows = await repo.GetAllAddressesAsync(config);
+    var allOfficeDetailsRows = await repo.GetAllOfficeDetailsAsync(config);
 
     foreach(DataRow srcRow in dsetPerson.Tables[0].Rows)
     {
@@ -139,13 +158,13 @@ using (OleDbConnection connect = new OleDbConnection(
         var person = new Person();
         person.DDDId = (int)srcRow["ID"];
         person.Notes = srcRow["AuditTrail"].ToString();
-        person.ClassificationCode = classificationDictionary[(int)srcRow["StatusCode"]].ClassificationCode;
+        person.ClassificationCode = classificationDictionary[Convert.ToInt32((string)srcRow["StatusCode"])].ClassificationCode;
         person.Comment = srcRow["Comment"].ToString();
         person.DateOfBirth = (DateTime?)srcRow["BirthDate"];
         person.DeleteFlag = false;
         person.DirCorrFormNote = srcRow["DirCorrFormNote"].ToString();
-        person.DirectoryCorrectionForm = srcRow["DirectoryCorrectionForm"] == null ? null : DateTime.Parse((string)srcRow["DirectoryCorrectionForm"]);
-        person.Title = srcRow["Title"] == null ? "" : titleDictionary[(int)srcRow["Title"]];
+        person.DirectoryCorrectionForm = srcRow["DirectoryCorrectionForm"] == DBNull.Value ? null : (DateTime)srcRow["DirectoryCorrectionForm"];
+        person.Title = srcRow["Title"] == DBNull.Value ? "" : titleDictionary[Convert.ToInt32((string)srcRow["Title"])];
         person.FirstName = srcRow["FirstName"].ToString();
         person.MiddleName = srcRow["MiddleName"].ToString();
         person.LastName = srcRow["LastName"].ToString();
@@ -155,14 +174,24 @@ using (OleDbConnection connect = new OleDbConnection(
         person.Gender = srcRow["Gender"].ToString();
         person.LanguagesSpoken = srcRow["LanguagesSpoken"].ToString();
         person.MaritalStatus = srcRow["MaritalStatus"].ToString();
-        person.
-        person.ModifiedByUserName = "ILCDirectoryMigrator";
+        person.Position = srcRow["Position"].ToString();
+        person.WoCode = srcRow["WO_Code"].ToString();
+        person.WorkgroupCode = (int?)srcRow["WorkgroupCode"];
+        person.IncludeInDirectory = (bool)srcRow["DirectoryInclude"];
+
+        person.ModifiedByUserName = modifiedByUserName;
         person.CreateDateTime = DateTimeOffset.Now;
         person.ModifiedDateTime = DateTimeOffset.Now;
-        person.ModifiedByUserName = "Data Migrator";
 
         if (!allPersonRows.Any(p => p.DDDId == person.DDDId))
-            await personRepo.InsertAsync(person);
+        { 
+            await repo.InsertPersonAsync(config, person);
+
+            // Check if person has spouse or children, and if they currently exist (thus, have a household row)
+            // add household row
+            var household = new Household();
+
+        }
 
         // get personId so we can associate below
         var conn = Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
@@ -175,19 +204,18 @@ using (OleDbConnection connect = new OleDbConnection(
         var address = new Address();
         address.AddressLine1 = srcRow["DirectoryAddress"].ToString();
         address.City = srcRow["DirectoryCity"].ToString();
-        address.RoomNumber = srcRow["DirectoryRoom"].ToString();
         address.ZipCode = srcRow["DirectoryZIP"].ToString();
+
+        address.RoomNumber = srcRow["DirectoryRoom"].ToString();
         address.MailListFlag = (bool)srcRow["MailListFlag"];
         address.MailOnly = (bool)srcRow["MailOnly"];
         address.MailSortName = srcRow["MailSortName"].ToString();
-        address.CubicleNumber = srcRow["CubicleNumber"].ToString();
-        address.BuildingCode = srcRow["BuildingCode"].ToString();
         address.SpecialContactInfo = srcRow["SpecialContactInfo"].ToString();
         address.IsActive = true;                                    // TODO: which way to default?
         address.IsVerified = true;
 
         if (!allAddressRows.Any(a => a.AddressLine1 == address.AddressLine1 && a.City == address.City && a.ZipCode == address.ZipCode))
-            await addressRepo.InsertAsync(address);
+            await repo.InsertAddressAsync(config, address);
 
         // pull out Office Info
         var officeDetails = new OfficeDetails();
@@ -196,17 +224,12 @@ using (OleDbConnection connect = new OleDbConnection(
         officeDetails.PersonId = personId;
         officeDetails.BuildingId = (int?)srcRow["BuildingCode"];
         officeDetails.CubicleNumber = srcRow["CubicleNumber"].ToString();
-        officeDetails.IncludeInDirectory = (bool)srcRow["IncludeInDirectory"];
-        officeDetails.Position = srcRow["Position"].ToString();
         officeDetails.RoomNumber = srcRow["RoomNumber"].ToString();
-        officeDetails.WoCode = srcRow["WO_Code"].ToString();
-        officeDetails.WorkgroupCode = (int?)srcRow["WorkgroupCode"];
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Address
     // addr repo config'd above
-    var emailRepo = new EmailRepository(config);
     OleDbCommand addressCmd = new OleDbCommand("select * from Addresses", connect);
     OleDbDataAdapter daAddress = new OleDbDataAdapter(addressCmd);
     DataSet dsetAddress = new DataSet();
@@ -227,10 +250,10 @@ using (OleDbConnection connect = new OleDbConnection(
         address.IncludeInDirectory = (bool)srcRow["IncludeInDirectory"];
         address.CreateDateTime = DateTimeOffset.Now;
         address.ModifiedDateTime = DateTimeOffset.Now;
-        address.ModifiedByUserName = "Data Migrator";
-        await addressRepo.InsertAsync(address);
+        address.ModifiedByUserName = modifiedByUserName;
+        await repo.InsertAddressAsync(config, address);
 
-        if (srcRow["Email"] == null || srcRow["Email"].ToString().Length > 0)
+        if (srcRow["Email"] == DBNull.Value || srcRow["Email"].ToString().Length > 0)
         {
             var email = new Email
             {
@@ -238,7 +261,7 @@ using (OleDbConnection connect = new OleDbConnection(
                 EmailAddress = srcRow["Email"].ToString(),
                 EmailAddressType = ILCDirectory.Data.Enums.EmailAddressType.Personal,
             };
-            await emailRepo.InsertAsync(email);
+            await repo.InsertEmailAsync(config, email);
         }
     }
 
@@ -249,7 +272,6 @@ using (OleDbConnection connect = new OleDbConnection(
     DataSet dsetVehicle = new DataSet();
     daVehicle.Fill(dsetVehicle);
 
-    var vehicleRepo = new VehicleRepository(config);
     foreach (DataRow srcRow in dsetVehicle.Tables[0].Rows)
     {
         var vehicle = new Vehicle();
@@ -262,11 +284,11 @@ using (OleDbConnection connect = new OleDbConnection(
         vehicle.PermitExpires = srcRow["PermitExpires"] != null ? DateTime.Parse(srcRow["PermitExpires"].ToString()) : null;
         vehicle.PermitNumber = (int)srcRow["PermitNumber"];
         vehicle.PermitType = srcRow["PermitType"].ToString();
-        vehicle.ModifiedByUserName = "ILCDirectoryMigrator";
+        vehicle.ModifiedByUserName = modifiedByUserName;
         vehicle.CreateDateTime = DateTimeOffset.Now;
         vehicle.ModifiedDateTime = DateTimeOffset.Now;
         vehicle.ModifiedByUserName = "Data Migrator";
-        await vehicleRepo.InsertAsync(vehicle);
+        await repo.InsertVehicleAsync(config, vehicle);
     }
 
     connect.Close();

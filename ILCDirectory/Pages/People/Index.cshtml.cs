@@ -13,7 +13,7 @@
         }
 
         public IList<Person> Persons { get; set; }
-        public Family Family { get; set; }
+        public Household Family { get; set; }
 
         public async Task OnGetAsync()
         {

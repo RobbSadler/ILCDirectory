@@ -19,7 +19,7 @@ namespace ILCDirectory.Pages.Main
         public Person SelectedPerson { get; set; }
         public Address SelectedAddress { get; set; }
 
-        public Family Family { get; set; }
+        public Household Family { get; set; }
 
         public async Task OnGetAsync()
         {
