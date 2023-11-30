@@ -244,14 +244,36 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
         return person;
     }
 
-    public async Task<Person> InsertPersonAsync(IConfiguration config, Person person)
+    public async Task<Person> InsertPersonAsync(IConfiguration config, Person person, bool identityInsert = false)
     {
         var conn = GetConnection(config);
         var cmd = Sqlocity.GetDatabaseCommand(conn);
 
-        var personId = await cmd.GenerateInsertForSqlServer(person,"Person")
-            .ExecuteToObjectAsync<int>();
-        person.PersonId = personId;
+        if (identityInsert && person.PersonId != null)
+        {
+            var sql = new StringBuilder();
+            sql.AppendLine("SET IDENTITY_INSERT [Person] ON;");
+            sql.AppendLine("INSERT INTO Person (PersonId, FirstName, LastName, MiddleName, Suffix, Notes, CreateDateTime, ModifiedDateTime, ModifiedByUserName)");
+            sql.AppendLine("VALUES (@ClassificationId, @ClassificationCode, @Description, @Notes, @CreateDateTime, @ModifiedDateTime, @ModifiedByUserName)");
+            sql.AppendLine("SELECT SCOPE_IDENTITY()");
+            sql.AppendLine("SET IDENTITY_INSERT [Classification] OFF;");
+            cmd.SetCommandText(sql.ToString())
+                .AddParameter("@ClassificationId", classification.ClassificationId)
+                .AddParameter("@ClassificationCode", classification.ClassificationCode)
+                .AddParameter("@Description", classification.Description)
+                .AddParameter("@Notes", classification.Notes)
+                .AddParameter("@CreateDateTime", classification.CreateDateTime)
+                .AddParameter("@ModifiedDateTime", classification.ModifiedDateTime)
+                .AddParameter("@ModifiedByUserName", classification.ModifiedByUserName);
+
+            await cmd.ExecuteScalarAsync<int>();
+        }
+        else
+        {
+            var personId = await cmd.GenerateInsertForSqlServer(person, "Person")
+                .ExecuteToObjectAsync<int>();
+            person.PersonId = personId;
+        }
         return person;
     }
 

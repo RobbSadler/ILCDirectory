@@ -185,7 +185,7 @@ using (OleDbConnection connect = new OleDbConnection(
 
         if (!allPersonRows.Any(p => p.DDDId == person.DDDId))
         { 
-            await repo.InsertPersonAsync(config, person);
+            await repo.InsertPersonAsync(config, person, );
 
             // Check if person has spouse or children, and if they currently exist (thus, have a household row)
             // add household row
