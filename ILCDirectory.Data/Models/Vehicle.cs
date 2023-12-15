@@ -7,8 +7,8 @@ namespace ILCDirectory.Data.Models
 {
     public partial class Vehicle
     {
-        public int VehicleId { get; set; }
-        public int OwnerPersonId { get; set; }
+        public int? VehicleId { get; set; }
+        public int VehicleOwner { get; set; }
         public int? Year { get; set; }
         [StringLength(32)]
         public string Color { get; set; }

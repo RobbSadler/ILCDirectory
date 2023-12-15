@@ -22,7 +22,8 @@ namespace ILCDirectory.Pages
 
         public async Task OnGet()
         {
-            Persons = await _repo.GetAllPersonsAsync(_cfg);
+            Persons = (_repo.GetAllRowsAsync<Person>(_cfg, "Person").Result);
+            Persons = Persons.OrderBy(p => p.LastName).ThenBy(y => y.FirstName).ToList();
         }
     }
 }

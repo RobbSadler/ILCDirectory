@@ -23,10 +23,8 @@
         public string Gender { get; set; }
         [StringLength(255)]
         public string Comment { get; set; }
-        [StringLength(50)]
-        public string Suffix { get; set; }
-        [StringLength(50)]
-        public string Title { get; set; }
+        public Suffix? Suffix { get; set; }
+        public Title? Title { get; set; }
         [StringLength(255)]
         public bool DeleteFlag { get; set; }
         [StringLength(255)]

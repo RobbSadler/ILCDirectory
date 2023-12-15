@@ -2,41 +2,31 @@
 {
     public class Address
     {
-        public int AddressId { get; set; }
+        public int? AddressId { get; set; }
+        public bool IsPermanent { get; set; }
         [StringLength(255)]
         public string AddressLine1 { get; set; }
         [StringLength(255)]
         public string AddressLine2 { get; set; }
         [StringLength(255)]
-        public string AddressLine3 { get; set; }
-        [StringLength(255)]
-        public string AddressLine4 { get; set; }
-        [StringLength(255)]
         public string City { get; set; }
         [StringLength(50)]
-        public string State { get; set; }
+        public string StateProvince { get; set; }
         [StringLength(12)]
-        public string ZipCode { get; set; }
-        [StringLength(255)]
-        public int ContactPersonId { get; set; }
-        [StringLength(255)]
-        public string SpecialContactInfo { get; set; }
+        public string PostalCode { get; set; }
+        [StringLength(50)]
+        public string Country { get; set; }
+        [StringLength(50)]
+        public string? ContactPersonName { get; set; }
+        [StringLength(50)]
+        public string? ContactPersonPhone { get; set; }
         [StringLength(2000)]
         public string Notes { get; set; }
         [StringLength(255)]
         public string BuildingCode { get; set; }
         [StringLength(255)]
         public string CubicleNumber { get; set; }
-        [StringLength(255)]
-        public string DeliveryCode { get; set; }
-        [StringLength(255)]
-        public string MailSortName { get; set; }
-        [StringLength(255)]
-        public string RoomNumber { get; set; }
-        public bool? MailListFlag { get; set; }
-        public bool? MailOnly { get; set; }
         public bool IncludeInDirectory {  get; set; }
-        public bool IsActive { get; set; }
         public bool IsVerified { get; set; }
         public DateTimeOffset CreateDateTime { get; set; }
         public DateTimeOffset ModifiedDateTime { get; set; }

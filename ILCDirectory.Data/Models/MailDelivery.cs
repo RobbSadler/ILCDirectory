@@ -8,7 +8,7 @@ namespace ILCDirectory.Data.Models
     public partial class MailDelivery
     {
         [Key]
-        public int MailDeliveryId { get; set; }
+        public int? MailDeliveryId { get; set; }
         [StringLength(255)]
         public string DeliveryCode { get; set; }
         [StringLength(255)]

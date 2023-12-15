@@ -22,7 +22,7 @@
                 return NotFound();
             }
 
-            Person = await _repo.GetPersonAsync(_cfg, id);
+            Person = await _repo.GetRowByIdAsync<Person>(_cfg, (int)id, "Person");
 
             if (Person == null)
             {

@@ -17,7 +17,7 @@ namespace ILCDirectory.Pages.Addresses
 
         public async Task OnGetAsync()
         {
-            Addresses = await _repo.GetAllAddressesAsync(_cfg);
+            Addresses = await _repo.GetAllRowsAsync<Address>(_cfg, "Address");
         }
     }
 }

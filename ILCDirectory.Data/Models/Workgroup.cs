@@ -8,7 +8,7 @@ namespace ILCDirectory.Data.Models
     public partial class Workgroup
     {
         [Key]
-        public int WorkgroupId { get; set; }
+        public int? WorkgroupId { get; set; }
         [StringLength(255)]
         public string WorkgroupCode { get; set; }
         [StringLength(255)]

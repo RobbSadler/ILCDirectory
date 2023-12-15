@@ -8,7 +8,7 @@ namespace ILCDirectory.Data.Models
     public partial class Wo
     {
         [Key]
-        public int WoId { get; set; }
+        public int? WoId { get; set; }
         [StringLength(255)]
         public string WoCode { get; set; }
         [StringLength(255)]

@@ -2,8 +2,8 @@
 (
 	[OfficeDetailsId]		INT IDENTITY(1,1) NOT NULL,
 	[PersonId]				INT NOT NULL,
-	[BuildingCode]			NVARCHAR(20) NULL,
-	[RoomNumber]			NVARCHAR(20) NULL,
+	[BuildingId]			INT NULL,
+	[RoomNumber]			NVARCHAR(25) NULL,
 	[CubicleNumber]			NVARCHAR(50) NULL,
 	[IncludeInDirectory]	BIT NOT NULL,
     [CreateDateTime]		DATETIMEOFFSET (7) DEFAULT (getdate()) NOT NULL,

@@ -4,7 +4,7 @@
     public partial class Classification
     {
         [Key]
-        public int ClassificationId { get; set; }
+        public int? ClassificationId { get; set; }
         [StringLength(255)]
         public string ClassificationCode { get; set; }
         [StringLength(255)]

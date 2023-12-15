@@ -14,12 +14,12 @@
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Address.AddressId" />
-            <div class="form-group form-check">
+@*            <div class="form-group form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="Address.IsActive" /> @Html.DisplayNameFor(model => model.Address.IsActive)
                 </label>
             </div>
-            <div class="form-group form-check">
+*@            <div class="form-group form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="Address.IncludeInDirectory" /> @Html.DisplayNameFor(model => model.Address.IncludeInDirectory)
                 </label>
@@ -35,36 +35,26 @@
                 <span asp-validation-for="Address.AddressLine2" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Address.AddressLine3" class="control-label"></label>
-                <input asp-for="Address.AddressLine3" class="form-control" />
-                <span asp-validation-for="Address.AddressLine3" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Address.AddressLine4" class="control-label"></label>
-                <input asp-for="Address.AddressLine4" class="form-control" />
-                <span asp-validation-for="Address.AddressLine4" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="Address.City" class="control-label"></label>
                 <input asp-for="Address.City" class="form-control" />
                 <span asp-validation-for="Address.City" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Address.State" class="control-label"></label>
-                <input asp-for="Address.State" class="form-control" />
-                <span asp-validation-for="Address.State" class="text-danger"></span>
+                <label asp-for="Address.StateProvince" class="control-label"></label>
+                <input asp-for="Address.StateProvince" class="form-control" />
+                <span asp-validation-for="Address.StateProvince" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Address.ZipCode" class="control-label"></label>
-                <input asp-for="Address.ZipCode" class="form-control" />
-                <span asp-validation-for="Address.ZipCode" class="text-danger"></span>
+                <label asp-for="Address.PostalCode" class="control-label"></label>
+                <input asp-for="Address.PostalCode" class="form-control" />
+                <span asp-validation-for="Address.PostalCode" class="text-danger"></span>
             </div>
-@*            <div class="form-group">
+@*            <div class="form-group">                                                                      TODO: move these to their new destination
                 <label asp-for="Address.BoxNumber" class="control-label"></label>
                 <input asp-for="Address.BoxNumber" class="form-control" />
                 <span asp-validation-for="Address.BoxNumber" class="text-danger"></span>
             </div>
-*@            <div class="form-group">
+            <div class="form-group">
                 <label asp-for="Address.RoomNumber" class="control-label"></label>
                 <input asp-for="Address.RoomNumber" class="form-control" />
                 <span asp-validation-for="Address.RoomNumber" class="text-danger"></span>
@@ -94,7 +84,7 @@
                 <input asp-for="Address.SpecialContactInfo" class="form-control" />
                 <span asp-validation-for="Address.SpecialContactInfo" class="text-danger"></span>
             </div>
-@*            <div class="form-group">
+            <div class="form-group">
                 <label asp-for="Address.SpecialForwardingInstructions" class="control-label"></label>
                 <input asp-for="Address.SpecialForwardingInstructions" class="form-control" />
                 <span asp-validation-for="Address.SpecialForwardingInstructions" class="text-danger"></span>

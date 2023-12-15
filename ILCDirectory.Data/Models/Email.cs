@@ -2,6 +2,8 @@
 {
     public class Email
     {
+        public int? EmailId { get; set; }
+        public int PersonId { get; set; }
         [StringLength(100)]
         public string EmailAddress { get; set; }
         [Column(TypeName = "tinyint")]

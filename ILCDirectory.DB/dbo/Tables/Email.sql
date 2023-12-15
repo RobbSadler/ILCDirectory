@@ -1,5 +1,6 @@
 ﻿CREATE TABLE [dbo].[Email](
     [EmailId]               INT        IDENTITY (1, 1) NOT NULL,
+    [PersonId]              INT        NOT NULL,
     [EmailAddress]          NVARCHAR(200) NOT NULL,
     [EmailAddressType]      NCHAR (6) NOT NULL,
     [IncludeInDirectory]    BIT DEFAULT (CONVERT([bit],(0))) NOT NULL,

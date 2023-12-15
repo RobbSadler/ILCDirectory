@@ -29,7 +29,7 @@ namespace ILCDirectory.Pages.CenterMail
             //    var lastPersonId = Request.Cookies["lastPersonId"];
 
             //}
-            Persons = await _repo.GetAllPersonsAsync(_cfg);
+            Persons = await _repo.GetAllRowsAsync<Person>(_cfg, "Person");
         }
 
         //[HttpPost]

@@ -22,7 +22,7 @@
                 return NotFound();
             }
 
-            Address = await _repo.GetAddressAsync(_cfg, id);
+            Address = await _repo.GetRowByIdAsync<Address>(_cfg, (int)id, "Address");
 
             if (Address == null)
             {

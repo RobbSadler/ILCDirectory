@@ -13,10 +13,10 @@
 <table class="table">
     <thead>
         <tr>
-            <th>
+@*            <th>
                 @Html.DisplayNameFor(model => model.Addresses[0].IsActive)
             </th>
-            <th>
+*@            <th>
                 @Html.DisplayNameFor(model => model.Addresses[0].IncludeInDirectory)
             </th>
             <th>
@@ -26,24 +26,18 @@
                 @Html.DisplayNameFor(model => model.Addresses[0].AddressLine2)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].AddressLine3)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].AddressLine4)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Addresses[0].City)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].State)
+                @Html.DisplayNameFor(model => model.Addresses[0].StateProvince)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Addresses[0].ZipCode)
+                @Html.DisplayNameFor(model => model.Addresses[0].PostalCode)
             </th>
 @*            <th>
                 @Html.DisplayNameFor(model => model.Addresses[0].BoxNumber)
             </th>
-*@            <th>
+            <th>
                 @Html.DisplayNameFor(model => model.Addresses[0].RoomNumber)
             </th>
             <th>
@@ -61,13 +55,13 @@
             <th>
                 @Html.DisplayNameFor(model => model.Addresses[0].SpecialContactInfo)
             </th>
-  @*          <th>
+            <th>
                 @Html.DisplayNameFor(model => model.Addresses[0].SpecialForwardingInstructions)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Addresses[0].SpecialHandlingInstructions)
             </th>
-  *@          <th>
+*@          <th>
                 @Html.DisplayNameFor(model => model.Addresses[0].BuildingCode)
             </th>
             <th>
@@ -79,10 +73,10 @@
     <tbody>
 @foreach (var item in Model.Addresses) {
         <tr>
-            <td>
+@*            <td>
                 @Html.DisplayFor(modelItem => item.IsActive)
             </td>
-            <td>
+*@            <td>
                 @Html.DisplayFor(modelItem => item.IncludeInDirectory)
             </td>
             <td>
@@ -92,19 +86,13 @@
                 @Html.DisplayFor(modelItem => item.AddressLine2)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.AddressLine3)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AddressLine4)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.City)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.State)
+                @Html.DisplayFor(modelItem => item.StateProvince)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ZipCode)
+                @Html.DisplayFor(modelItem => item.PostalCode)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ModifiedDateTime)
@@ -112,7 +100,7 @@
 @*            <td>
                 @Html.DisplayFor(modelItem => item.BoxNumber)
             </td>
-*@            <td>
+            <td>
                 @Html.DisplayFor(modelItem => item.RoomNumber)
             </td>
             <td>
@@ -130,7 +118,7 @@
             <td>
                 @Html.DisplayFor(modelItem => item.SpecialContactInfo)
             </td>
-@*            <td>
+            <td>
                 @Html.DisplayFor(modelItem => item.SpecialForwardingInstructions)
             </td>
             <td>

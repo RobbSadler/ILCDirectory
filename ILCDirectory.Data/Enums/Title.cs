@@ -2,7 +2,6 @@
 {
     public enum Title
     {
-        None = 0,
         Dr = 1,
         Prof = 2,
         Mr = 3,

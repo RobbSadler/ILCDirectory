@@ -8,7 +8,7 @@ namespace ILCDirectory.Data.Models
     public partial class OtherMail
     {
         [Key]
-        public int OtherMailId { get; set; }
+        public int? OtherMailId { get; set; }
         [StringLength(50)]
         public string Sender { get; set; }
         [StringLength(50)]

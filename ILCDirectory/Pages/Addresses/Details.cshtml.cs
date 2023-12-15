@@ -21,11 +21,7 @@
                 return NotFound();
             }
             var connectionString = _cfg["ILCDirectory:ConnectionString"];
-            using (var connection = new SqlConnection(connectionString))
-            {
-
-            }
-            Address = await _repo.GetAddressAsync(_cfg, id);
+            Address = await _repo.GetRowByIdAsync<Address>(_cfg, (int)id, "Address");
 
             if (Address == null)
             {

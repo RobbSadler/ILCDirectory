@@ -165,12 +165,12 @@
     <h4>Address</h4>
     <hr />
     <dl class="row">
-        <dt class="col-sm-2">
+@*        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.SelectedAddress.IsActive)
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.SelectedAddress.IsActive)
-        </dd>
+        </dd>*@
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.SelectedAddress.IncludeInDirectory)
         </dt>
@@ -190,42 +190,29 @@
             @Html.DisplayFor(model => model.SelectedAddress.AddressLine2)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.SelectedAddress.AddressLine3)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.SelectedAddress.AddressLine3)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.SelectedAddress.AddressLine4)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.SelectedAddress.AddressLine4)
-        </dd>
-        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.SelectedAddress.City)
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.SelectedAddress.City)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.SelectedAddress.State)
+            @Html.DisplayNameFor(model => model.SelectedAddress.StateProvince)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.SelectedAddress.State)
+            @Html.DisplayFor(model => model.SelectedAddress.StateProvince)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.SelectedAddress.ZipCode)
+            @Html.DisplayNameFor(model => model.SelectedAddress.PostalCode)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.SelectedAddress.ZipCode)
+            @Html.DisplayFor(model => model.SelectedAddress.PostalCode)
         </dd>
-        @*        <dt class="col-sm-2">
+@*        <dt class="col-sm-2">
         @Html.DisplayNameFor(model => model.SelectedAddress.BoxNumber)
         </dt>
         <dd class="col-sm-10">
         @Html.DisplayFor(model => model.SelectedAddress.BoxNumber)
         </dd>
-        *@
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.SelectedAddress.RoomNumber)
         </dt>
@@ -262,7 +249,7 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.SelectedAddress.SpecialContactInfo)
         </dd>
-        @*        <dt class="col-sm-2">
+        <dt class="col-sm-2">
         @Html.DisplayNameFor(model => model.SelectedAddress.SpecialForwardingInstructions)
         </dt>
         <dd class="col-sm-10">
@@ -274,7 +261,7 @@
         <dd class="col-sm-10">
         @Html.DisplayFor(model => model.SelectedAddress.SpecialHandlingInstructions)
         </dd>
-        *@
+*@
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.SelectedAddress.BuildingCode)
         </dt>

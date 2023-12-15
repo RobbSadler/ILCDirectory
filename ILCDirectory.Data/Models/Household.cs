@@ -2,7 +2,7 @@
 {
     public class Household
     {
-        public int HouseholdId {  get; set; }
+        public int? HouseholdId {  get; set; }
         public string HouseholdName { get; set; }
         public DateTimeOffset CreateDateTime { get; set; }
         public DateTimeOffset ModifiedDateTime { get; set; }

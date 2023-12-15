@@ -3,7 +3,7 @@
     public partial class Building
     {
         [Key]
-        public int BuildingId { get; set; }
+        public int? BuildingId { get; set; }
         [StringLength(255)]
         public string BuildingCode { get; set; }
         [StringLength(255)]

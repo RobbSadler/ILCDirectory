@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace ILCDirectory.Data.Models
 {
-    public class HouseholdAddress
+    public class ParentChild
     {
-        public int? HouseholdAddressId { get; set; }
-        public int HouseholdId { get; set; }
-        public int AddressId { get; set; }
+        public int? ParentChildId { get; set; }
+        public int ParentId { get; set; }
+        public int ChildId { get; set; }
         public DateTimeOffset CreateDateTime { get; set; }
         public DateTimeOffset ModifiedDateTime { get; set; }
         public string ModifiedByUserName { get; set; }

@@ -8,14 +8,8 @@ namespace ILCDirectory.Data.Repositories
 {
     public interface IILCDirectoryRepository
     {
-        Task<Person> GetPersonAsync(IConfiguration config, int? id);
-        Task<IList<Person>> GetAllPersonsAsync(IConfiguration config);
-        //Task<Person> FindPersonAsync(IConfiguration config, string searchTerm);
-
-        //Task<IList<PersonHouseholdAddress>> GetAllPersonHouseholdAddressAsync(IConfiguration config);
-
-        Task<Address> GetAddressAsync(IConfiguration config, int? id);
-        Task<IList<Address>> GetAllAddressesAsync(IConfiguration config);
-        //Task<IList<Address>> FindAddressesAsync(IConfiguration config, string searchTerm);
+        Task<IList<T>> GetAllRowsAsync<T>(IConfiguration config, string tableName) where T : new();
+        Task<T> GetRowByIdAsync<T>(IConfiguration config, int id, string tableName) where T : new();
+        
     }
 }

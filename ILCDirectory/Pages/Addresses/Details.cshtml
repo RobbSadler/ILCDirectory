@@ -11,13 +11,13 @@
     <h4>Address</h4>
     <hr />
     <dl class="row">
-        <dt class="col-sm-2">
+@*        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Address.IsActive)
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Address.IsActive)
         </dd>
-        <dt class="col-sm-2">
+*@        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Address.IncludeInDirectory)
         </dt>
         <dd class="col-sm-10">
@@ -36,34 +36,22 @@
             @Html.DisplayFor(model => model.Address.AddressLine2)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Address.AddressLine3)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Address.AddressLine3)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Address.AddressLine4)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Address.AddressLine4)
-        </dd>
-        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Address.City)
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Address.City)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Address.State)
+            @Html.DisplayNameFor(model => model.Address.StateProvince)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Address.State)
+            @Html.DisplayFor(model => model.Address.StateProvince)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Address.ZipCode)
+            @Html.DisplayNameFor(model => model.Address.PostalCode)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Address.ZipCode)
+            @Html.DisplayFor(model => model.Address.PostalCode)
         </dd>
 @*        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Address.BoxNumber)
@@ -71,7 +59,7 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Address.BoxNumber)
         </dd>
-*@        <dt class="col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Address.RoomNumber)
         </dt>
         <dd class="col-sm-10">
@@ -107,7 +95,7 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Address.SpecialContactInfo)
         </dd>
-@*        <dt class="col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Address.SpecialForwardingInstructions)
         </dt>
         <dd class="col-sm-10">

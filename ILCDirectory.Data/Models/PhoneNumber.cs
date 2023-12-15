@@ -8,7 +8,7 @@ namespace ILCDirectory.Data.Models
 {
     public class PhoneNumber
     {
-        public int PhoneNumberId { get; set; }
+        public int? PhoneNumberId { get; set; }
         public PhoneNumberType PhoneNumberTypeId { get; set; }
         public string Number { get; set; }
         public string PhoneNumberExtension { get; set; }

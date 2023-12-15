@@ -8,7 +8,7 @@ namespace ILCDirectory.Data.Models
 {
     public class PersonHousehold
     {
-        public int PersonHouseholdId { get; set; }
+        public int? PersonHouseholdId { get; set; }
         public int PersonId { get; set; }
         public int HouseholdId { get; set; }
         public DateTimeOffset CreateDateTime { get; set; }

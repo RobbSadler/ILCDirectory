@@ -4,8 +4,9 @@ using Sustainsys.Saml2.Metadata;
 using Sustainsys.Saml2;
 using System.Security.Cryptography.X509Certificates;
 using System.Data.Common;
+using Microsoft.Data.SqlClient;
 
-DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
+DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
 
 var builder = WebApplication.CreateBuilder(args);
 
