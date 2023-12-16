@@ -50,7 +50,7 @@
                     @*@Html.DisplayNameFor(model => model.Persons[0].GetAddress())*@
                 </td>
                 <td>
-                    <a asp-page="/Delete" asp-route-id="@item.PersonId">Delete</a>
+                    <button asp-action="DeletePerson" asp-route-id="@item.PersonId" class='btn-light rounded-3'>Delete</button>
                 </td>
             </tr>
         }

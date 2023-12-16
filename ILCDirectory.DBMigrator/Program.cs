@@ -206,6 +206,7 @@ using (OleDbConnection connect = new OleDbConnection(
             continue;
 
         person.NickName = srcRow["NickName"] == DBNull.Value ? null : srcRow["NickName"].ToString();
+        person.NickName = (person.NickName == person.FirstName) ? null : person.NickName; // only set it if different from first name
         person.MaidenName = srcRow["MaidenName"] == DBNull.Value ? null : srcRow["MaidenName"].ToString();
         person.Suffix = srcRow["Suffix"] == DBNull.Value ? null : (Suffix)Convert.ToInt32(srcRow["Suffix"].ToString());
         person.Gender = srcRow["Gender"].ToString();
