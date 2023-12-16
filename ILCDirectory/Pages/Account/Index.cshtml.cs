@@ -1,8 +1,6 @@
-﻿using ILCDirectory.Authentication;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using ILCDirectory.Data.Repositories;
 
-namespace ILCDirectory.Pages
+namespace ILCDirectory.Pages.Account
 {
     [Authorize]
     public class IndexModel : PageModel
@@ -10,6 +8,7 @@ namespace ILCDirectory.Pages
         private readonly ILogger<IndexModel> _logger;
         private readonly IILCDirectoryRepository _repo;
         private readonly IConfiguration _cfg;
+        public IList<Address> Addresses { get;set; }
 
         public IndexModel(ILogger<IndexModel> logger, IConfiguration cfg, IILCDirectoryRepository repo)
         {
@@ -18,12 +17,9 @@ namespace ILCDirectory.Pages
             _cfg = cfg;
         }
 
-        public IList<Person> Persons { get; set; }
-
-        public async Task OnGet()
+        public async Task OnGetAsync()
         {
-            Persons = (_repo.GetAllRowsAsync<Person>(_cfg, "Person").Result);
-            Persons = Persons.OrderBy(p => p.LastName).ThenBy(y => y.FirstName).ToList();
+            Addresses = await _repo.GetAllRowsAsync<Address>(_cfg, "Address");
         }
     }
 }

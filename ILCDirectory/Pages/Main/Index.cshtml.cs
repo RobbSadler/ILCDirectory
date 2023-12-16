@@ -1,42 +1,29 @@
+﻿using ILCDirectory.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ILCDirectory.Pages.Main
 {
-    //[Authorize]
+    [Authorize]
     public class IndexModel : PageModel
     {
+        private readonly ILogger<IndexModel> _logger;
         private readonly IILCDirectoryRepository _repo;
         private readonly IConfiguration _cfg;
 
-        public IndexModel(IConfiguration cfg, IILCDirectoryRepository repo)
+        public IndexModel(ILogger<IndexModel> logger, IConfiguration cfg, IILCDirectoryRepository repo)
         {
+            _logger = logger;
             _repo = repo;
             _cfg = cfg;
         }
 
         public IList<Person> Persons { get; set; }
-        public Person SelectedPerson { get; set; }
-        public Address SelectedAddress { get; set; }
 
-        public Household Family { get; set; }
-
-        public async Task OnGetAsync()
+        public async Task OnGet()
         {
-            // load cookie value for last person being edited
-            //if (Request.Cookies.ContainsKey("lastPersonId"))
-            //{
-            //    var lastPersonId = Request.Cookies["lastPersonId"];
-
-            //}
-            Persons = await _repo.GetAllRowsAsync<Person>(_cfg, "Person");
+            Persons = _repo.GetAllRowsAsync<Person>(_cfg, "Person").Result;
+            Persons = Persons.OrderBy(p => p.LastName).ThenBy(y => y.FirstName).ToList();
         }
-
-        //[HttpPost]
-        //[AllowAnonymous]
-        //public async Task OnPostAsync()
-        //{
-        //    RedirectToPage("/Main");
-        //}
     }
 }

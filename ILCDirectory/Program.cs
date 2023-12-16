@@ -5,6 +5,9 @@ using Sustainsys.Saml2;
 using System.Security.Cryptography.X509Certificates;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 
 DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
 
@@ -43,7 +46,10 @@ builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSingleton<IILCDirectoryRepository, ILCDirectoryRepository>();
 builder.Services.AddSingleton<IUserManager, UserManager>();
 
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages()
+    .AddRazorPagesOptions(options => 
+        options.Conventions.AddPageRoute("/Main/Index", "")
+        );
 
 // Use the cookie scheme as default scheme, even for challenge. We need the
 // challenge to go through a page under our control to wire up the external login
@@ -79,6 +85,12 @@ builder.Services.AddAuthentication("cookie")
             LoadMetadata = true
         });
     });
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
+builder.Logging.AddDebug();
+builder.Logging.AddConsole();
+builder.Logging.AddNLog();
 
 var app = builder.Build();
 

@@ -9,6 +9,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="NLog" Version="5.2.7" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.3.7" />
     <PackageReference Include="Sustainsys.Saml2.AspNetCore2" Version="2.9.1" />
   </ItemGroup>
 
@@ -23,6 +26,13 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Pages\Shared\_LeftPanel.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Pages\Main\Index.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
