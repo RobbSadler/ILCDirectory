@@ -34,6 +34,15 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
         return row;
     }
 
+    public async Task<IList<T>> GetRowsByIdsAsync<T>(IConfiguration config, IList<int> ids, string tableName) where T : new()
+    {
+        var conn = GetConnection(config);
+        var cmd = Sqlocity.GetDatabaseCommand(conn);
+        var rows = await cmd.SetCommandText($"SELECT * FROM {tableName} where {tableName}Id IN ({string.Join(",", ids)})")
+            .ExecuteToListAsync<T>();
+        return rows;
+    }
+
     public async Task<T> InsertRowAsync<T>(IConfiguration config, T rowData, string tableName) where T : new()
     {
         var conn = GetConnection(config);

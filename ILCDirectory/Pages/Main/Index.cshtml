@@ -9,17 +9,24 @@
         <strong><em>People</em></strong>
     </div>
     <div class="position-absolute end-0 mt-4">
-        <svg title="Search Names and Addresses" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-        </svg> 
-        <input /> 
-        <input id="localOnlyCheckbox" type="checkbox" /> <label for="localOnlyCheckbox">Local Only</label>&nbsp;&nbsp; 
+
+        <!-- Search Form - for controller method named OnPostAsync -->
+        <form asp-action="Post">
+            <svg title="Search Names and Addresses" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+            </svg>
+            <input id="searchTxt" />
+            <button type="submit" class="btn btn-light rounded-3">Search</button>
+            <input id="localOnlyCheckbox" type="checkbox" @(Model.LocalSearch ? "checked='checked'" : "") style="" onchange="" /> <label for="localOnlyCheckbox">Local Only</label>&nbsp;&nbsp;
+            <input id="searchAddressesCheckbox" type="checkbox" @(Model.SearchAddresses ? "checked='checked'" : "") style="" onchange="" /> <label for="searchAddressesCheckbox">Addresses</label>&nbsp;&nbsp;
+            <input id="searchPeopleCheckbox" type="checkbox" @(Model.SearchPeople ? "checked='checked'" : "") style="" onchange="" /> <label for="searchPeopleCheckbox">People</label>&nbsp;&nbsp;
+        </form>
         <a asp-page="Create">Create New Person</a>
     </div>
 </div>
 <p class="m-5" />
 
-<table class="table">
+<table class="personsTable">
     <thead>
         <tr>
             <th>
@@ -56,3 +63,38 @@
         }
     </tbody>
 </table>
+
+<script>
+$(document).ready(function () {
+        $("#localOnlyCheckbox").click(function () {
+            updateSearch();
+        });
+        $("#searchAddressesCheckbox").click(function () {
+            if ($(this).is(":checked")) {
+                $("#localOnlyCheckbox").prop("checked", false);
+            }
+        });
+        $("#searchPeopleCheckbox").click(function () {
+            if ($(this).is(":checked")) {
+                $("#localOnlyCheckbox").prop("checked", false);
+            }
+        });
+        // create a function to filter the table when the search box is used, or when the localOnly checkbox is clicked
+        function updateSearch() {
+            var search = $("#search").val().toLowerCase();
+            var localOnly = $("#localOnlyCheckbox").is(":checked");
+            var searchAddresses = $("#searchAddressesCheckbox").is(":checked");
+            var searchPeople = $("#searchPeopleCheckbox").is(":checked");
+            // call codebehind to get the filtered list
+            $.ajax({
+                type: "POST",
+                url: "/Main/Index?handler=Filter",
+                data: { search: search, localOnly: localOnly, searchAddresses: searchAddresses, searchPeople: searchPeople },
+                success: function (result) {
+                    // replace the table body with the filtered list
+                    $("#personsTable").html(result);
+                }
+            });
+        }
+    });
+</script>
