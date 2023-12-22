@@ -7,6 +7,8 @@
     [StateProvince]                 NVARCHAR (50)       NULL,
     [PostalCode]                    NVARCHAR (20)       NULL,
     [Country]                       NVARCHAR (50)       DEFAULT (N'United States of America') NOT NULL,
+    [ArrivalDate]                   DATETIMEOFFSET (7)  NULL,
+    [DepartureDate]                 DATETIMEOFFSET (7)  NULL,
     [ContactPersonName]             NVARCHAR(50)        NULL,
     [ContactPersonPhone]            NVARCHAR(50)        NULL,
     [Notes]                         VARCHAR (2000)      NULL,

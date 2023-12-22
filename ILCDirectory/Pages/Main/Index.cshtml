@@ -11,15 +11,15 @@
     <div class="position-absolute end-0 mt-4">
 
         <!-- Search Form - for controller method named OnPostAsync -->
-        <form asp-action="Post">
+        <form method="Post">
             <svg title="Search Names and Addresses" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                 <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
             </svg>
-            <input id="searchTxt" />
+            <input asp-for="SearchText" />
             <button type="submit" class="btn btn-light rounded-3">Search</button>
-            <input id="localOnlyCheckbox" type="checkbox" @(Model.LocalSearch ? "checked='checked'" : "") style="" onchange="" /> <label for="localOnlyCheckbox">Local Only</label>&nbsp;&nbsp;
-            <input id="searchAddressesCheckbox" type="checkbox" @(Model.SearchAddresses ? "checked='checked'" : "") style="" onchange="" /> <label for="searchAddressesCheckbox">Addresses</label>&nbsp;&nbsp;
-            <input id="searchPeopleCheckbox" type="checkbox" @(Model.SearchPeople ? "checked='checked'" : "") style="" onchange="" /> <label for="searchPeopleCheckbox">People</label>&nbsp;&nbsp;
+            <input asp-for="LocalSearch" style="" onchange="" /> <label for="localOnlyCheckbox">Local Only</label>&nbsp;&nbsp;
+            <input asp-for="SearchAddresses" style="" onchange="" /> <label for="searchAddressesCheckbox">Addresses</label>&nbsp;&nbsp;
+            <input asp-for="SearchPeople" style="" onchange="" /> <label for="searchPeopleCheckbox">People</label>&nbsp;&nbsp;
         </form>
         <a asp-page="Create">Create New Person</a>
     </div>

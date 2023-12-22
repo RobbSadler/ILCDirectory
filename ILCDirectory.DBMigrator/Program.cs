@@ -23,10 +23,10 @@ IConfigurationRoot config = configurationBuilder.Build();
 var modifiedByUserName = "ILCDirectoryMigrator";
 DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
 
-//await doMigration(config);
+await doMigration(config);
 var tokenizeAndSearchRepository = new TokenizeAndSearchRepository();
-//await tokenizeAndSearchRepository.PopulateSearchTokenTables(config);
-var (persons, addresses) = await tokenizeAndSearchRepository.SearchForPersonOrAddress(config, "french");
+await tokenizeAndSearchRepository.PopulateSearchTokenTables(config);
+var (persons, addresses) = await tokenizeAndSearchRepository.SearchForPersonOrAddress(config, "Caleb");
 foreach (var person in persons)
 {
     Console.WriteLine($"{person.LastName} ({person.MaidenName}), {person.FirstName} {person.MiddleName} ({person.NickName})");
@@ -217,24 +217,24 @@ async Task doMigration(IConfiguration config)
             person.DirCorrFormNote = srcRow["DirCorrFormNote"] == DBNull.Value ? null : srcRow["DirCorrFormNote"].ToString();
             person.DirectoryCorrectionForm = srcRow["DirectoryCorrectionForm"] == DBNull.Value ? null : (DateTime)srcRow["DirectoryCorrectionForm"];
             person.Title = srcRow["Title"] == DBNull.Value ? null : (Title)Convert.ToInt32(srcRow["Title"].ToString());
-            person.FirstName = srcRow["FirstName"].ToString();
-            person.MiddleName = srcRow["MiddleName"] == DBNull.Value ? null : srcRow["MiddleName"].ToString();
-            person.LastName = srcRow["LastName"].ToString();
+            person.FirstName = srcRow["FirstName"].ToString().Trim();
+            person.MiddleName = srcRow["MiddleName"] == DBNull.Value ? null : srcRow["MiddleName"].ToString().Trim();
+            person.LastName = srcRow["LastName"].ToString().Trim();
 
             // some rows have a null for firstname and lastname, and it indicates an unused row. We'll skip those
             if (string.IsNullOrEmpty(person.FirstName) && string.IsNullOrEmpty(person.LastName))
                 continue;
 
-            person.NickName = srcRow["NickName"] == DBNull.Value ? null : srcRow["NickName"].ToString();
+            person.NickName = srcRow["NickName"] == DBNull.Value ? null : srcRow["NickName"].ToString().Trim();
             person.NickName = (person.NickName == person.FirstName) ? null : person.NickName; // only set it if different from first name
 
-            person.MaidenName = srcRow["MaidenName"] == DBNull.Value ? null : srcRow["MaidenName"].ToString();
-            person.Suffix = srcRow["Suffix"] == DBNull.Value ? null : (Suffix)Convert.ToInt32(srcRow["Suffix"].ToString());
-            person.Gender = srcRow["Gender"].ToString();
-            person.LanguagesSpoken = srcRow["LanguagesSpoken"] == DBNull.Value ? null : srcRow["LanguagesSpoken"].ToString();
-            person.MaritalStatus = srcRow["MaritalStatus"] == DBNull.Value ? null : srcRow["MaritalStatus"].ToString();
-            person.Position = srcRow["Position"] == DBNull.Value ? null : srcRow["Position"].ToString();
-            person.WoCode = srcRow["WO_Code"] == DBNull.Value ? null : srcRow["WO_Code"].ToString();
+            person.MaidenName = srcRow["MaidenName"] == DBNull.Value ? null : srcRow["MaidenName"].ToString().Trim();
+            person.Suffix = srcRow["Suffix"] == DBNull.Value ? null : (Suffix)Convert.ToInt32(srcRow["Suffix"].ToString().Trim());
+            person.Gender = srcRow["Gender"].ToString().Trim();
+            person.LanguagesSpoken = srcRow["LanguagesSpoken"] == DBNull.Value ? null : srcRow["LanguagesSpoken"].ToString().Trim();
+            person.MaritalStatus = srcRow["MaritalStatus"] == DBNull.Value ? null : srcRow["MaritalStatus"].ToString().Trim();
+            person.Position = srcRow["Position"] == DBNull.Value ? null : srcRow["Position"].ToString().Trim();
+            person.WoCode = srcRow["WO_Code"] == DBNull.Value ? null : srcRow["WO_Code"].ToString().Trim();
             person.WorkgroupCode = srcRow["WorkgroupCode"] == DBNull.Value ? null : (int)srcRow["WorkgroupCode"];
             person.IncludeInDirectory = (bool)srcRow["DirectoryInclude"];
 
@@ -302,11 +302,9 @@ async Task doMigration(IConfiguration config)
                 srcRow["DirectoryCity"] == DBNull.Value ? null : srcRow["DirectoryCity"]?.ToString()?.Trim(),
                 null,
                 null,
-                (bool)srcRow["DirectoryInclude"],
-                cityCodeCity, modifiedByUserName, ref allAddressRows, ref allPersonHouseholdRows, ref allHouseholdAddressRows);
-
-            if (address != null && (address.AddressLine1 == null || address.City == null))
-                Debug.Assert(false);
+                (bool)srcRow["DirectoryInclude"],                
+                cityCodeCity, null, null,
+                modifiedByUserName, ref allAddressRows, ref allPersonHouseholdRows, ref allHouseholdAddressRows);
 
             Address existingOrNew = null;
 
@@ -365,10 +363,10 @@ async Task doMigration(IConfiguration config)
             {
                 //int? buildingId = srcRow["BuildingCode"] == DBNull.Value ? null : Convert.ToInt32(srcRow["BuildingCode"].ToString()); // ahh that it could be this simple
                 // some of the building rows in the source refer to a building code, others refer to a building id
-                int? buildingId = allBuildingRows.FirstOrDefault(x => x.BuildingCode == srcRow["BuildingCode"].ToString() || x.BuildingId.ToString() == srcRow["BuildingCode"].ToString())?.BuildingId;
+                int? buildingId = allBuildingRows.FirstOrDefault(x => x.BuildingCode == srcRow["BuildingCode"].ToString().Trim() || x.BuildingId.ToString() == srcRow["BuildingCode"].ToString().Trim())?.BuildingId;
 
-                var cubicleNumber = srcRow["CubicleNumber"] == DBNull.Value ? null : srcRow["CubicleNumber"].ToString();
-                var roomNumber = srcRow["RoomNumber"] == DBNull.Value ? null : srcRow["RoomNumber"].ToString();
+                var cubicleNumber = srcRow["CubicleNumber"] == DBNull.Value ? null : srcRow["CubicleNumber"].ToString().Trim();
+                var roomNumber = srcRow["RoomNumber"] == DBNull.Value ? null : srcRow["RoomNumber"].ToString().Trim();
 
                 if (!allOfficeDetailsRows.Any(x => x.PersonId == person.PersonId))
                 {
@@ -377,8 +375,8 @@ async Task doMigration(IConfiguration config)
                     officeDetails.DDDPersonId = (int)srcRow["ID"];
                     officeDetails.PersonId = (int)person.PersonId;
                     officeDetails.BuildingId = buildingId;
-                    officeDetails.CubicleNumber = srcRow["CubicleNumber"].ToString();
-                    officeDetails.RoomNumber = srcRow["RoomNumber"].ToString();
+                    officeDetails.CubicleNumber = cubicleNumber;
+                    officeDetails.RoomNumber = roomNumber;
                     officeDetails.ModifiedByUserName = modifiedByUserName;
                     officeDetails.CreateDateTime = DateTimeOffset.Now;
                     officeDetails.ModifiedDateTime = DateTimeOffset.Now;
@@ -410,7 +408,9 @@ async Task doMigration(IConfiguration config)
                     srcAddressRow["ContactPerson"] == DBNull.Value ? null : srcAddressRow["ContactPerson"]?.ToString()?.Trim(),
                     srcAddressRow["ContactPhone"] == DBNull.Value ? null : srcAddressRow["ContactPhone"]?.ToString()?.Trim(),
                     (bool)srcRow["DirectoryInclude"],
-                    cityCodeCity, modifiedByUserName, ref allAddressRows, ref allPersonHouseholdRows, ref allHouseholdAddressRows);
+                    cityCodeCity, srcAddressRow["ArrivalDate"] == DBNull.Value ? null : new DateTimeOffset((DateTime)srcAddressRow["ArrivalDate"]), 
+                    srcAddressRow["DepartureDate"] == DBNull.Value ? null : new DateTimeOffset((DateTime)srcAddressRow["DepartureDate"]),
+                    modifiedByUserName, ref allAddressRows, ref allPersonHouseholdRows, ref allHouseholdAddressRows);
 
                 //if (address2 != null && (address2.AddressLine1 == null || address2.City == null))
                 //    Debug.Assert(false);
@@ -448,11 +448,11 @@ async Task doMigration(IConfiguration config)
                 }
 
                 // Email
-                if (srcAddressRow["Email"] != DBNull.Value && srcAddressRow["Email"].ToString().Length > 0)
+                if (srcAddressRow["Email"] != DBNull.Value && srcAddressRow["Email"].ToString().Trim().Length > 0)
                 {
                     // some email columns are multiple email addresses separated by a semicolon, or words, so we'll parse them out and throw out any that don't look like email addresses
                     Regex regexValidEmail = new Regex(@"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}");
-                    string?[] emailAddresses = srcAddressRow["Email"]?.ToString().Split(new char[] { ';', ' ' });
+                    string?[] emailAddresses = srcAddressRow["Email"]?.ToString().Trim().Split(new char[] { ';', ' ' });
                     // put emails found in a list, cause there are some duplicates
                     List<string> emailList = new List<string>();
                     foreach (string? emailAddress in emailAddresses)
@@ -506,13 +506,13 @@ async Task doMigration(IConfiguration config)
                 vehicle.VehicleOwner = (int)srcVehicleRow["VehicleOwner"];
                 vehicle.DDDId = (int)srcVehicleRow["VehicleOwner"];
                 //vehicle.Notes = srcVehicleRow["AuditTrail"].ToString(); // no need for this data - it is the person and the one who did data entry
-                vehicle.Color = srcVehicleRow["VehicleColor"].ToString();
-                vehicle.Make = srcVehicleRow["VehicleMake"].ToString();
-                vehicle.Model = srcVehicleRow["VehicleModel"].ToString();
-                vehicle.Year = Convert.ToInt32(srcVehicleRow["VehicleYear"] == DBNull.Value ? null : srcVehicleRow["VehicleYear"].ToString());
+                vehicle.Color = srcVehicleRow["VehicleColor"].ToString().Trim();
+                vehicle.Make = srcVehicleRow["VehicleMake"].ToString().Trim();
+                vehicle.Model = srcVehicleRow["VehicleModel"].ToString().Trim();
+                vehicle.Year = Convert.ToInt32(srcVehicleRow["VehicleYear"] == DBNull.Value ? null : srcVehicleRow["VehicleYear"].ToString().Trim());
                 vehicle.PermitExpires = srcVehicleRow["PermitExpires"] != DBNull.Value ? (DateTime)srcVehicleRow["PermitExpires"] : null;
                 vehicle.PermitNumber = srcVehicleRow["PermitNumber"] != DBNull.Value ? (int)srcVehicleRow["PermitNumber"] : null;
-                vehicle.PermitType = srcVehicleRow["PermitType"].ToString();
+                vehicle.PermitType = srcVehicleRow["PermitType"].ToString().Trim();
                 vehicle.ModifiedByUserName = modifiedByUserName;
                 vehicle.CreateDateTime = DateTimeOffset.Now;
                 vehicle.ModifiedDateTime = DateTimeOffset.Now;
@@ -541,8 +541,11 @@ async Task doMigration(IConfiguration config)
                     child.Notes = row["AuditTrail"] == DBNull.Value ? null : row["AuditTrail"].ToString().Trim();
                     child.ClassificationCode = null;
                     child.Comment = null;
-                    child.FirstName = row["ChildName"].ToString().Trim();
-                    child.LastName = row["ChildLastName"].ToString().Trim();
+                    child.FirstName = row["ChildName"] == DBNull.Value ? null : row["ChildName"].ToString().Trim();
+                    if (child.FirstName == null)
+                        continue;
+                    child.LastName = row["ChildName"] == DBNull.Value ? null : 
+                        string.IsNullOrWhiteSpace(row["ChildLastName"].ToString()) ? person.LastName : row["ChildLastName"].ToString().Trim();
                     child.Gender = row["ChildGender"].ToString().Trim();
 
                     if (row["ChildBirthdate"] != DBNull.Value)
@@ -625,7 +628,8 @@ async Task doMigration(IConfiguration config)
 }
 
 Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLine1, string? addressLine2, string? state, string? zipCode, string? cityCode, 
-    string? contactPerson, string? contactPhone, bool directoryInclude, Dictionary<string, string> cityCodeCity, string modifiedByUserName,
+    string? contactPerson, string? contactPhone, bool directoryInclude, Dictionary<string, string> cityCodeCity, DateTimeOffset? arrivalDate, 
+    DateTimeOffset? departureDate, string modifiedByUserName,
     ref IList<Address> allAddressRows, ref IList<PersonHousehold> allPersonHouseholdRows, ref IList<HouseholdAddress> allHouseholdAddressRows)
 {
     var address = new Address();
@@ -633,7 +637,13 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
     address.Notes = auditTrail;
     address.AddressLine1 = string.IsNullOrWhiteSpace(addressLine1) ? null : addressLine1;
     address.AddressLine2 = string.IsNullOrWhiteSpace(addressLine2) ? null : addressLine2;
-    address.IsPermanent = true;
+    address.ArrivalDate = arrivalDate;
+    address.DepartureDate = departureDate;
+   
+    if (departureDate == null) // permanent address
+        address.IsPermanent = true;
+    else 
+        address.IsPermanent = false;
 
     address.StateProvince = string.IsNullOrWhiteSpace(state) ? null : state;
     address.PostalCode = string.IsNullOrWhiteSpace(zipCode) ? null : zipCode;

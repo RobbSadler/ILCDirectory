@@ -43,6 +43,7 @@ builder.Services.AddAuthentication(options =>
 //builder.Services.AddTransient(m => new UserManager("string here for now"));
 builder.Services.AddDistributedMemoryCache();
 
+builder.Services.AddSingleton<ITokenizeAndSearchRepository, TokenizeAndSearchRepository>();
 builder.Services.AddSingleton<IILCDirectoryRepository, ILCDirectoryRepository>();
 builder.Services.AddSingleton<IUserManager, UserManager>();
 
