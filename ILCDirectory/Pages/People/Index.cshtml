@@ -27,17 +27,14 @@
 @foreach (var item in Model.Persons) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.LastName)@Html.DisplayFor(modelItem => item.MaidenName), 
-                @Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.NickName)
-                    
+                @item.LastName@item.MaidenName, @item.FirstName @item.NickName
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.LanguagesSpoken)
+                @item.LanguagesSpoken
             </td>
             <td>
-                <a asp-page="./Edit" asp-route-id="@item.PersonId">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.PersonId">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.PersonId">Delete</a>
+                <a asp-action="Edit">Edit</a>
+                <a asp-action="Delete">Delete</a>
             </td>
         </tr>
 }
