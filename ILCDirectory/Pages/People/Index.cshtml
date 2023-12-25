@@ -24,7 +24,7 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.Persons) {
+        @foreach (var item in Model.Persons) {
         <tr>
             <td>
                 @item.LastName@item.MaidenName, @item.FirstName @item.NickName
@@ -33,8 +33,7 @@
                 @item.LanguagesSpoken
             </td>
             <td>
-                <a asp-action="Edit">Edit</a>
-                <a asp-action="Delete">Delete</a>
+                @*<button asp-action="Delete"><i class="fa-solid " />*@
             </td>
         </tr>
 }
