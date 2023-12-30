@@ -22,8 +22,6 @@
     [ClassificationCode]      NVARCHAR (10)      NULL,
     [LanguagesSpoken]         NVARCHAR (255)     NULL,
     [Notes]                   NVARCHAR (MAX)     NULL,
-    [DirectoryCorrectionForm] DATETIME           NULL,
-    [DirCorrFormNote]         NVARCHAR (120)     NULL,
     [IsDeceased]              BIT                DEFAULT (0) NOT NULL,
     [IsDeleted]               BIT                DEFAULT (0) NOT NULL,
     [IncludeInDirectory]      BIT                DEFAULT (CONVERT([bit],(0))) NOT NULL,

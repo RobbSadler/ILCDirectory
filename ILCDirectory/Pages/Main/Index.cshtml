@@ -4,88 +4,77 @@
     ViewData["Title"] = "People Index";
 }
 
-<style>
-    .hiddenRow {
-       padding: 0 !important;
-    }
-</style>
-<div class="m-1">
-    <div class="display-6 position-absolute start-0 m-1">
-        <strong><em>People</em></strong>
+<div class="container shadow min-vh-100 py-2">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="display-6 start-0 m-1">
+                <strong><em>People</em></strong>
+            </div>
+        </div>
     </div>
-    <div class="position-absolute end-0 mt-4">
-
-        <!-- Search Form - for controller method named OnPostAsync -->
-        <form method="Post"><i class="fa-solid fa-magnifying-glass"></i>
-            <svg title="Search Names and Addresses" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                
-            </svg>
-            <input asp-for="SearchText" />
-            <button type="submit" class="btn btn-light rounded-3">Search</button>
-            <input asp-for="LocalSearch" style="" onchange="" /> <label for="localOnlyCheckbox">Local Only</label>&nbsp;&nbsp;
-            <input asp-for="SearchAddresses" style="" onchange="" /> <label for="searchAddressesCheckbox">Addresses</label>&nbsp;&nbsp;
-            <input asp-for="SearchPeople" style="" onchange="" /> <label for="searchPeopleCheckbox">People</label>&nbsp;&nbsp;
-        </form>
-        <a asp-page="Create">Create New Person</a>
+    <div class="row no-gutters">
+        <div class="col-lg-12">
+            <!-- Search Form - for controller method named OnPostAsync -->
+            <form method="post" class="form-group">
+                <i class="fa-solid fa-magnifying-glass"></i>                
+                <input asp-for="SearchText" class="me-0 pe-0" placeholder="search text" />
+                <button class="btn btn-outline-secondary m-0 border-0 rounded-0 rounded-right" type="button" onclick="document.getElementById('SearchText').value = '';document.getElementById('SearchText').focus();">
+                    <i class="fa fa-times"></i>
+                </button>
+                <button type="submit" class="btn btn-primary rounded-3" asp-page-handler="Search">Search</button>
+                <span class="form-check-inline"><input class="form-check-input" asp-for="LocalSearch" type="checkbox" /><label class="form-check-label" asp-for="LocalSearch">Local</label></span>
+                <span class="form-check-inline"><input class="form-check-input" asp-for="IncludeChildren" type="checkbox" /><label class="form-check-label" asp-for="IncludeChildren">Include Children</label></span>
+                <span class="form-check-inline"><input class="form-check-input" asp-for="SearchPartialWords" type="checkbox" /><label class="form-check-label" asp-for="SearchPartialWords">Partial Words</label></span>
+                <button class="float-end btn btn-light rounded-3" asp-page-handler="CreatePerson">Create Person</button>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="table-responsive">
+            <table class="table accordion" id="person-table">
+                <thead>
+                    <tr>
+                        <th scope="col">
+                            Name (Last (Maiden), First (Nickname))
+                        </th>
+                        <th scope="col">
+                            Languages Spoken
+                        </th>
+                        <th scope="col">
+                            Current Address
+                        </th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Persons)
+                    {
+                        <tr data-bs-toggle="collapse" data-bs-target="#person-detail-@item.PersonId">
+                            <td>
+                                @item.LastName@Html.DisplayFor(modelItem => item.MaidenName),
+                                @item.FirstName @Html.DisplayFor(modelItem => item.NickName)                            
+                            </td>
+                            <td>
+                                @item.LanguagesSpoken
+                            </td>
+                            <td>
+                                @*@Html.DisplayNameFor(model => model.Persons[0].GetAddress())*@
+                            </td>
+                            <td>
+                                <i style = "color:maroon;" class="fa-solid fa-square-xmark"></i>
+                            </td>
+                        </tr>
+                        <tr class="collapse accordion-collapse" id="person-detail-@item.PersonId" data-bs-parent="#person-table">
+                            <td colspan="4">
+                                <p>
+                                    PersonId: @item.PersonId <br />
+                                    next line
+                                </p>
+                            </td>
+                        </tr>    
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-<p class="m-5" />
-
-<table class="main-table table table-bordered table-condensed table-hover table-striped" style="border-collapse:collapse;">
-    <thead>
-        <tr>
-            <th>
-                Name (Last (Maiden), First (Nickname))
-            </th>
-            <th>
-                <label asp-for="Persons[0].LanguagesSpoken"></label>
-            </th>
-            <th>
-                Current Address
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Persons)
-        {
-            <tr data-toggle="collapse" data-target="#person-detail-@item.PersonId" id="row-@item.PersonId" class="accordion-toggle">
-                <td>
-                    @item.LastName@Html.DisplayFor(modelItem => item.MaidenName),
-                    @item.FirstName @Html.DisplayFor(modelItem => item.NickName)
-                </td>
-                <td>
-                    @item.LanguagesSpoken
-                </td>
-                <td>
-                    @*@Html.DisplayNameFor(model => model.Persons[0].GetAddress())*@
-                </td>
-                <td>
-                    <i style = "color:maroon;" class="fa-solid fa-square-xmark"></i>
-                </td>
-            </tr>
-            <tr class="hiddenRow">
-                <td colspan="4" class="hiddenRow">
-                    <div class="accordian-body collapse" id="person-detail-@item.PersonId">
-                        <p>
-                            PersonId: @item.PersonId <br />
-                            next line
-                        </p>
-                    </div>
-                </td>
-            </tr>
-
-        }
-    </tbody>
-</table>
-
-<script>
-$(document).ready(function () {
-    $('.accordian-body').on('show.bs.collapse', function () {
-        $(this).closest("table")
-            .find(".collapse.in")
-            .not(this)
-            .collapse('toggle')
-    })
-});
-</script>

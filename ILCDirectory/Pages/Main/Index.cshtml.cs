@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace ILCDirectory.Pages.Main
 {
     [Authorize]
+    [BindProperties]
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
@@ -25,42 +26,54 @@ namespace ILCDirectory.Pages.Main
         public string SearchText { get; set; }
         public bool LocalSearch { get; set; }
         public bool SearchAddresses { get; set; } = true;
-        public bool SearchPeople { get; set; } = true;
+        public bool IncludeChildren { get; set; } = true;
+        public bool SearchPartialWords { get; set; } = true;
 
-        public async Task OnGet()
+        public async Task OnGetAsync()
         {
             // load cookie values for search options: Search text, localSearch, searchAddresses, searchPeople
-            SearchText = Request.Cookies["Search"];
+            SearchText = Request.Cookies["SearchText"];
             LocalSearch = Request.Cookies["LocalSearch"] == "true" ? true : false;
-            SearchAddresses = Request.Cookies["SearchAddresses"] == "true" ? true : false;
-            SearchPeople = Request.Cookies["SearchPeople"] == "true" ? true : false;
+            IncludeChildren = Request.Cookies["IncludeChildren"] == "true" ? true : false;
+            SearchPartialWords = Request.Cookies["SearchPartialWords"] == "true" ? true : false;
 
-            Persons = _repo.GetAllRowsAsync<Person>(_cfg, "Person").Result;
-            Persons = Persons.OrderBy(p => p.LastName).ThenBy(y => y.FirstName).ToList();
+            Persons = await SearchAsync(LocalSearch, IncludeChildren, SearchPartialWords, SearchText);
         }
 
-        public async Task<IActionResult> OnPostAsync([FromForm] bool localSearch, [FromForm] bool searchAddresses, [FromForm] bool searchPeople, [FromForm] string searchText)
+        public async Task<IActionResult> OnPostSearchAsync([FromForm] bool localSearch, [FromForm] bool includeChildren,
+            [FromForm] bool searchPartialWords, [FromForm] string searchText)
         {
-            // save search options to cookies
-            if (string.IsNullOrEmpty(searchText))
-                Response.Cookies.Delete("SearchText");
-            else
+            Response.Cookies.Delete("SearchText");
+
+            if(!string.IsNullOrEmpty(searchText))
                 Response.Cookies.Append("SearchText", searchText);
 
             Response.Cookies.Delete("LocalSearch");
-            Response.Cookies.Append("LocalSearch", LocalSearch.ToString());
-            Response.Cookies.Delete("SearchAddresses");
-            Response.Cookies.Append("SearchAddresses", SearchAddresses.ToString());
-            Response.Cookies.Delete("SearchPeople");
-            Response.Cookies.Append("SearchPeople", SearchPeople.ToString());
+            LocalSearch = localSearch;
+            Response.Cookies.Append("LocalSearch", localSearch.ToString());
+            Response.Cookies.Delete("IncludeChildren");
+            IncludeChildren = includeChildren;
+            Response.Cookies.Append("IncludeChildren", includeChildren.ToString());
+            Response.Cookies.Delete("SearchPartialWords");
+            SearchPartialWords = searchPartialWords;
+            Response.Cookies.Append("SearchPartialWords", searchPartialWords.ToString());
 
+            Persons = await SearchAsync(localSearch, includeChildren, searchPartialWords, searchText);
+
+            return Page();
+        }
+
+        private async Task<IList<Person>> SearchAsync(bool localSearch, bool includeChildren, 
+            bool searchPartialWords, string searchText)
+        {
             IList<Person> persons;
-            if (string.IsNullOrEmpty(searchText))
-                persons = await _repo.GetAllRowsAsync<Person>(_cfg, "Person");
-            else 
-                (persons, var addresses) = await _searchRepo.SearchForPersonOrAddress(_cfg, searchText);
+            persons = await _searchRepo.SearchForPersonOrAddress(_cfg, searchText, searchPartialWords, includeChildren, localSearch);
 
-            Persons = persons.OrderByDescending(p => p.LastName).ThenBy(y => y.FirstName).ToList();
+            return persons;
+        }
+
+        public async Task<IActionResult> OnPostCreatePersonAsync([FromForm] bool localSearch, [FromForm] bool searchAddresses, [FromForm] bool searchPeople, [FromForm] string searchText)
+        {
             return Page();
         }
     }

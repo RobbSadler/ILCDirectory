@@ -42,14 +42,10 @@
         public string ClassificationCode { get; set; }
         [StringLength(255)]
         public string LanguagesSpoken { get; set; }
-        public bool IncludeInDirectory { get; set; }
+        public bool IncludeInDirectory { get; set; } // master switch - if false, no directory info is displayed even if address, phone, etc. are set to true
 
         [StringLength(2000)]
         public string Notes { get; set; }
-        [Column(TypeName = "datetime")]
-        public DateTime? DirectoryCorrectionForm { get; set; }
-        [StringLength(120)]
-        public string DirCorrFormNote { get; set; }
         public DateTimeOffset CreateDateTime { get; set; }
         public DateTimeOffset ModifiedDateTime { get; set; }
         public string ModifiedByUserName { get; set; }

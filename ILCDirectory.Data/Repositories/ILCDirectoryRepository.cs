@@ -143,10 +143,10 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
             var sql = new StringBuilder();
             sql.AppendLine("SET IDENTITY_INSERT [Person] ON;");
             sql.AppendLine(@"INSERT INTO Person (
-                PersonId, DDDId, Notes, ClassificationCode, Comment, DateOfBirth, DeleteFlag, DirCorrFormNote, DirectoryCorrectionForm, Title, FirstName, 
+                PersonId, DDDId, Notes, ClassificationCode, Comment, DateOfBirth, DeleteFlag, Title, FirstName, 
                 MiddleName, LastName, NickName, MaidenName, Suffix, Gender, LanguagesSpoken, MaritalStatus, Position, WoCode, WorkgroupCode, 
                 IncludeInDirectory, ModifiedByUserName, CreateDateTime, ModifiedDateTime)");
-            sql.AppendLine(@"VALUES (@PersonId, @DDDId, @Notes, @ClassificationCode, @Comment, @DateOfBirth, @DeleteFlag, @DirCorrFormNote, @DirectoryCorrectionForm, 
+            sql.AppendLine(@"VALUES (@PersonId, @DDDId, @Notes, @ClassificationCode, @Comment, @DateOfBirth, @DeleteFlag, 
                 @Title, @FirstName, @MiddleName, @LastName, @NickName, @MaidenName, @Suffix, @Gender, @LanguagesSpoken, @MaritalStatus, @Position, @WoCode, 
                 @WorkgroupCode, @IncludeInDirectory, @ModifiedByUserName, @CreateDateTime, @ModifiedDateTime)");
             sql.AppendLine("SELECT SCOPE_IDENTITY()");
@@ -157,16 +157,6 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
                 dateOfBirthParm = cmd.CreateParameter("@DateOfBirth", DBNull.Value);
             else
                 dateOfBirthParm = cmd.CreateParameter("@DateOfBirth", person.DateOfBirth);
-            DbParameter dirCorrFormNoteParm;
-            if (person.DirCorrFormNote == null)
-                dirCorrFormNoteParm = cmd.CreateParameter("@DirCorrFormNote", DBNull.Value);
-            else
-                dirCorrFormNoteParm = cmd.CreateParameter("@DirCorrFormNote", person.DirCorrFormNote);
-            DbParameter directoryCorrectionFormParm;
-            if (person.DirectoryCorrectionForm == null)
-                directoryCorrectionFormParm = cmd.CreateParameter("@DirectoryCorrectionForm", DBNull.Value);
-            else
-                directoryCorrectionFormParm = cmd.CreateParameter("@DirectoryCorrectionForm", person.DirectoryCorrectionForm);
             DbParameter titleParm;
             if (person.Title == null)
                 titleParm = cmd.CreateParameter("@Title", DBNull.Value);
@@ -239,8 +229,6 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
 
                 // nullable parameters
                 .AddParameter(dateOfBirthParm)
-                .AddParameter(dirCorrFormNoteParm)
-                .AddParameter(directoryCorrectionFormParm)
                 .AddParameter(titleParm)
                 .AddParameter(middleNameParm)
                 .AddParameter(lastNameParm)

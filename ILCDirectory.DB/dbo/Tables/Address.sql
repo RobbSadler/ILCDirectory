@@ -1,6 +1,5 @@
 ﻿CREATE TABLE [dbo].[Address] (
     [AddressId]                     INT                 IDENTITY (1, 1) NOT NULL,
-    [IsPermanent]                   BIT                 DEFAULT (1) NOT NULL,
     [AddressLine1]                  NVARCHAR (255)      NOT NULL,
     [AddressLine2]                  NVARCHAR (255)      DEFAULT (N'') NULL,
     [City]                          NVARCHAR (255)      NOT NULL,

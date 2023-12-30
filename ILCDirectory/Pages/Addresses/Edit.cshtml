@@ -19,12 +19,7 @@
                     <input class="form-check-input" asp-for="Address.IsActive" /> @Html.DisplayNameFor(model => model.Address.IsActive)
                 </label>
             </div>
-*@            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Address.IncludeInDirectory" /> @Html.DisplayNameFor(model => model.Address.IncludeInDirectory)
-                </label>
-            </div>
-            <div class="form-group">
+*@          <div class="form-group">
                 <label asp-for="Address.AddressLine1" class="control-label"></label>
                 <input asp-for="Address.AddressLine1" class="form-control" />
                 <span asp-validation-for="Address.AddressLine1" class="text-danger"></span>

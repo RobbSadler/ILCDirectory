@@ -3,7 +3,6 @@
     public class Address
     {
         public int? AddressId { get; set; }
-        public bool IsPermanent { get; set; }
         [StringLength(255)]
         public string AddressLine1 { get; set; }
         [StringLength(255)]
@@ -16,8 +15,6 @@
         public string PostalCode { get; set; }
         [StringLength(50)]
         public string Country { get; set; }
-        public DateTimeOffset? ArrivalDate { get; set; }
-        public DateTimeOffset? DepartureDate { get; set; }
         [StringLength(50)]
         public string? ContactPersonName { get; set; }
         [StringLength(50)]
@@ -28,7 +25,6 @@
         public string BuildingCode { get; set; }
         [StringLength(255)]
         public string CubicleNumber { get; set; }
-        public bool IncludeInDirectory {  get; set; }
         public bool IsVerified { get; set; }
         public DateTimeOffset CreateDateTime { get; set; }
         public DateTimeOffset ModifiedDateTime { get; set; }

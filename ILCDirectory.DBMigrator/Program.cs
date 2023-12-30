@@ -26,7 +26,7 @@ DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory
 await doMigration(config);
 var tokenizeAndSearchRepository = new TokenizeAndSearchRepository();
 await tokenizeAndSearchRepository.PopulateSearchTokenTables(config);
-var (persons, addresses) = await tokenizeAndSearchRepository.SearchForPersonOrAddress(config, "Caleb");
+(IList<Person> persons, IList<Address> addresses) = await tokenizeAndSearchRepository.SearchForPersonOrAddress(config, "Caleb", true);
 foreach (var person in persons)
 {
     Console.WriteLine($"{person.LastName} ({person.MaidenName}), {person.FirstName} {person.MiddleName} ({person.NickName})");
@@ -214,8 +214,6 @@ async Task doMigration(IConfiguration config)
             person.Comment = srcRow["Comment"].ToString().Trim();
             person.DateOfBirth = srcRow["BirthDate"] == DBNull.Value ? null : (DateTime)srcRow["BirthDate"];
             person.DeleteFlag = false;
-            person.DirCorrFormNote = srcRow["DirCorrFormNote"] == DBNull.Value ? null : srcRow["DirCorrFormNote"].ToString();
-            person.DirectoryCorrectionForm = srcRow["DirectoryCorrectionForm"] == DBNull.Value ? null : (DateTime)srcRow["DirectoryCorrectionForm"];
             person.Title = srcRow["Title"] == DBNull.Value ? null : (Title)Convert.ToInt32(srcRow["Title"].ToString());
             person.FirstName = srcRow["FirstName"].ToString().Trim();
             person.MiddleName = srcRow["MiddleName"] == DBNull.Value ? null : srcRow["MiddleName"].ToString().Trim();
@@ -242,7 +240,11 @@ async Task doMigration(IConfiguration config)
             person.CreateDateTime = DateTimeOffset.Now;
             person.ModifiedDateTime = DateTimeOffset.Now;
 
-            if (person.LanguagesSpoken != null && person.LanguagesSpoken.ToLower().Contains("deceased"))
+            if (person.MaidenName == "214-662-6869") // phone is also in correct location
+                person.MaidenName = null;
+
+            if (person.LanguagesSpoken != null && (person.LanguagesSpoken.ToLower().Contains("deceased") ||
+                                                    person.LanguagesSpoken.ToLower().Contains("decesed")))
                 continue;
 
             if (!allPersonRows.Any(p => p.DDDId == person.DDDId))
@@ -302,7 +304,6 @@ async Task doMigration(IConfiguration config)
                 srcRow["DirectoryCity"] == DBNull.Value ? null : srcRow["DirectoryCity"]?.ToString()?.Trim(),
                 null,
                 null,
-                (bool)srcRow["DirectoryInclude"],                
                 cityCodeCity, null, null,
                 modifiedByUserName, ref allAddressRows, ref allPersonHouseholdRows, ref allHouseholdAddressRows);
 
@@ -329,11 +330,9 @@ async Task doMigration(IConfiguration config)
             InternalAddress internalAddress = new InternalAddress()
             {
                 PersonId = person.PersonId.Value,
-                RoomNumber = srcRow["DirectoryRoom"].ToString(),
-                MailListFlag = (bool)srcRow["MailListFlag"],
-                MailOnly = (bool)srcRow["MailOnly"],
-                MailSortName = srcRow["MailSortName"].ToString(),
-                SpecialContactInfo = srcRow["SpecialContactInfo"].ToString()
+                BoxNumber = srcRow["BoxNumber"] == DBNull.Value ? null : srcRow["BoxNumber"].ToString().Trim(),
+                IncludeInSort = (bool)srcRow["MailListFlag"],
+                SpecialHandling = srcRow["SpecialContactInfo"].ToString()
             };
 
             if (!allInternalAddressRows.Any(x => x.PersonId == person.PersonId))
@@ -349,6 +348,10 @@ async Task doMigration(IConfiguration config)
                 var householdAddress = new HouseholdAddress();
                 householdAddress.HouseholdId = household.HouseholdId.Value;
                 householdAddress.AddressId = existingOrNew.AddressId.Value;
+                householdAddress.IsPermanent = true;
+                householdAddress.IncludeInDirectory = person.IncludeInDirectory;
+                householdAddress.MailOnly = (bool)srcRow["MailOnly"];
+                householdAddress.PurposeOfVisit = null;
                 householdAddress.ModifiedByUserName = modifiedByUserName;
                 householdAddress.CreateDateTime = DateTimeOffset.Now;
                 householdAddress.ModifiedDateTime = DateTimeOffset.Now;
@@ -366,7 +369,9 @@ async Task doMigration(IConfiguration config)
                 int? buildingId = allBuildingRows.FirstOrDefault(x => x.BuildingCode == srcRow["BuildingCode"].ToString().Trim() || x.BuildingId.ToString() == srcRow["BuildingCode"].ToString().Trim())?.BuildingId;
 
                 var cubicleNumber = srcRow["CubicleNumber"] == DBNull.Value ? null : srcRow["CubicleNumber"].ToString().Trim();
-                var roomNumber = srcRow["RoomNumber"] == DBNull.Value ? null : srcRow["RoomNumber"].ToString().Trim();
+                var roomNumber = srcRow["RoomNumber"] == DBNull.Value ?
+                    (srcRow["DirectoryRoom"] == DBNull.Value ? null : srcRow["DirectoryRoom"].ToString()) :
+                    srcRow["RoomNumber"].ToString().Trim();
 
                 if (!allOfficeDetailsRows.Any(x => x.PersonId == person.PersonId))
                 {
@@ -377,6 +382,7 @@ async Task doMigration(IConfiguration config)
                     officeDetails.BuildingId = buildingId;
                     officeDetails.CubicleNumber = cubicleNumber;
                     officeDetails.RoomNumber = roomNumber;
+                    officeDetails.IncludeInDirectory = person.IncludeInDirectory;
                     officeDetails.ModifiedByUserName = modifiedByUserName;
                     officeDetails.CreateDateTime = DateTimeOffset.Now;
                     officeDetails.ModifiedDateTime = DateTimeOffset.Now;
@@ -399,6 +405,8 @@ async Task doMigration(IConfiguration config)
 
             foreach (DataRow srcAddressRow in dsetAddress.Tables[0].Rows)
             {
+                var departureDate = srcAddressRow["DepartureDate"] == DBNull.Value ? (DateTimeOffset?)null : new DateTimeOffset((DateTime)srcAddressRow["DepartureDate"]);
+
                 Address address2 = CreateAndCalculateAddress((int)srcAddressRow["ID"], srcAddressRow["AuditTrail"]?.ToString()?.Trim(),
                     srcAddressRow["AddressLine1"] == DBNull.Value ? null : srcAddressRow["AddressLine1"]?.ToString()?.Trim(),
                     srcAddressRow["AddressLine2"] == DBNull.Value ? null : srcAddressRow["AddressLine2"]?.ToString()?.Trim(),
@@ -407,9 +415,8 @@ async Task doMigration(IConfiguration config)
                     srcAddressRow["CityCode"] == DBNull.Value ? null : srcAddressRow["CityCode"]?.ToString()?.Trim(),
                     srcAddressRow["ContactPerson"] == DBNull.Value ? null : srcAddressRow["ContactPerson"]?.ToString()?.Trim(),
                     srcAddressRow["ContactPhone"] == DBNull.Value ? null : srcAddressRow["ContactPhone"]?.ToString()?.Trim(),
-                    (bool)srcRow["DirectoryInclude"],
                     cityCodeCity, srcAddressRow["ArrivalDate"] == DBNull.Value ? null : new DateTimeOffset((DateTime)srcAddressRow["ArrivalDate"]), 
-                    srcAddressRow["DepartureDate"] == DBNull.Value ? null : new DateTimeOffset((DateTime)srcAddressRow["DepartureDate"]),
+                    departureDate,
                     modifiedByUserName, ref allAddressRows, ref allPersonHouseholdRows, ref allHouseholdAddressRows);
 
                 //if (address2 != null && (address2.AddressLine1 == null || address2.City == null))
@@ -437,6 +444,18 @@ async Task doMigration(IConfiguration config)
                         allAddressRows.Add(address2);
 
                         var householdAddress = new HouseholdAddress();
+                        PurposeOfVisit pov;
+                        if (srcAddressRow["PurposeOfVisit"] != DBNull.Value &&
+                            Enum.TryParse<PurposeOfVisit>(srcAddressRow["PurposeOfVisit"].ToString().Trim(), out pov))
+                            householdAddress.PurposeOfVisit = pov;
+                        else
+                            householdAddress.PurposeOfVisit = null;
+
+                        if (departureDate == null) // permanent address
+                            householdAddress.IsPermanent = true;
+                        else
+                            householdAddress.IsPermanent = false;
+
                         householdAddress.HouseholdId = household.HouseholdId.Value;
                         householdAddress.AddressId = address2.AddressId.Value;
                         householdAddress.ModifiedByUserName = modifiedByUserName;
@@ -571,8 +590,6 @@ async Task doMigration(IConfiguration config)
                     }
 
                     child.DeleteFlag = false;
-                    child.DirCorrFormNote = null;
-                    child.DirectoryCorrectionForm = null;
                     child.Title = null;
                     child.MiddleName = null;
                     child.NickName = null;
@@ -628,7 +645,7 @@ async Task doMigration(IConfiguration config)
 }
 
 Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLine1, string? addressLine2, string? state, string? zipCode, string? cityCode, 
-    string? contactPerson, string? contactPhone, bool directoryInclude, Dictionary<string, string> cityCodeCity, DateTimeOffset? arrivalDate, 
+    string? contactPerson, string? contactPhone, Dictionary<string, string> cityCodeCity, DateTimeOffset? arrivalDate, 
     DateTimeOffset? departureDate, string modifiedByUserName,
     ref IList<Address> allAddressRows, ref IList<PersonHousehold> allPersonHouseholdRows, ref IList<HouseholdAddress> allHouseholdAddressRows)
 {
@@ -637,14 +654,7 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
     address.Notes = auditTrail;
     address.AddressLine1 = string.IsNullOrWhiteSpace(addressLine1) ? null : addressLine1;
     address.AddressLine2 = string.IsNullOrWhiteSpace(addressLine2) ? null : addressLine2;
-    address.ArrivalDate = arrivalDate;
-    address.DepartureDate = departureDate;
    
-    if (departureDate == null) // permanent address
-        address.IsPermanent = true;
-    else 
-        address.IsPermanent = false;
-
     address.StateProvince = string.IsNullOrWhiteSpace(state) ? null : state;
     address.PostalCode = string.IsNullOrWhiteSpace(zipCode) ? null : zipCode;
 
@@ -1012,7 +1022,6 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
     // ContactPerson is simply a string name of the person managing the property and is not included in the directory people table
     address.ContactPersonName = contactPerson;
     address.ContactPersonPhone = contactPhone;
-    address.IncludeInDirectory = directoryInclude; // use the person's directory include flag for initial value
     address.CreateDateTime = DateTimeOffset.Now;
     address.ModifiedDateTime = DateTimeOffset.Now;
     address.ModifiedByUserName = modifiedByUserName;

@@ -26,10 +26,9 @@ namespace ILCDirectory.Data.Repositories;
 
 public class TokenizeAndSearchRepository : ITokenizeAndSearchRepository
 {
-    // The SearchForPerson method could be implemented in SQL, but I chose to implement it in C#
-    // because I wanted to show the steps involved in the search, and the data set in the database 
-    // is small enough that it can be done in memory. There are less than 10000 persons in the database.
-    public async Task<(IList<Person>, IList<Address>)> SearchForPersonOrAddress(IConfiguration config, string searchString)
+    // search the tokens in the SearchToken table and return the PersonIds and AddressIds that are found
+    public async Task<IList<Person>> SearchForPersonOrAddress(IConfiguration config, string searchString, bool searchPartialWords, 
+        bool includeChildren, bool localOnly)
     {
         ILCDirectoryRepository repo = new ILCDirectoryRepository();
         List<SearchToken> searchTokens = new List<SearchToken>();
@@ -40,15 +39,32 @@ public class TokenizeAndSearchRepository : ITokenizeAndSearchRepository
         // eliminate duplicate tokens
         var distinctTokens = tokens.Cast<Match>().Select(m => m.Value).Distinct();
 
-        // find all the tokens in SearchTokens table in the database
-        using var conn = Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
-        var cmd = Sqlocity.GetDatabaseCommand(conn);
-        var sql = "SELECT * FROM SearchToken WHERE Token IN ('" + string.Join("','", distinctTokens) + "')";
-        var rows = await cmd.SetCommandText(sql)
-            .ExecuteToListAsync<SearchToken>();
+        var rows = new List<SearchToken>();
+        if (searchPartialWords)
+        {
+            // make an alternative to the below SQL statement that gathers all tokens that match via a LIKE %searchterm% statement
+            // this will allow for partial matches. It would be prohibitively expensive (i.e. take too long) to do this for a larger database
+            foreach (var token in distinctTokens)
+            {
+                using var connPartial = Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
+                var cmdPartial = Sqlocity.GetDatabaseCommand(connPartial);
+                var sqlPartial = "SELECT * FROM SearchToken WHERE Token LIKE '%" + token + "%'";
+                var rowsPartial = await cmdPartial.SetCommandText(sqlPartial)
+                    .ExecuteToListAsync<SearchToken>();
+                rows.AddRange(rowsPartial);
+            }
+        }
+        else
+        {
+            // find all the tokens in SearchTokens table in the database
+            using var conn = Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
+            var cmd = Sqlocity.GetDatabaseCommand(conn);
+            var sql = "SELECT * FROM SearchToken WHERE Token IN ('" + string.Join("','", distinctTokens) + "')";
+            rows = await cmd.SetCommandText(sql)
+                    .ExecuteToListAsync<SearchToken>();
+        }
 
         List<Person> persons = new();
-        List<Address> addresses = new();
 
         if (rows.Count > 0)
         {
@@ -63,8 +79,18 @@ public class TokenizeAndSearchRepository : ITokenizeAndSearchRepository
             var addressIds = await cmd2.SetCommandText(sql2)
                 .ExecuteToListAsync<int>();
 
+            List<int> personIdsFromAddressSearch = new();
             if (addressIds.Count > 0)
-                addresses = (List<Address>) await repo.GetRowsByIdsAsync<Address>(config, addressIds, "Address");
+            {
+                // get personIds from the Address table via the HouseholdAddress table and the PersonHousehold table
+                using var conn5 = Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
+                var cmd5 = Sqlocity.GetDatabaseCommand(conn5);
+                var sql5 = "SELECT PersonId FROM PersonHousehold WHERE HouseholdId IN (" +
+                    "SELECT HouseholdId FROM HouseholdAddress WHERE AddressId IN (" +
+                    string.Join(",", addressIds) + "))";
+                personIdsFromAddressSearch = await cmd5.SetCommandText(sql5)
+                    .ExecuteToListAsync<int>();
+            }
 
             // now get the personIds from the SearchTokenPerson table using the same tokens in distinctTokens
             using var conn3 = Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
@@ -76,11 +102,38 @@ public class TokenizeAndSearchRepository : ITokenizeAndSearchRepository
             var personIds = await cmd4.SetCommandText(sql4)
                 .ExecuteToListAsync<int>();
 
+            personIds.AddRange(personIdsFromAddressSearch);
+
+            // get the persons from the Person table, and filter for the switches that have been set
+            // if LocalSearch is true, then only consider zipcodes that start with 75 or 76
+            // if IncludeChildren is false, then only consider persons with a birthdate before Today minus 18 years
             if (personIds.Count > 0)
-                persons = (List<Person>) await repo.GetRowsByIdsAsync<Person>(config, personIds, "Person");
+            {
+                var sqlFinal = @"SELECT * FROM Person ";
+                if (localOnly)
+                {
+                    sqlFinal += "INNER JOIN PersonHousehold ON Person.PersonId = PersonHousehold.PersonId" +
+                        "INNER JOIN HouseholdAddress ON PersonHousehold.HouseholdId = HouseholdAddress.HouseholdId" +
+                        "INNER JOIN Address ON HouseholdAddress.AddressId = Address.AddressId";
+                }
+                sqlFinal += "WHERE PersonId IN (" + string.Join(",", personIds) + @") ";
+                if (localOnly)
+                {
+                    sqlFinal += "AND Address.PostalCode LIKE '75%' OR Address.PostalCode LIKE '76%' ";
+                }
+
+                if (!includeChildren)
+                {
+                    sqlFinal += "AND DateOfBirth < DATEADD(year, -18, GETDATE()) ";
+                }
+                var connFinal = Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
+                var cmdFinal = Sqlocity.GetDatabaseCommand(connFinal);
+                persons = await cmdFinal.SetCommandText(sqlFinal)
+                    .ExecuteToListAsync<Person>();
+            }
         }
 
-        return (persons, addresses);
+        return persons;
     }
 
     public async Task PopulateSearchTokenTables(IConfiguration config)
@@ -150,7 +203,7 @@ public class TokenizeAndSearchRepository : ITokenizeAndSearchRepository
             // then insert the SearchTokenId and PersonId into the SearchTokenPerson table
             var regex = new Regex(@"\w+");
             // do for PersonLine1, PersonLine2, City, State, Zip, and Country
-            string[] toParse = { row.FirstName, row.LastName, row.NickName, row.MaidenName, row.FieldOfService, row.MiddleName, row.Position, row.WoCode };
+            string[] toParse = { row.FirstName, row.LastName, row.NickName, row.MaidenName, row.LanguagesSpoken, row.ClassificationCode, row.FieldOfService, row.MiddleName, row.Position, row.WoCode };
 
             List<string> tokens = new();
             foreach (var item in toParse)

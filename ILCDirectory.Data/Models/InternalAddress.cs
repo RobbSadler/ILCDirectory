@@ -11,14 +11,12 @@ namespace ILCDirectory.Data.Models
         public int? InternalAddressId { get; set; }
         public int PersonId { get; set; }
         [StringLength(255)]
-        public string? SpecialContactInfo { get; set; }
+        public string BoxNumber { get; set; }
+        [StringLength(255)]
+        public string? SpecialHandling { get; set; }
+        public bool IncludeInSort { get; set; }
         [StringLength(50)]
         public string? DeliveryCode { get; set; }
         public bool MailListFlag { get; set; }
-        public bool MailOnly { get; set; }
-        [StringLength(50)]
-        public string? MailSortName { get; set; }
-        [StringLength(100)]
-        public string? RoomNumber { get; set; }
     }
 }

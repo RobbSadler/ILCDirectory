@@ -2,7 +2,12 @@
 (
 	[HouseholdAddressId]        INT                 IDENTITY(1,1),
 	[HouseholdId]               INT                 NOT NULL,
-	[AddressId]                 INT                 NOT NULL,
+	[AddressId]                 INT                 NULL,
+    [InternalAddressId]		    INT                 NULL,
+    [IsPermanent]               BIT                 DEFAULT (1) NOT NULL,
+    [IncludeInDirectory]        BIT                 DEFAULT (CONVERT([bit],(0))) NOT NULL,
+    [MailOnly]                  BIT                 DEFAULT (CONVERT([bit],(0))) NOT NULL,
+    [PurposeOfVisit]            INT                 NULL,
     [CreateDateTime]            DATETIMEOFFSET (7)  DEFAULT (getdate()) NOT NULL,
     [ModifiedDateTime]          DATETIMEOFFSET (7)  DEFAULT (getdate()) NOT NULL,
     [ModifiedByUserName]        NVARCHAR (256)      NOT NULL,
