@@ -4,12 +4,10 @@
     public class DetailsModel : PageModel
     {
         private readonly IILCDirectoryRepository _repo;
-        private readonly IConfiguration _cfg;
 
         public DetailsModel(IConfiguration cfg, IILCDirectoryRepository repo)
         {
             _repo = repo;
-            _cfg = cfg;
         }
 
         public Person Person { get; set; }
@@ -21,7 +19,7 @@
                 return NotFound();
             }
 
-            Person = await _repo.GetRowByIdAsync<Person>(_cfg, (int)id, "Person");
+            Person = await _repo.GetRowByIdAsync<Person>((int)id, "Person");
 
             if (Person == null)
             {

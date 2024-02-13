@@ -8,13 +8,11 @@ namespace ILCDirectory.Pages.SetupConfiguration
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly IILCDirectoryRepository _repo;
-        private readonly IConfiguration _cfg;
 
-        public IndexModel(ILogger<IndexModel> logger, IConfiguration cfg, IILCDirectoryRepository repo)
+        public IndexModel(ILogger<IndexModel> logger, IILCDirectoryRepository repo)
         {
             _logger = logger;
             _repo = repo;
-            _cfg = cfg;
         }
 
         public IList<Person> Persons { get; set; }
@@ -31,7 +29,7 @@ namespace ILCDirectory.Pages.SetupConfiguration
             //    var lastPersonId = Request.Cookies["lastPersonId"];
 
             //}
-            Persons = await _repo.GetAllRowsAsync<Person>(_cfg, "Person");
+            Persons = await _repo.GetAllRowsAsync<Person>("Person");
         }
 
         //[HttpPost]

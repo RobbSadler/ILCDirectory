@@ -6,18 +6,16 @@ namespace ILCDirectory.Pages.Addresses
     public class IndexModel : PageModel
     {
         private readonly IILCDirectoryRepository _repo;
-        private readonly IConfiguration _cfg;
         public IList<Address> Addresses { get;set; }
 
-        public IndexModel(IConfiguration cfg, IILCDirectoryRepository repo)
+        public IndexModel(IILCDirectoryRepository repo)
         {
             _repo = repo;
-            _cfg = cfg;
         }
 
         public async Task OnGetAsync()
         {
-            Addresses = await _repo.GetAllRowsAsync<Address>(_cfg, "Address");
+            Addresses = await _repo.GetAllRowsAsync<Address>("Address");
         }
     }
 }

@@ -4,12 +4,10 @@
     public class EditModel : PageModel
     {
         private readonly IILCDirectoryRepository _repo;
-        private readonly IConfiguration _cfg;
 
         public EditModel(IConfiguration cfg, IILCDirectoryRepository repo)
         {
             _repo = repo;
-            _cfg = cfg;
         }
 
         [BindProperty]
@@ -22,7 +20,7 @@
                 return NotFound();
             }
 
-            Address = await _repo.GetRowByIdAsync<Address>(_cfg, (int)id, "Address");
+            Address = await _repo.GetRowByIdAsync<Address>((int)id, "Address");
 
             if (Address == null)
             {

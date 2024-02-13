@@ -8,6 +8,8 @@
     [IncludeInDirectory]        BIT                 DEFAULT (CONVERT([bit],(0))) NOT NULL,
     [MailOnly]                  BIT                 DEFAULT (CONVERT([bit],(0))) NOT NULL,
     [PurposeOfVisit]            INT                 NULL,
+    [ArrivalDate]               DATETIMEOFFSET (7)  NULL,
+    [DepartureDate]             DATETIMEOFFSET (7)  NULL,
     [CreateDateTime]            DATETIMEOFFSET (7)  DEFAULT (getdate()) NOT NULL,
     [ModifiedDateTime]          DATETIMEOFFSET (7)  DEFAULT (getdate()) NOT NULL,
     [ModifiedByUserName]        NVARCHAR (256)      NOT NULL,

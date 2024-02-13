@@ -10,16 +10,15 @@ namespace ILCDirectory.Pages.Account
         private readonly IConfiguration _cfg;
         public IList<Address> Addresses { get;set; }
 
-        public IndexModel(ILogger<IndexModel> logger, IConfiguration cfg, IILCDirectoryRepository repo)
+        public IndexModel(ILogger<IndexModel> logger, IILCDirectoryRepository repo)
         {
             _logger = logger;
             _repo = repo;
-            _cfg = cfg;
         }
 
         public async Task OnGetAsync()
         {
-            Addresses = await _repo.GetAllRowsAsync<Address>(_cfg, "Address");
+            Addresses = await _repo.GetAllRowsAsync<Address>("Address");
         }
     }
 }

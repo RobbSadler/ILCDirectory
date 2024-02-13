@@ -1,4 +1,5 @@
 ﻿@page
+@using ILCDirectory.Models
 @model IndexModel
 @{
     ViewData["Title"] = "People Index";
@@ -49,26 +50,25 @@
                 <tbody>
                     @foreach (var item in Model.Persons)
                     {
-                        <tr data-bs-toggle="collapse" data-bs-target="#person-detail-@item.PersonId">
+                        <tr class="person-row" id="person-row-@item.PersonId" data-spouse-person-id="@item.SpousePersonId" data-bs-toggle="collapse" data-bs-target="#person-detail-@item.PersonId">
                             <td>
                                 @item.LastName@Html.DisplayFor(modelItem => item.MaidenName),
-                                @item.FirstName @Html.DisplayFor(modelItem => item.NickName)                            
+                                @item.FirstName @Html.DisplayFor(modelItem => item.NickName)
                             </td>
                             <td>
                                 @item.LanguagesSpoken
                             </td>
                             <td>
-                                @*@Html.DisplayNameFor(model => model.Persons[0].GetAddress())*@
-                            </td>
-                            <td>
-                                <i style = "color:maroon;" class="fa-solid fa-square-xmark"></i>
+                                <span><i style = "color:maroon;" class="fa-solid fa-square-xmark"></i></span>
                             </td>
                         </tr>
-                        <tr class="collapse accordion-collapse" id="person-detail-@item.PersonId" data-bs-parent="#person-table">
+                        <tr class="collapse accordion-collapse" data-bs-parent="#person-table" id="person-detail-@item.PersonId">
                             <td colspan="4">
                                 <p>
                                     PersonId: @item.PersonId <br />
-                                    next line
+                                    <div id="person-detail-info-@item.PersonId">
+                                        Details Loading...
+                                    </div>
                                 </p>
                             </td>
                         </tr>    
@@ -78,3 +78,58 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script type="text/javascript">
+        var personIdLoaded = 0;
+        $('.person-row').click(function () {
+            // make sure the person id is different than the value already loaded in the details panes
+            // if it is different, then load the new person details
+            // get the person id from the row id - it is the last integer of the id after the last dash
+
+            robbUtil.zot();
+
+            var personId = parseInt($(this).attr('id').split('-').pop());
+            var spousePersonId = parseInt($(this).attr('data-spouse-person-id'));
+            if (personId != personIdLoaded) {
+                $('#person-detail-info-' + personId).text("Person Details Loading...");
+                $.ajax({
+                    url: "@Url.Page("/Index")?handler=PersonFamilyAddressDetails",
+                    method: "POST",
+                    data: { personId: personId, spousePersonId: spousePersonId, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (data) {
+                        $('#person-detail-' + personId).html(data);
+                    }
+                });
+
+                // load the address details
+                $('#address-details-pane').text("Address Details Loading...");
+                $.ajax({
+                    url: "@Url.Page("/Index")?handler=PersonAddressDetails",
+                    method: "POST",
+                    data: { personId: personId, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (data) {
+                        $('#address-details-pane').html(data);
+                    }
+                });
+                //$('#address-details-pane').load(''
+                //{ id: personId, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() } );
+                // load the family details
+                $('#family-details-pane').text("Family Details Loading...");
+                $.ajax({
+                    url: "@Url.Page("/Index")?handler=PersonFamilyDetails",
+                    method: "POST",
+                    data: { personId: personId, spousePersonId: spousePersonId, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (data) {
+                        $('#family-details-pane').html(data);
+                    }
+                });
+                personIdLoaded = personId;
+            }
+            else {
+                console.log("personId already loaded");
+            }
+        });
+    </script>
+
+}

@@ -1,5 +1,6 @@
 ﻿using Azure;
 using ILCDirectory.Authentication;
+using ILCDirectory.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -7,6 +8,7 @@ namespace ILCDirectory.Pages.Main
 {
     [Authorize]
     [BindProperties]
+    [ValidateAntiForgeryToken]
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
@@ -23,6 +25,10 @@ namespace ILCDirectory.Pages.Main
         }
 
         public IList<Person> Persons { get; set; }
+        public PersonFamilyDetails PersonFamilyDetails { get; set; }
+        public PersonAddressDetails PersonAddressDetails { get; set; }
+        public PersonFamilyAddressDetails PersonFamilyAddressDetails { get; set; }
+
         public string SearchText { get; set; }
         public bool LocalSearch { get; set; }
         public bool SearchAddresses { get; set; } = true;
@@ -63,18 +69,35 @@ namespace ILCDirectory.Pages.Main
             return Page();
         }
 
-        private async Task<IList<Person>> SearchAsync(bool localSearch, bool includeChildren, 
-            bool searchPartialWords, string searchText)
+        public async Task<IActionResult> OnPostPersonFamilyAddressDetailsAsync([FromForm] int personId, [FromForm] int? spousePersonId)
         {
-            IList<Person> persons;
-            persons = await _searchRepo.SearchForPersonOrAddress(_cfg, searchText, searchPartialWords, includeChildren, localSearch);
+            PersonFamilyAddressDetails = await _repo.GetPersonFamilyAddressDetailsAsync(personId, spousePersonId);
+            return Partial("_centerPersonDetails", PersonFamilyAddressDetails);
+        }
 
-            return persons;
+        public async Task<IActionResult> OnPostPersonFamilyDetailsAsync([FromForm] int personId, [FromForm] int? spousePersonId)
+        {
+            PersonFamilyDetails = await _repo.GetPersonFamilyDetailsAsync(personId, spousePersonId);
+            return Partial("_rightPane", PersonFamilyDetails);
+        }
+
+        public async Task<IActionResult> OnPostPersonAddressDetailsAsync([FromForm] int personId)
+        {
+            PersonAddressDetails = await _repo.GetPersonAddressDetailsAsync(personId);
+            return Partial("_leftPane", PersonAddressDetails);
         }
 
         public async Task<IActionResult> OnPostCreatePersonAsync([FromForm] bool localSearch, [FromForm] bool searchAddresses, [FromForm] bool searchPeople, [FromForm] string searchText)
         {
             return Page();
+        }
+
+        private async Task<IList<Person>> SearchAsync(bool localSearch, bool includeChildren, bool searchPartialWords, string searchText)
+        {
+            IList<Person> persons;
+            persons = await _searchRepo.SearchForPersonOrAddress(_cfg, searchText, searchPartialWords, includeChildren, localSearch);
+
+            return persons;
         }
     }
 }

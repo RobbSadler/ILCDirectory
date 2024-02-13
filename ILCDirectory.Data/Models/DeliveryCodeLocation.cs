@@ -8,6 +8,7 @@ namespace ILCDirectory.Data.Models
 {
     public class DeliveryCodeLocation
     {
+        public int? DeliveryCodeLocationId { get; set; }
         public string DeliveryCode { get; set; }
         public string DeliveryLocation { get; set; }
         public DateTimeOffset CreateDateTime { get; set; }

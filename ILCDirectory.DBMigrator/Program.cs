@@ -24,17 +24,13 @@ var modifiedByUserName = "ILCDirectoryMigrator";
 DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
 
 await doMigration(config);
-var tokenizeAndSearchRepository = new TokenizeAndSearchRepository();
+var tokenizeAndSearchRepository = new TokenizeAndSearchRepository(config);
 await tokenizeAndSearchRepository.PopulateSearchTokenTables(config);
-(IList<Person> persons, IList<Address> addresses) = await tokenizeAndSearchRepository.SearchForPersonOrAddress(config, "Caleb", true);
+var persons = await tokenizeAndSearchRepository.SearchForPersonOrAddress(config, "Caleb", true, true, false);
 foreach (var person in persons)
 {
     Console.WriteLine($"{person.LastName} ({person.MaidenName}), {person.FirstName} {person.MiddleName} ({person.NickName})");
 }
-foreach (var address in addresses)
-{
-    Console.WriteLine($"{address.AddressLine1}, {address.AddressLine2}, {address.City}, {address.StateProvince} {address.PostalCode}");
-}   
 
 async Task doMigration(IConfiguration config)
 {
@@ -44,7 +40,7 @@ async Task doMigration(IConfiguration config)
         // lookup dictionaries
         var titleDictionary = new Dictionary<int, string>();
         var classificationDictionary = new Dictionary<int, Classification>();
-        var repo = new ILCDirectoryRepository();
+        var repo = new ILCDirectoryRepository(config);
 
         connect.Open();
 
@@ -54,21 +50,21 @@ async Task doMigration(IConfiguration config)
         OleDbDataAdapter daBuilding = new OleDbDataAdapter(cmdBuilding);
         DataSet dsetBuilding = new DataSet();
         daBuilding.Fill(dsetBuilding);
-        var allBuildingRows = await repo.GetAllRowsAsync<Building>(config, "Building");
+        var allBuildingRows = await repo.GetAllRowsAsync<Building>("Building");
         foreach (DataRow buildingRow in dsetBuilding.Tables[0].Rows)
         {
             var building = new Building()
             {
                 BuildingId = (int)buildingRow["BuildingID"],
-                BuildingCode = buildingRow["BuildingCode"].ToString().Trim(),
-                BuildingLongDesc = buildingRow["BuildingLongDesc"].ToString().Trim(),
-                BuildingShortDesc = buildingRow["BuildingShortDesc"].ToString().Trim(),
+                BuildingCode = buildingRow["BuildingCode"].ToString()!.Trim(),
+                BuildingLongDesc = buildingRow["BuildingLongDesc"].ToString()!.Trim(),
+                BuildingShortDesc = buildingRow["BuildingShortDesc"].ToString()!.Trim(),
                 ModifiedByUserName = "Data Migrator",
             };
             if (!allBuildingRows.Any(b => b.BuildingId == building.BuildingId))
-                await repo.InsertBuildingAsync(config, building, true);
+                await repo.InsertBuildingAsync(building, true);
         }
-        allBuildingRows = await repo.GetAllRowsAsync<Building>(config, "Building"); // refresh list of buildings
+        allBuildingRows = await repo.GetAllRowsAsync<Building>("Building"); // refresh list of buildings
         Console.WriteLine($"Building rows inserted: {allBuildingRows.Count}");
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,8 +86,8 @@ async Task doMigration(IConfiguration config)
             if (cityCodeDesc == DBNull.Value)
                 continue;
 
-            cityCode = cityCode.ToString().Trim();
-            cityCodeDesc = cityCodeDesc.ToString().Trim();
+            cityCode = cityCode.ToString()!.Trim();
+            cityCodeDesc = cityCodeDesc.ToString()!.Trim();
 
             if (!cityCodeCity.ContainsKey((string)cityCode))
                 cityCodeCity.Add((string)cityCode, (string)cityCodeDesc);
@@ -104,7 +100,7 @@ async Task doMigration(IConfiguration config)
         OleDbDataAdapter daClassification = new OleDbDataAdapter(cmdClassification);
         DataSet dsetClassification = new DataSet();
         daClassification.Fill(dsetClassification);
-        var allCurrentClassificationRows = await repo.GetAllRowsAsync<Classification>(config, "Classification");
+        var allCurrentClassificationRows = await repo.GetAllRowsAsync<Classification>("Classification");
         foreach (DataRow classificationRow in dsetClassification.Tables[0].Rows)
         {
             if (classificationRow["StatusCode"] == DBNull.Value)
@@ -113,8 +109,8 @@ async Task doMigration(IConfiguration config)
             var classification = new Classification()
             {
                 ClassificationId = (int)classificationRow["ClassificationID"],
-                ClassificationCode = classificationRow["StatusCode"].ToString().Trim(),
-                Description = classificationRow["StatusDescription"].ToString().Trim(),
+                ClassificationCode = classificationRow["StatusCode"].ToString()!.Trim(),
+                Description = classificationRow["StatusDescription"].ToString()!.Trim(),
                 ModifiedDateTime = DateTime.Now,
                 ModifiedByUserName = modifiedByUserName
             };
@@ -123,18 +119,18 @@ async Task doMigration(IConfiguration config)
                 classificationDictionary.Add((int)classificationRow["ClassificationId"], classification);
 
             if (!allCurrentClassificationRows.Any(c => c.ClassificationId == classification.ClassificationId))
-                await repo.InsertClassificationAsync(config, classification, true);
+                await repo.InsertClassificationAsync(classification, true);
         }
-        allCurrentClassificationRows = await repo.GetAllRowsAsync<Classification>(config, "Classification"); // refresh list of classifications
+        allCurrentClassificationRows = await repo.GetAllRowsAsync<Classification>("Classification"); // refresh list of classifications
         Console.WriteLine($"Classification rows inserted: {allCurrentClassificationRows.Count}");
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // DeliveryCodeDescription
+        // DeliveryCodeLocation
         OleDbCommand cmdDeliveryCodeLocation = new OleDbCommand("select * from tblMailDelivery", connect);
         OleDbDataAdapter daDeliveryCodeLocation = new OleDbDataAdapter(cmdDeliveryCodeLocation);
         DataSet dsetDeliveryCodeLocation = new DataSet();
         daDeliveryCodeLocation.Fill(dsetDeliveryCodeLocation);
-        var allCurrentDeliveryCodeLocationRows = await repo.GetAllRowsAsync<DeliveryCodeLocation>(config, "DeliveryCodeLocation");
+        var allCurrentDeliveryCodeLocationRows = await repo.GetAllRowsAsync<DeliveryCodeLocation>("DeliveryCodeLocation");
         // this table contains duplicate delivery codes, so we need to combine the delivery location values into a single string
         // and then insert a single row for each delivery code
         Dictionary<string, string> deliveryCodeLocation = new();
@@ -143,26 +139,17 @@ async Task doMigration(IConfiguration config)
             if (row["DeliveryCode"] == DBNull.Value)
                 continue;
 
-            if (!deliveryCodeLocation.ContainsKey(row["DeliveryCode"].ToString().Trim()))
-                deliveryCodeLocation.Add(row["DeliveryCode"].ToString().Trim(), row["DeliveryLocation"].ToString().Trim().Trim());
-            else
-                deliveryCodeLocation[row["DeliveryCode"].ToString().Trim()] += ", " + row["DeliveryLocation"].ToString().Trim();
-        }
-        foreach (KeyValuePair<string, string> item in deliveryCodeLocation)
-        {
-            if (allCurrentDeliveryCodeLocationRows.Any(d => d.DeliveryCode == item.Key))
-                continue;
-
             var rowdata = new DeliveryCodeLocation()
             {
-                DeliveryCode = item.Key,
-                DeliveryLocation = item.Value,
+                DeliveryCodeLocationId = (int)row["MailDeliveryId"],
+                DeliveryCode = row["DeliveryCode"].ToString()!.Trim(),
+                DeliveryLocation = row["DeliveryLocation"].ToString()!.Trim(),
                 ModifiedByUserName = modifiedByUserName
             };
 
-            await repo.InsertDeliveryCodeLocationAsync<DeliveryCodeLocation>(config, rowdata);
+            await repo.InsertDeliveryCodeLocationAsync(rowdata, true);
         }
-        allCurrentDeliveryCodeLocationRows = await repo.GetAllRowsAsync<DeliveryCodeLocation>(config, "DeliveryCodeLocation"); // refresh list of delivery codes
+        allCurrentDeliveryCodeLocationRows = await repo.GetAllRowsAsync<DeliveryCodeLocation>("DeliveryCodeLocation"); // refresh list of delivery codes
         Console.WriteLine($"DeliveryCodeLocation rows inserted: {allCurrentDeliveryCodeLocationRows.Count}");
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +164,7 @@ async Task doMigration(IConfiguration config)
         foreach (DataRow titleRow in dsetTitle.Tables[0].Rows)
         {
             if (!titleDictionary.ContainsKey((int)titleRow["TitleId"]))
-                titleDictionary.Add((int)titleRow["TitleId"], titleRow["TitleName"].ToString().Trim());
+                titleDictionary.Add((int)titleRow["TitleId"], titleRow["TitleName"].ToString()!.Trim());
         }
         Console.WriteLine($"Title rows inserted: {titleDictionary.Count}");
 
@@ -188,15 +175,17 @@ async Task doMigration(IConfiguration config)
         DataSet dsetPerson = new DataSet();
         daPerson.Fill(dsetPerson);
 
-        var allPersonRows = await repo.GetAllRowsAsync<Person>(config, "Person");
-        var allParentChildRows = await repo.GetAllRowsAsync<ParentChild>(config, "ParentChild");
-        var allAddressRows = await repo.GetAllRowsAsync<Address>(config, "Address");
-        var allInternalAddressRows = await repo.GetAllRowsAsync<InternalAddress>(config, "InternalAddress");
-        var allOfficeDetailsRows = await repo.GetAllRowsAsync<OfficeDetails>(config, "OfficeDetails");
-        var allHouseholdRows = await repo.GetAllRowsAsync<Household>(config, "Household");
-        var allPersonHouseholdRows = await repo.GetAllRowsAsync<PersonHousehold>(config, "PersonHousehold");
-        var allHouseholdAddressRows = await repo.GetAllRowsAsync<HouseholdAddress>(config, "HouseholdAddress");
-        var allEmailRows = await repo.GetAllRowsAsync<Email>(config, "Email");
+        var allPersonRows = await repo.GetAllRowsAsync<Person>("Person");
+        var allParentChildRows = await repo.GetAllRowsAsync<ParentChild>("ParentChild");
+        var allAddressRows = await repo.GetAllRowsAsync<Address>("Address");
+        var allInternalAddressRows = await repo.GetAllRowsAsync<InternalAddress>("InternalAddress");
+        var allOfficeDetailsRows = await repo.GetAllRowsAsync<OfficeDetails>("OfficeDetails");
+        var allHouseholdRows = await repo.GetAllRowsAsync<Household>("Household");
+        var allPersonHouseholdRows = await repo.GetAllRowsAsync<PersonHousehold>("PersonHousehold");
+        var allHouseholdAddressRows = await repo.GetAllRowsAsync<HouseholdAddress>("HouseholdAddress");
+        var allEmailRows = await repo.GetAllRowsAsync<Email>("Email");
+        var allPhoneNumberRows = await repo.GetAllRowsAsync<PhoneNumber>("PhoneNumber");
+        Regex regexValidEmail = new Regex(@"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}");
 
         foreach (DataRow srcRow in dsetPerson.Tables[0].Rows)
         {
@@ -206,33 +195,34 @@ async Task doMigration(IConfiguration config)
             var person = new Person();
             person.DDDId = (int)srcRow["ID"];
             person.PersonId = (int)srcRow["ID"];
-            person.Notes = srcRow["AuditTrail"].ToString().Trim();
+            person.Notes = srcRow["AuditTrail"].ToString()!.Trim();
             if (srcRow["StatusCode"] == DBNull.Value || Convert.ToInt32((string)srcRow["StatusCode"]) == 26)
                 person.ClassificationCode = null; // This was a row with all nulls except the id in the source data
             else
                 person.ClassificationCode = classificationDictionary[Convert.ToInt32((string)srcRow["StatusCode"])].ClassificationCode;
-            person.Comment = srcRow["Comment"].ToString().Trim();
+            person.Comment = srcRow["Comment"].ToString()!.Trim();
             person.DateOfBirth = srcRow["BirthDate"] == DBNull.Value ? null : (DateTime)srcRow["BirthDate"];
-            person.DeleteFlag = false;
+            person.IsDeceased = false;
+            person.IsDeleted = false;
             person.Title = srcRow["Title"] == DBNull.Value ? null : (Title)Convert.ToInt32(srcRow["Title"].ToString());
-            person.FirstName = srcRow["FirstName"].ToString().Trim();
-            person.MiddleName = srcRow["MiddleName"] == DBNull.Value ? null : srcRow["MiddleName"].ToString().Trim();
-            person.LastName = srcRow["LastName"].ToString().Trim();
+            person.FirstName = srcRow["FirstName"].ToString()!.Trim();
+            person.MiddleName = srcRow["MiddleName"] == DBNull.Value ? null : srcRow["MiddleName"].ToString()!.Trim();
+            person.LastName = srcRow["LastName"].ToString()!.Trim();
 
             // some rows have a null for firstname and lastname, and it indicates an unused row. We'll skip those
             if (string.IsNullOrEmpty(person.FirstName) && string.IsNullOrEmpty(person.LastName))
                 continue;
 
-            person.NickName = srcRow["NickName"] == DBNull.Value ? null : srcRow["NickName"].ToString().Trim();
+            person.NickName = srcRow["NickName"] == DBNull.Value ? null : srcRow["NickName"].ToString()!.Trim();
             person.NickName = (person.NickName == person.FirstName) ? null : person.NickName; // only set it if different from first name
 
-            person.MaidenName = srcRow["MaidenName"] == DBNull.Value ? null : srcRow["MaidenName"].ToString().Trim();
-            person.Suffix = srcRow["Suffix"] == DBNull.Value ? null : (Suffix)Convert.ToInt32(srcRow["Suffix"].ToString().Trim());
-            person.Gender = srcRow["Gender"].ToString().Trim();
-            person.LanguagesSpoken = srcRow["LanguagesSpoken"] == DBNull.Value ? null : srcRow["LanguagesSpoken"].ToString().Trim();
-            person.MaritalStatus = srcRow["MaritalStatus"] == DBNull.Value ? null : srcRow["MaritalStatus"].ToString().Trim();
-            person.Position = srcRow["Position"] == DBNull.Value ? null : srcRow["Position"].ToString().Trim();
-            person.WoCode = srcRow["WO_Code"] == DBNull.Value ? null : srcRow["WO_Code"].ToString().Trim();
+            person.MaidenName = srcRow["MaidenName"] == DBNull.Value ? null : srcRow["MaidenName"].ToString()!.Trim();
+            person.Suffix = srcRow["Suffix"] == DBNull.Value ? null : (Suffix)Convert.ToInt32(srcRow["Suffix"].ToString()!.Trim());
+            person.Gender = srcRow["Gender"].ToString()!.Trim();
+            person.LanguagesSpoken = srcRow["LanguagesSpoken"] == DBNull.Value ? null : srcRow["LanguagesSpoken"].ToString()!.Trim();
+            person.MaritalStatus = srcRow["MaritalStatus"] == DBNull.Value ? null : srcRow["MaritalStatus"].ToString()!.Trim();
+            person.Position = srcRow["Position"] == DBNull.Value ? null : srcRow["Position"].ToString()!.Trim();
+            person.WoCode = srcRow["WO_Code"] == DBNull.Value ? null : srcRow["WO_Code"].ToString()!.Trim();
             person.WorkgroupCode = srcRow["WorkgroupCode"] == DBNull.Value ? null : (int)srcRow["WorkgroupCode"];
             person.IncludeInDirectory = (bool)srcRow["DirectoryInclude"];
 
@@ -247,28 +237,41 @@ async Task doMigration(IConfiguration config)
                                                     person.LanguagesSpoken.ToLower().Contains("decesed")))
                 continue;
 
+            Person? spouse = null;
+            // Check if person has spouse and if they currently exist (thus, have a household row)
+            if (srcRow["SpouseNameID"] != DBNull.Value)
+            {
+                // if spouse is found in allPersonsRows, then we can set spousePersonId on this row
+                var spousePersonId = (int)srcRow["SpouseNameID"];
+                spouse = allPersonRows.FirstOrDefault(p => p.PersonId == spousePersonId);
+                if (spouse != null)
+                    person.SpousePersonId = spouse.PersonId; // don't fill in on row until spouse row is created, as it is a foreign key, then we backfill update
+            }
+
             if (!allPersonRows.Any(p => p.DDDId == person.DDDId))
             {
-                person = await repo.InsertPersonAsync(config, person, true);
+                person = await repo.InsertPersonAsync(person, true);
                 allPersonRows.Add(person);
             }
 
             var personHousehold = allPersonHouseholdRows.FirstOrDefault(x => x.PersonId == person.PersonId);
             Household? household = personHousehold == null ? null : allHouseholdRows.FirstOrDefault(x => x.HouseholdId == personHousehold.HouseholdId);
 
-            // Check if person has spouse or children, and if they currently exist (thus, have a household row)
+            // Check if person has spouse and if they currently exist (thus, have a household row)
             if (srcRow["SpouseNameID"] != DBNull.Value)
             {
-                var spouseDDDId = (int)srcRow["SpouseNameID"];
-
-                // person has spouse, check if spouse exists in current data
-                // if spouse DDDId is less than current person DDDId, then we already processed the spouse, thus we have created a household row
-                if (spouseDDDId < person.DDDId)
+                if (spouse != null) // did we find them in the allPersonRows list?
                 {
-                    var spouse = allPersonRows.FirstOrDefault(p => p.DDDId == spouseDDDId);
-                    var spousePersonHousehold = allPersonHouseholdRows.FirstOrDefault(x => x.PersonId == spouse?.PersonId);
+                    person.SpousePersonId = spouse.PersonId; // don't fill in on row until spouse row is created, as it is a foreign key
+                    var spousePersonHousehold = allPersonHouseholdRows.FirstOrDefault(x => x.PersonId == spouse!.PersonId);
                     if (spousePersonHousehold != null)
                         household = allHouseholdRows.Where(y => y.HouseholdId == spousePersonHousehold.HouseholdId).FirstOrDefault();
+                    // this also means that we now need to update the person row for the spouse to set the spousePersonId
+                    if (spouse.SpousePersonId == null)
+                    {
+                        spouse.SpousePersonId = person.PersonId;
+                        await repo.UpdateRowAsync(spouse, new List<string> { "PersonId" }, "Person");
+                    }
                 }
             }
 
@@ -279,7 +282,7 @@ async Task doMigration(IConfiguration config)
                 household.ModifiedByUserName = modifiedByUserName;
                 household.CreateDateTime = DateTimeOffset.Now;
                 household.ModifiedDateTime = DateTimeOffset.Now;
-                household = await repo.InsertRowAsync<Household>(config, household, "Household");
+                household = await repo.InsertRowAsync<Household>(household, "Household");
                 allHouseholdRows.Add(household);
             }
 
@@ -287,12 +290,12 @@ async Task doMigration(IConfiguration config)
             if (!allPersonHouseholdRows.Any(x => x.PersonId == person.PersonId && x.HouseholdId == household.HouseholdId))
             {
                 var personHoushold = new PersonHousehold();
-                personHoushold.HouseholdId = (int)household.HouseholdId;
-                personHoushold.PersonId = (int)person.PersonId;
+                personHoushold.HouseholdId = (int)household.HouseholdId!;
+                personHoushold.PersonId = (int)person.PersonId!;
                 personHoushold.ModifiedByUserName = modifiedByUserName;
                 personHoushold.CreateDateTime = DateTimeOffset.Now;
                 personHoushold.ModifiedDateTime = DateTimeOffset.Now;
-                await repo.InsertRowAsync<PersonHousehold>(config, personHoushold, "PersonHousehold");
+                await repo.InsertRowAsync<PersonHousehold>(personHoushold, "PersonHousehold");
                 allPersonHouseholdRows.Add(personHoushold);
             }
 
@@ -309,7 +312,7 @@ async Task doMigration(IConfiguration config)
 
             Address existingOrNew = null;
 
-            if (address != null) // if null, it's already been logged, or it's a cancelled visit
+            if (address != null) // if null, it's already been logged, or it's a cancelled or expired visit
             {
                 existingOrNew = allAddressRows.FirstOrDefault(a => a.AddressLine1 == address.AddressLine1 && a.City == address.City && a.PostalCode == address.PostalCode);
                 if (existingOrNew == null && !string.IsNullOrEmpty(address.AddressLine1) && !string.IsNullOrEmpty(address.City) && !string.IsNullOrEmpty(address.StateProvince) && !string.IsNullOrEmpty(address.PostalCode))
@@ -321,7 +324,7 @@ async Task doMigration(IConfiguration config)
                     if (address.City == null)
                         Console.WriteLine();
 
-                    existingOrNew = await repo.InsertRowAsync<Address>(config, address, "Address");
+                    existingOrNew = await repo.InsertRowAsync<Address>(address, "Address");
                     allAddressRows.Add(existingOrNew);
                 }
             }
@@ -329,8 +332,8 @@ async Task doMigration(IConfiguration config)
             // we'll create a InternalAddress row for each person
             InternalAddress internalAddress = new InternalAddress()
             {
-                PersonId = person.PersonId.Value,
-                BoxNumber = srcRow["BoxNumber"] == DBNull.Value ? null : srcRow["BoxNumber"].ToString().Trim(),
+                PersonId = person.PersonId!.Value,
+                BoxNumber = srcRow["BoxNumber"] == DBNull.Value ? null : srcRow["BoxNumber"].ToString()!.Trim(),
                 IncludeInSort = (bool)srcRow["MailListFlag"],
                 SpecialHandling = srcRow["SpecialContactInfo"].ToString()
             };
@@ -338,7 +341,7 @@ async Task doMigration(IConfiguration config)
             if (!allInternalAddressRows.Any(x => x.PersonId == person.PersonId))
             {
                 // write the InternalAddress row
-                await repo.InsertRowAsync<InternalAddress>(config, internalAddress, "InternalAddress");
+                await repo.InsertRowAsync<InternalAddress>(internalAddress, "InternalAddress");
                 allInternalAddressRows.Add(internalAddress);
             }
 
@@ -346,8 +349,8 @@ async Task doMigration(IConfiguration config)
             if (existingOrNew != null && !allHouseholdAddressRows.Any(x => x.HouseholdId == household.HouseholdId && x.AddressId == existingOrNew.AddressId))
             {
                 var householdAddress = new HouseholdAddress();
-                householdAddress.HouseholdId = household.HouseholdId.Value;
-                householdAddress.AddressId = existingOrNew.AddressId.Value;
+                householdAddress.HouseholdId = household.HouseholdId!.Value;
+                householdAddress.AddressId = existingOrNew.AddressId!.Value;
                 householdAddress.IsPermanent = true;
                 householdAddress.IncludeInDirectory = person.IncludeInDirectory;
                 householdAddress.MailOnly = (bool)srcRow["MailOnly"];
@@ -355,7 +358,7 @@ async Task doMigration(IConfiguration config)
                 householdAddress.ModifiedByUserName = modifiedByUserName;
                 householdAddress.CreateDateTime = DateTimeOffset.Now;
                 householdAddress.ModifiedDateTime = DateTimeOffset.Now;
-                await repo.InsertRowAsync<HouseholdAddress>(config, householdAddress, "HouseholdAddress");
+                await repo.InsertRowAsync<HouseholdAddress>(householdAddress, "HouseholdAddress");
                 allHouseholdAddressRows.Add(householdAddress);
             }
 
@@ -366,12 +369,12 @@ async Task doMigration(IConfiguration config)
             {
                 //int? buildingId = srcRow["BuildingCode"] == DBNull.Value ? null : Convert.ToInt32(srcRow["BuildingCode"].ToString()); // ahh that it could be this simple
                 // some of the building rows in the source refer to a building code, others refer to a building id
-                int? buildingId = allBuildingRows.FirstOrDefault(x => x.BuildingCode == srcRow["BuildingCode"].ToString().Trim() || x.BuildingId.ToString() == srcRow["BuildingCode"].ToString().Trim())?.BuildingId;
+                int? buildingId = allBuildingRows.FirstOrDefault(x => x.BuildingCode == srcRow["BuildingCode"].ToString()!.Trim() || x.BuildingId.ToString() == srcRow["BuildingCode"].ToString()!.Trim())?.BuildingId;
 
-                var cubicleNumber = srcRow["CubicleNumber"] == DBNull.Value ? null : srcRow["CubicleNumber"].ToString().Trim();
+                var cubicleNumber = srcRow["CubicleNumber"] == DBNull.Value ? null : srcRow["CubicleNumber"].ToString()!.Trim();
                 var roomNumber = srcRow["RoomNumber"] == DBNull.Value ?
                     (srcRow["DirectoryRoom"] == DBNull.Value ? null : srcRow["DirectoryRoom"].ToString()) :
-                    srcRow["RoomNumber"].ToString().Trim();
+                    srcRow["RoomNumber"].ToString()!.Trim();
 
                 if (!allOfficeDetailsRows.Any(x => x.PersonId == person.PersonId))
                 {
@@ -386,7 +389,7 @@ async Task doMigration(IConfiguration config)
                     officeDetails.ModifiedByUserName = modifiedByUserName;
                     officeDetails.CreateDateTime = DateTimeOffset.Now;
                     officeDetails.ModifiedDateTime = DateTimeOffset.Now;
-                    await repo.InsertRowAsync<OfficeDetails>(config, officeDetails, "OfficeDetails");
+                    await repo.InsertRowAsync<OfficeDetails>(officeDetails, "OfficeDetails");
                     allOfficeDetailsRows.Add(officeDetails);
                 }
             }
@@ -405,7 +408,11 @@ async Task doMigration(IConfiguration config)
 
             foreach (DataRow srcAddressRow in dsetAddress.Tables[0].Rows)
             {
+                var arrivalDate = srcAddressRow["ArrivalDate"] == DBNull.Value ? (DateTimeOffset?)null : new DateTimeOffset((DateTime)srcAddressRow["ArrivalDate"]);
                 var departureDate = srcAddressRow["DepartureDate"] == DBNull.Value ? (DateTimeOffset?)null : new DateTimeOffset((DateTime)srcAddressRow["DepartureDate"]);
+
+                if (departureDate != null && departureDate < DateTimeOffset.Now.AddYears(-5))
+                    continue; // skip this address if it's a past visit
 
                 Address address2 = CreateAndCalculateAddress((int)srcAddressRow["ID"], srcAddressRow["AuditTrail"]?.ToString()?.Trim(),
                     srcAddressRow["AddressLine1"] == DBNull.Value ? null : srcAddressRow["AddressLine1"]?.ToString()?.Trim(),
@@ -415,9 +422,8 @@ async Task doMigration(IConfiguration config)
                     srcAddressRow["CityCode"] == DBNull.Value ? null : srcAddressRow["CityCode"]?.ToString()?.Trim(),
                     srcAddressRow["ContactPerson"] == DBNull.Value ? null : srcAddressRow["ContactPerson"]?.ToString()?.Trim(),
                     srcAddressRow["ContactPhone"] == DBNull.Value ? null : srcAddressRow["ContactPhone"]?.ToString()?.Trim(),
-                    cityCodeCity, srcAddressRow["ArrivalDate"] == DBNull.Value ? null : new DateTimeOffset((DateTime)srcAddressRow["ArrivalDate"]), 
-                    departureDate,
-                    modifiedByUserName, ref allAddressRows, ref allPersonHouseholdRows, ref allHouseholdAddressRows);
+                    cityCodeCity, arrivalDate, departureDate, modifiedByUserName, 
+                    ref allAddressRows, ref allPersonHouseholdRows, ref allHouseholdAddressRows);
 
                 //if (address2 != null && (address2.AddressLine1 == null || address2.City == null))
                 //    Debug.Assert(false);
@@ -440,13 +446,13 @@ async Task doMigration(IConfiguration config)
                         if (address2.City == null)
                             Console.WriteLine();
 
-                        address2 = await repo.InsertRowAsync<Address>(config, address2, "Address");
+                        address2 = await repo.InsertRowAsync<Address>(address2, "Address");
                         allAddressRows.Add(address2);
 
                         var householdAddress = new HouseholdAddress();
                         PurposeOfVisit pov;
                         if (srcAddressRow["PurposeOfVisit"] != DBNull.Value &&
-                            Enum.TryParse<PurposeOfVisit>(srcAddressRow["PurposeOfVisit"].ToString().Trim(), out pov))
+                            Enum.TryParse<PurposeOfVisit>(srcAddressRow["PurposeOfVisit"].ToString()!.Trim(), out pov))
                             householdAddress.PurposeOfVisit = pov;
                         else
                             householdAddress.PurposeOfVisit = null;
@@ -456,22 +462,23 @@ async Task doMigration(IConfiguration config)
                         else
                             householdAddress.IsPermanent = false;
 
-                        householdAddress.HouseholdId = household.HouseholdId.Value;
-                        householdAddress.AddressId = address2.AddressId.Value;
+                        householdAddress.ArrivalDate = arrivalDate;
+                        householdAddress.DepartureDate = departureDate;
+                        householdAddress.HouseholdId = household.HouseholdId!.Value;
+                        householdAddress.AddressId = address2.AddressId!.Value;
                         householdAddress.ModifiedByUserName = modifiedByUserName;
                         householdAddress.CreateDateTime = DateTimeOffset.Now;
                         householdAddress.ModifiedDateTime = DateTimeOffset.Now;
-                        await repo.InsertRowAsync<HouseholdAddress>(config, householdAddress, "HouseholdAddress");
+                        await repo.InsertRowAsync<HouseholdAddress>(householdAddress, "HouseholdAddress");
                         allHouseholdAddressRows.Add(householdAddress);
                     }
                 }
 
                 // Email
-                if (srcAddressRow["Email"] != DBNull.Value && srcAddressRow["Email"].ToString().Trim().Length > 0)
+                if (srcAddressRow["Email"] != DBNull.Value && srcAddressRow["Email"].ToString()!.Trim().Length > 0)
                 {
                     // some email columns are multiple email addresses separated by a semicolon, or words, so we'll parse them out and throw out any that don't look like email addresses
-                    Regex regexValidEmail = new Regex(@"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}");
-                    string?[] emailAddresses = srcAddressRow["Email"]?.ToString().Trim().Split(new char[] { ';', ' ' });
+                    string?[] emailAddresses = srcAddressRow["Email"]?.ToString().Trim().Split(new char[] { ';', ' ' })!;
                     // put emails found in a list, cause there are some duplicates
                     List<string> emailList = new List<string>();
                     foreach (string? emailAddress in emailAddresses)
@@ -497,8 +504,64 @@ async Task doMigration(IConfiguration config)
                         email.ModifiedByUserName = modifiedByUserName;
                         email.CreateDateTime = DateTimeOffset.Now;
                         email.ModifiedDateTime = DateTimeOffset.Now;
-                        await repo.InsertRowAsync<Email>(config, email, "Email");
+                        await repo.InsertRowAsync<Email>(email, "Email");
                         allEmailRows.Add(email);
+                    }
+                }
+            }
+
+            var phoneNumberSourceColumns = new string [] { "DirectoryHomePhone", "DirectPhone", "OfficePhone", "OfficeFAX" };
+            for (int i = 0; i < phoneNumberSourceColumns.Length; ++i)
+            {
+                var phoneNumberWork = srcRow[phoneNumberSourceColumns[i]];
+                if (phoneNumberWork != DBNull.Value && phoneNumberWork.ToString()!.Trim().Length > 0)
+                {
+                    PhoneNumberType phoneNumberType;
+                    switch (phoneNumberSourceColumns[i])
+                    {
+                        case "DirectoryHomePhone":
+                            phoneNumberType = PhoneNumberType.Home;
+                            break;
+                        case "OfficePhone":
+                            phoneNumberType = PhoneNumberType.Work;
+                            break;
+                        case "OfficeFAX":
+                            phoneNumberType = PhoneNumberType.Fax;
+                            break;
+                        case "DirectPhone":
+                        default: // to make compiler happy
+                            phoneNumberType = PhoneNumberType.Mobile;
+                            break;
+                    }
+                    var phoneNumberString = phoneNumberWork.ToString()!.Trim();
+                    if (regexValidEmail.IsMatch(phoneNumberString))
+                    {
+                        // ensure that this email address is not already in the email table for this person
+                        if (allEmailRows.Any(e => e.EmailAddress == phoneNumberString && e.PersonId == person.PersonId))
+                            continue;
+                        // this is an email address, not a phone number
+                        var email = new Email();
+                        email.PersonId = (int)person.PersonId;
+                        email.EmailAddressType = EmailAddressType.Personal;
+                        email.DDDId = (int)srcRow["ID"];
+                        email.EmailAddress = phoneNumberString;
+                        email.ModifiedByUserName = modifiedByUserName;
+                        email.CreateDateTime = DateTimeOffset.Now;
+                        email.ModifiedDateTime = DateTimeOffset.Now;
+                        await repo.InsertRowAsync<Email>(email, "Email");
+                        allEmailRows.Add(email);
+                        continue;
+                    }
+                    var countryIso3 = existingOrNew?.CountryISO3 ?? "USA";
+                    var phoneNumbers = CleanUpPhone(phoneNumberString, (int)person.PersonId, countryIso3, phoneNumberType);
+
+                    foreach (var phoneNumber in phoneNumbers)
+                    {
+                        // check if phoneNumber.Number / phoneNumber.PersonId combination already exists before inserting
+                        if (allPhoneNumberRows.Any(p => p.Number == phoneNumber.Number && p.PersonId == phoneNumber.PersonId))
+                            continue;
+                        var phoneNumberWithId = await repo.InsertRowAsync<PhoneNumber>(phoneNumber, "PhoneNumber");
+                        allPhoneNumberRows.Add(phoneNumberWithId);
                     }
                 }
             }
@@ -525,18 +588,18 @@ async Task doMigration(IConfiguration config)
                 vehicle.VehicleOwner = (int)srcVehicleRow["VehicleOwner"];
                 vehicle.DDDId = (int)srcVehicleRow["VehicleOwner"];
                 //vehicle.Notes = srcVehicleRow["AuditTrail"].ToString(); // no need for this data - it is the person and the one who did data entry
-                vehicle.Color = srcVehicleRow["VehicleColor"].ToString().Trim();
-                vehicle.Make = srcVehicleRow["VehicleMake"].ToString().Trim();
-                vehicle.Model = srcVehicleRow["VehicleModel"].ToString().Trim();
-                vehicle.Year = Convert.ToInt32(srcVehicleRow["VehicleYear"] == DBNull.Value ? null : srcVehicleRow["VehicleYear"].ToString().Trim());
+                vehicle.Color = srcVehicleRow["VehicleColor"].ToString()!.Trim();
+                vehicle.Make = srcVehicleRow["VehicleMake"].ToString()!.Trim();
+                vehicle.Model = srcVehicleRow["VehicleModel"].ToString()!.Trim();
+                vehicle.Year = Convert.ToInt32(srcVehicleRow["VehicleYear"] == DBNull.Value ? null : srcVehicleRow["VehicleYear"].ToString()!.Trim());
                 vehicle.PermitExpires = srcVehicleRow["PermitExpires"] != DBNull.Value ? (DateTime)srcVehicleRow["PermitExpires"] : null;
                 vehicle.PermitNumber = srcVehicleRow["PermitNumber"] != DBNull.Value ? (int)srcVehicleRow["PermitNumber"] : null;
-                vehicle.PermitType = srcVehicleRow["PermitType"].ToString().Trim();
+                vehicle.PermitType = srcVehicleRow["PermitType"].ToString()!.Trim();
                 vehicle.ModifiedByUserName = modifiedByUserName;
                 vehicle.CreateDateTime = DateTimeOffset.Now;
                 vehicle.ModifiedDateTime = DateTimeOffset.Now;
                 vehicle.ModifiedByUserName = "Data Migrator";
-                await repo.InsertRowAsync<Vehicle>(config, vehicle, "Vehicle");
+                await repo.InsertRowAsync<Vehicle>(vehicle, "Vehicle");
             }
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -557,15 +620,15 @@ async Task doMigration(IConfiguration config)
 
                 if (!allPersonRows.Any(p => p.DDDId == child.DDDId))
                 {
-                    child.Notes = row["AuditTrail"] == DBNull.Value ? null : row["AuditTrail"].ToString().Trim();
+                    child.Notes = row["AuditTrail"] == DBNull.Value ? null : row["AuditTrail"].ToString()!.Trim();
                     child.ClassificationCode = null;
                     child.Comment = null;
-                    child.FirstName = row["ChildName"] == DBNull.Value ? null : row["ChildName"].ToString().Trim();
+                    child.FirstName = row["ChildName"] == DBNull.Value ? null : row["ChildName"].ToString()!.Trim();
                     if (child.FirstName == null)
                         continue;
                     child.LastName = row["ChildName"] == DBNull.Value ? null : 
-                        string.IsNullOrWhiteSpace(row["ChildLastName"].ToString()) ? person.LastName : row["ChildLastName"].ToString().Trim();
-                    child.Gender = row["ChildGender"].ToString().Trim();
+                        string.IsNullOrWhiteSpace(row["ChildLastName"].ToString()) ? person.LastName : row["ChildLastName"].ToString()!.Trim();
+                    child.Gender = row["ChildGender"]!.ToString().Trim();
 
                     if (row["ChildBirthdate"] != DBNull.Value)
                     {
@@ -589,7 +652,8 @@ async Task doMigration(IConfiguration config)
 
                     }
 
-                    child.DeleteFlag = false;
+                    child.IsDeleted = false;
+                    child.IsDeceased = false;
                     child.Title = null;
                     child.MiddleName = null;
                     child.NickName = null;
@@ -605,17 +669,17 @@ async Task doMigration(IConfiguration config)
                     child.CreateDateTime = DateTimeOffset.Now;
                     child.ModifiedDateTime = DateTimeOffset.Now;
 
-                    child = await repo.InsertPersonAsync(config, child, true);
+                    child = await repo.InsertPersonAsync(child, true);
                     allPersonRows.Add(child);
 
                     // also insert personHousehold row
                     var personHoushold = new PersonHousehold();
-                    personHoushold.HouseholdId = (int)household.HouseholdId;
-                    personHoushold.PersonId = (int)child.PersonId;
+                    personHoushold.HouseholdId = (int)household.HouseholdId!;
+                    personHoushold.PersonId = (int)child.PersonId!;
                     personHoushold.ModifiedByUserName = modifiedByUserName;
                     personHoushold.CreateDateTime = DateTimeOffset.Now;
                     personHoushold.ModifiedDateTime = DateTimeOffset.Now;
-                    await repo.InsertRowAsync<PersonHousehold>(config, personHoushold, "PersonHousehold");
+                    await repo.InsertRowAsync<PersonHousehold>(personHoushold, "PersonHousehold");
                     allPersonHouseholdRows.Add(personHoushold);
                 }
 
@@ -628,7 +692,7 @@ async Task doMigration(IConfiguration config)
                     parentChild.ModifiedByUserName = modifiedByUserName;
                     parentChild.CreateDateTime = DateTimeOffset.Now;
                     parentChild.ModifiedDateTime = DateTimeOffset.Now;
-                    await repo.InsertRowAsync<ParentChild>(config, parentChild, "ParentChild");
+                    await repo.InsertRowAsync<ParentChild>(parentChild, "ParentChild");
                     allParentChildRows.Add(parentChild);
                 }
             }
@@ -637,11 +701,83 @@ async Task doMigration(IConfiguration config)
             if (allPersonRows.Count % 100 == 0)
                 Console.Write("." + Environment.NewLine);
         }
-        allPersonRows = await repo.GetAllRowsAsync<Person>(config, "Person"); // refresh list of people
+        allPersonRows = await repo.GetAllRowsAsync<Person>("Person"); // refresh list of people
         Console.WriteLine(Environment.NewLine + $"Person rows inserted: {allPersonRows.Count}");
 
         connect.Close();
     }
+}
+
+List<PhoneNumber> CleanUpPhone(string phoneNumberString, int personId, string countryIso3, PhoneNumberType phoneNumberType) // type will be overwritten if found to be cell
+{
+    var phoneNumbersFound = new List<PhoneNumber>();
+    if (phoneNumberString == null)
+        return phoneNumbersFound;
+
+    var ignoreValues = new List<string> { "e-mailonly", "none", "textonly", "traveling", "7x07" };
+    string regexPatternForWordsInParens = @"\(.+?\)";
+
+    string phoneValue = phoneNumberString.ToLower().Trim();
+
+    if (phoneValue == "" || phoneValue.Length < 4)
+        return phoneNumbersFound;
+
+    bool isCell = false;
+    bool doNotGiveOut = false;
+    var matches = Regex.Matches(phoneValue, regexPatternForWordsInParens);
+    var comment = "";
+    // grab recognized attributes, put the rest in comment
+    if (matches.Count > 0)
+    {
+        if (matches[0].Value.Contains("cell"))
+            isCell = true;
+        phoneValue = phoneValue.Replace(matches[0].Value, "");
+    }
+    if (phoneValue.EndsWith("cell") || phoneValue.StartsWith("cell"))
+    {
+        isCell = true;
+        phoneValue = phoneValue.Replace("cell", "");
+    }
+    if (phoneValue.EndsWith("nophone"))
+        phoneValue = phoneValue.Replace("nophone", ""); // discard this
+    if (phoneValue.EndsWith("annajo"))
+        comment = "annajo";
+    if (phoneValue.EndsWith("voicemsgonly"))
+        comment = "voicemsgonly";
+    if (phoneValue.StartsWith("lori-"))
+        comment = "lori";
+
+    if (phoneValue.Contains("donotgiveout") || phoneValue.Contains("do not give out"))
+    {
+        phoneValue = phoneValue.Replace("donotgiveout", "");
+        phoneValue = phoneValue.Replace("do not give out", "");
+        phoneValue = phoneValue.Trim(':').Trim();
+        doNotGiveOut = true;
+    }
+
+    if (ignoreValues.Contains(phoneValue))
+        return phoneNumbersFound; // these were all pertaining to non-phone information that will be elsewhere
+
+    var splitVals = phoneValue.Split(new char[] { ',', '/', ';' });
+
+    for (int i = 0; i < splitVals.Count(); ++i)
+    {
+        if (i > 0 && splitVals[i].Length <= 2)
+        {
+            splitVals[i] = splitVals[0].Substring(0, splitVals[0].Length - splitVals[i].Length) + splitVals[i];
+        }
+
+        phoneNumbersFound.Add(new PhoneNumber()
+        {
+            PersonId = personId,
+            PhoneNumberType = (splitVals[i].Trim().Length < 10) ? PhoneNumberType.LocalILC : (isCell ? PhoneNumberType.Mobile : phoneNumberType),
+            Number = splitVals[i].Trim(),
+            IncludeInDirectory = !doNotGiveOut,
+            ModifiedByUserName = modifiedByUserName,
+        });
+    }
+
+    return phoneNumbersFound;
 }
 
 Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLine1, string? addressLine2, string? state, string? zipCode, string? cityCode, 
@@ -735,10 +871,10 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
         {
             if (address.PostalCode.EndsWith(" UK"))
             {
-                address.Country = "United Kingdom";
+                address.CountryISO3 = "GBR";
             }
             else
-                address.Country = "Canada";
+                address.CountryISO3 = "CAN";
             address.PostalCode = address.PostalCode.Substring(0, 3) + address.PostalCode.Substring(4, 3);
         }
     }
@@ -746,13 +882,13 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
     if (address.PostalCode == "LA15 8QA")
     {
         address.City = "Cumbria";
-        address.Country = "United Kingdom";
+        address.CountryISO3 = "GBR";
     }
 
     if (address.AddressLine1 == "7233 Benchar" && address.StateProvince == "BC")
     {
         address.PostalCode = "V2K5A2";
-        address.Country = "Canada";
+        address.CountryISO3 = "CAN";
         address.AddressLine1 = "7233 Bench Dr";
     }
     if (address.AddressLine1 == "1031 Huntington Dr" && address.City == "Duncanville")
@@ -765,7 +901,7 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
         address.City = "Greensboro";
         address.StateProvince = "NC";
         address.PostalCode = "27410";
-        address.Country = "United States of America";
+        address.CountryISO3 = "USA";
     }
     if (address.PostalCode == "T4ROB4")
     {
@@ -774,32 +910,32 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
     if (address.StateProvince == "BC, Canada")
     {
         address.StateProvince = "BC";
-        address.Country = "Canada";
+        address.CountryISO3 = "CAN";
     }
     if (address.City == "Altona, MB  ROG OB7")
     {
         address.City = "Altona";
         address.StateProvince = "MB";
         address.PostalCode = "R0G0B7";
-        address.Country = "Canada";
+        address.CountryISO3 = "CAN";
     }
     if (address.City == "Hamilton, Ontario")
     {
         address.City = "Hamilton";
         address.StateProvince = "ON";
-        address.Country = "Canada";
+        address.CountryISO3 = "CAN";
     }
     if (address.PostalCode == "TOB-OBO" && address.AddressLine1 == "PO Box 114")
     {
         address.StateProvince = "AB";
         address.PostalCode = "T0B0B0";
-        address.Country = "Canada";
+        address.CountryISO3 = "CAN";
     }
     if (address.StateProvince == "Bangkok 10400, THAILAND")
     {
         address.StateProvince = null;
         address.City = "Bangkok 10400";
-        address.Country = "Thailand";
+        address.CountryISO3 = "THA";
     }
     if ((new string [] {"MB CA", "MB Canada", "MB, Canada"}).Contains(address.StateProvince))
     {
@@ -811,7 +947,7 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
             address.City = address.City.Replace("(??)", "").Trim();
 
         address.StateProvince = "MB";
-        address.Country = "Canada";
+        address.CountryISO3 = "CAN";
     }
     if (address.StateProvince == "Manitoba")
     {
@@ -820,18 +956,18 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
     if (address.StateProvince == "ON, Canada")
     {
         address.StateProvince = "ON";
-        address.Country = "Canada";
+        address.CountryISO3 = "CAN";
     }
     if (address.StateProvince == "PEI, Canada")
     {
         address.StateProvince = "PE";
-        address.Country = "Canada";
+        address.CountryISO3 = "CAN";
     }
     if (address.StateProvince == "SK S4N4P6")
     {
         address.StateProvince = "SK";
         address.PostalCode = "S4N4P6";
-        address.Country = "Canada";
+        address.CountryISO3 = "CAN";
     }
     if (address.City == "Dallas" && address.StateProvince == "TS" && address.PostalCode == "75236")
     {
@@ -840,26 +976,26 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
     if (address.StateProvince == "VIC, Australia")
     {
         address.StateProvince = "VIC";
-        address.Country = "Australia";
+        address.CountryISO3 = "AUS";
     }
     // Saskatchewan S0G 4A0
     if (address.StateProvince == "Saskatchewan")
     {
         address.StateProvince = "SK";
-        address.Country = "Canada";
+        address.CountryISO3 = "CAN";
         address.PostalCode = "S0G4A0";
     }
     //Scotland EH49 7TD
     if (address.StateProvince == "Scotland EH49 7TD")
     {
-        address.StateProvince = null;
+        address.StateProvince = "Scotland";
         address.PostalCode = "EH49 7TD";
-        address.Country = "Scotland";
+        address.CountryISO3 = "GBR";
     }
     if (address.AddressLine1 == "28 Varcrest Pl NW" && address.City == "Calgary" && address.PostalCode == "T3A0B9")
     {
         address.StateProvince = "AB";
-        address.Country = "Canada";
+        address.CountryISO3 = "CAN";
     }
     if (address.StateProvince == "AB/Canada" && address.PostalCode == "TIA8V4")
     {
@@ -873,7 +1009,7 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
     }
     if (address.StateProvince == "Ontario LOR IWO")
     {
-        address.Country = "Canada";
+        address.CountryISO3 = "CAN";
         address.City = "Mount Hope";
         address.StateProvince = "ON";
         address.PostalCode = "L0R 1W0";
@@ -889,30 +1025,30 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
     }
     if (address.StateProvince == "France") // one row in the source data had France as the state and a french street and postal code
     {
-        address.Country = "France";
+        address.CountryISO3 = "FRA";
         address.StateProvince = null;
     }
     if (address.StateProvince == "PNG")
     {
         address.City = "Ukarumpa";
         address.StateProvince = "EHP 444";
-        address.Country = "Papua New Guinea";
+        address.CountryISO3 = "PNG";
         address.PostalCode = null;
     }
     if (address.StateProvince == "Chad, Africa")
     {
         address.StateProvince = null;
         address.PostalCode = null;
-        address.Country = "Chad, Africa";
+        address.CountryISO3 = "TCD";
     }
     if (address.StateProvince == "Victoria")
     {
         address.StateProvince = "VIC";
-        address.Country = "Australia";
+        address.CountryISO3 = "AUS";
     }
     if ((address.StateProvince ?? "").Contains(", Mexico")) // one row Puebla, Mexico - trying to make it generic in case another shows up when I update
     {
-        address.Country = "Mexico";
+        address.CountryISO3 = "MEX";
         address.StateProvince = address?.StateProvince?.Replace(", Mexico", "");
     }
 
@@ -925,7 +1061,7 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
 
     // create regex to check if postalcode is numeric and either 5 or 9 digits, or 5 digits with a dash and then 4 digits
     Regex regexZipCode = new Regex(@"^\d{5}(?:[-\s]\d{4})?$");
-    if (address.PostalCode != null && regexZipCode.IsMatch(address.PostalCode) && address.Country != "France" && address.Country != "Mexico")
+    if (address.PostalCode != null && regexZipCode.IsMatch(address.PostalCode) && address.CountryISO3 != "FRA" && address.CountryISO3 != "MEX")
     {
         // some zip codes were fat-fingered in the source data, so we'll fix them here
         if (address.PostalCode == "76236" || address.PostalCode == "75136" || address.PostalCode == "74236") // these rows' zips don't exist and in the data looked like ILC or nearby in dallas 75236
@@ -955,6 +1091,9 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
             address.PostalCode = "75228";
         }
 
+        if(address.AddressLine1 == "7344 Zunt St Apt 104")
+            address.AddressLine1 = "7344 Zuni St Apt 104";
+
         // we have a zip code, so we can look up the state and city.
         // Some of the US addresses had city data in the state insterad of the state - Look them up if they are > 2 chars
         if (address.StateProvince == null || address.StateProvince.Length > 2)
@@ -962,7 +1101,7 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
         if (address.City == null)
             address.City = USZipCodeStateCityLookup.GetCityByZip(address.PostalCode.Substring(0, 5));
 
-        address.Country = "United States of America";
+        address.CountryISO3 = "USA";
     }
 
     // 6924 Rolling Creek Ln, Dallas, TX 75236, United States
@@ -972,7 +1111,7 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
         address.City = "Dallas";
         address.StateProvince = "TX";
         address.PostalCode = "75236";
-        address.Country = "United States of America";
+        address.CountryISO3 = "USA";
     }
 
     // "1st Presby -D'ville" - 543 E Freeman St, Duncanville, TX 75116
@@ -983,7 +1122,7 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
         address.City = "Duncanville";
         address.StateProvince = "TX";
         address.PostalCode = "75116";
-        address.Country = "United States of America";
+        address.CountryISO3 = "USA";
     }
 
 
@@ -994,7 +1133,7 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
         address.City = "Duncanville";
         address.StateProvince = "TX";
         address.PostalCode = "75137";
-        address.Country = "United States of America";
+        address.CountryISO3 = "USA";
     }
 
     //if (address2.City == null)
@@ -1007,7 +1146,7 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
     //    Debug.Assert(false, "AddressLine1 is null");
 
     // Since we are low on time, we'll mark any address that doesn't have a city, state and address as needing to be fixed
-    if (address.Country == "United States of America")
+    if (address.CountryISO3 == "USA")
     {
         if (string.IsNullOrEmpty(address.City))
             address.City = "Migration:TOFIX";
@@ -1053,7 +1192,7 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
         address.City = "Grapevine";
         address.StateProvince = "TX";
         address.PostalCode = "76051";
-        address.Country = "United States of America";
+        address.CountryISO3 = "USA";
     }
 
     // 7575 S Westmoreland Rd #2024, Dallas, TX 75237
@@ -1128,23 +1267,23 @@ Address CreateAndCalculateAddress(int id, string? auditTrail, string? addressLin
             address.AddressLine1 == "kimlovesalbania@hotmail.com" || address.AddressLine1 == "." ||
             address.AddressLine1.ToLower() == "not indicated" || address.AddressLine1.ToLower() == "not given" ||
             address.AddressLine1.ToLower().StartsWith("unknown"))))
-     {
-        Console.WriteLine($"{Environment.NewLine}Incomplete Address given for DDDId = {address.DDDId}, Address Note: {address.AddressLine1}, skipped");
-        return null;
+    {
+        Console.WriteLine($"{Environment.NewLine}Incomplete Address given for DDDId = {address.DDDId}, Address Line 1: {address.AddressLine1}, skipped");
+        return null; // probably make a list of these and notify the user that they need to be fixed - or we move them to a internal address id applicable
     }
 
     if (address != null && address.AddressLine1 == null && address.AddressLine2 == null && address.PostalCode == null &&
         !string.IsNullOrEmpty(address.City))
     {
-        Console.WriteLine($"{Environment.NewLine}Incomplete - Only City given for DDDId = {address.DDDId}, Address Note: {address.AddressLine1}, skipped");
-        return null;
+        Console.WriteLine($"{Environment.NewLine}Incomplete - Only City given for DDDId = {address.DDDId}, Address City: {address.City}, skipped");
+        return null; // probably make a list of these and notify the user that they need to be fixed
     }
 
     if (address != null && address.AddressLine1 == null && address.AddressLine2 == null && address.PostalCode == null &&
         address.City == null && !string.IsNullOrEmpty(address.StateProvince))
     {
         Console.WriteLine($"{Environment.NewLine}Incomplete - Only State given for DDDId = {address.DDDId}, Address Note: {address.StateProvince}, skipped");
-        return null;
+        return null; // probably make a list of these and notify the user that they need to be fixed
     }
 
     if (address.AddressLine1 == null && address.City == null && address.StateProvince == null && address.PostalCode == null)

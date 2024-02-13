@@ -4,12 +4,10 @@
     public class DetailsModel : PageModel
     {
         private readonly IILCDirectoryRepository _repo;
-        private readonly IConfiguration _cfg;
 
-        public DetailsModel(IConfiguration cfg, IILCDirectoryRepository repo)
+        public DetailsModel(IILCDirectoryRepository repo)
         {
             _repo = repo;
-            _cfg = cfg;
         }
 
         public Address Address { get; set; }
@@ -20,8 +18,7 @@
             {
                 return NotFound();
             }
-            var connectionString = _cfg["ILCDirectory:ConnectionString"];
-            Address = await _repo.GetRowByIdAsync<Address>(_cfg, (int)id, "Address");
+            Address = await _repo.GetRowByIdAsync<Address>((int)id, "Address");
 
             if (Address == null)
             {

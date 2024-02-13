@@ -8,24 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.2" />
+    <PackageReference Include="ElmahCore" Version="2.1.2" />
+    <PackageReference Include="ElmahCore.Sql" Version="2.1.2" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.5" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="NLog" Version="5.2.7" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="5.3.7" />
-    <PackageReference Include="Sustainsys.Saml2.AspNetCore2" Version="2.9.1" />
+    <PackageReference Include="NLog" Version="5.2.8" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.3.8" />
+    <PackageReference Include="Sustainsys.Saml2.AspNetCore2" Version="2.9.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ILCDirectory.Data\ILCDirectory.Data.csproj" />
     <ProjectReference Include="..\ILCDirectory.DB\ILCDirectory.DB.sqlproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <UpToDateCheckInput Remove="Pages\Shared\_LeftPanel.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="Pages\Shared\_LeftPanel.cshtml" />
   </ItemGroup>
 
   <ItemGroup>

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="~/css/solid.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ILCDirectory.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/layout-default.min.css" asp-append-version="true" />
+    <script src="~/lib/robbUtil.js"></script>
 	<script src="~/lib/jquery/dist/jquery.min.js"></script>
 	<script src="~/lib/jquery-migrate/jquery-migrate.js"></script>
 	<script src="~/lib/jquery-ui/jquery-ui.js"></script>
@@ -24,8 +25,10 @@
 		$(document).ready(function () {
 
 			myLayout = $('body').layout({
-				west__minSize: 100
-				, east__minSize: 100
+				west__size: 200
+                , east__size: 200
+                , west__minSize: 200
+				, east__minSize: 200
                 , south__size: 60
                 , north__size: 60
 			});
@@ -68,7 +71,7 @@
         </header>
     </div>
 
-    <div class="ui-layout-west overflow-scroll">
+    <div class="ui-layout-west overflow-scroll" id = "address-details-pane">
 		Address Detail Pane
 	</div>
 
@@ -78,7 +81,7 @@
         </div>
 	</div>
 
-    <div class="ui-layout-east overflow-scroll">
+    <div class="ui-layout-east overflow-scroll" id="family-details-pane">
 		Family Detail Pane
 		@*<p><button onclick="myLayout.close('east')">Close Me</button></p>*@
 	</div>

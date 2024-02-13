@@ -8,8 +8,10 @@ using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using ElmahCore.Mvc;
+using ElmahCore.Sql;
 
-DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
+DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,10 +45,18 @@ builder.Services.AddAuthentication(options =>
 //builder.Services.AddTransient(m => new UserManager("string here for now"));
 builder.Services.AddDistributedMemoryCache();
 
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddSingleton<ITokenizeAndSearchRepository, TokenizeAndSearchRepository>();
 builder.Services.AddSingleton<IILCDirectoryRepository, ILCDirectoryRepository>();
 builder.Services.AddSingleton<IUserManager, UserManager>();
 
+builder.Services.AddElmah<SqlErrorLog>(options =>
+{
+    options.ConnectionString = builder.Configuration[Constants.CONFIG_CONNECTION_STRING];
+    options.OnPermissionCheck = context => context.User.Identity!.IsAuthenticated;
+});
+
+builder.Services.AddControllers();
 builder.Services.AddRazorPages()
     .AddRazorPagesOptions(options => 
         options.Conventions.AddPageRoute("/Main/Index", "")
@@ -115,6 +125,11 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllers();
+app.MapControllerRoute(
+       name: "default",
+          pattern: "{controller=Home}/{action=Main}/{id?}");
 app.MapRazorPages();
+app.UseElmah();
 
 app.Run();

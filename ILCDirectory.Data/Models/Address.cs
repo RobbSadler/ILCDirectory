@@ -13,8 +13,8 @@
         public string StateProvince { get; set; }
         [StringLength(12)]
         public string PostalCode { get; set; }
-        [StringLength(50)]
-        public string Country { get; set; }
+        [StringLength(3)]
+        public string CountryISO3 { get; set; }
         [StringLength(50)]
         public string? ContactPersonName { get; set; }
         [StringLength(50)]

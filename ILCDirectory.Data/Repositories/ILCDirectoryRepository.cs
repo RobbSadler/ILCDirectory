@@ -5,28 +5,35 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using static Azure.Core.HttpHeader;
 
 namespace ILCDirectory.Data.Repositories;
 
 public class ILCDirectoryRepository : IILCDirectoryRepository
 {
-    public async Task<IList<T>> GetAllRowsAsync<T>(IConfiguration config, int id, string tableName) where T : new()
+    private readonly IConfiguration _config;
+
+    public ILCDirectoryRepository(IConfiguration config)
     {
-        var conn = GetConnection(config);
+        _config = config;
+    }
+
+    public async Task<IList<T>> GetAllRowsAsync<T>(string tableName) where T : new()
+    {
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
         var rows = await cmd.SetCommandText($"SELECT * FROM {tableName}")
             .ExecuteToListAsync<T>();
         return rows;
     }
 
-    public async Task<T> GetRowByIdAsync<T>(IConfiguration config, int id, string tableName) where T : new()
+    public async Task<T> GetRowByIdAsync<T>(int id, string tableName) where T : new()
     {
-        var conn = GetConnection(config);
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
         var row = await cmd.SetCommandText($"SELECT * FROM {tableName} where {tableName}Id = @id")
             .AddParameter("@id", id)
@@ -34,18 +41,18 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
         return row;
     }
 
-    public async Task<IList<T>> GetRowsByIdsAsync<T>(IConfiguration config, IList<int> ids, string tableName) where T : new()
+    public async Task<IList<T>> GetRowsByIdsAsync<T>(IList<int> ids, string tableName) where T : new()
     {
-        var conn = GetConnection(config);
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
         var rows = await cmd.SetCommandText($"SELECT * FROM {tableName} where {tableName}Id IN ({string.Join(",", ids)})")
             .ExecuteToListAsync<T>();
         return rows;
     }
 
-    public async Task<T> InsertRowAsync<T>(IConfiguration config, T rowData, string tableName) where T : new()
+    public async Task<T> InsertRowAsync<T>(T rowData, string tableName) where T : new()
     {
-        var conn = GetConnection(config);
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
         var id = await cmd.GenerateInsertForSqlServer(rowData, tableName)
             .ExecuteToObjectAsync<int>();
@@ -57,18 +64,36 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
         return rowData;
     }
 
-    public async Task<IList<T>> GetAllRowsAsync<T>(IConfiguration config, string tableName) where T : new()
+    public async Task<T> UpdateRowAsync<T>(T rowData, List<string> keyNames, string tableName) where T : new()
     {
-        var conn = GetConnection(config);
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
-        var rows = await cmd.SetCommandText($"SELECT * FROM {tableName}")
-            .ExecuteToListAsync<T>();
-        return rows;
+        await cmd.GenerateUpdateForSqlServer(rowData, keyNames, tableName)
+            .ExecuteNonQueryAsync();
+
+        return rowData;
     }
 
-    public async Task<Building> InsertBuildingAsync(IConfiguration config, Building building, bool identityInsert = false)
+    public async Task DeleteRowAsync<T>(int id, string tableName) where T : new()
     {
-        var conn = GetConnection(config);
+        var conn = GetConnection();
+        var cmd = Sqlocity.GetDatabaseCommand(conn);
+        await cmd.SetCommandText($"DELETE FROM {tableName} WHERE {tableName}Id = @id")
+            .AddParameter("@id", id)
+            .ExecuteNonQueryAsync();
+    }
+
+    public async Task DeleteRowsAsync<T>(IList<int> ids, string tableName) where T : new()
+    {
+        var conn = GetConnection();
+        var cmd = Sqlocity.GetDatabaseCommand(conn);
+        await cmd.SetCommandText($"DELETE FROM {tableName} WHERE {tableName}Id IN ({string.Join(",", ids)})")
+            .ExecuteNonQueryAsync();
+    }
+
+    public async Task<Building> InsertBuildingAsync(Building building, bool identityInsert = false)
+    {
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
 
         if (identityInsert && building.BuildingId != null) // If we are inserting an identity column, we need to manually create the insert statement
@@ -100,9 +125,9 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
         return building;
     }
 
-    public async Task<Classification> InsertClassificationAsync(IConfiguration config, Classification classification, bool identityInsert = false)
+    public async Task<Classification> InsertClassificationAsync(Classification classification, bool identityInsert = false)
     {
-        var conn = GetConnection(config);
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
 
         if (identityInsert && classification.ClassificationId != null)
@@ -133,9 +158,9 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
         return classification;
     }
 
-    public async Task<Person> InsertPersonAsync(IConfiguration config, Person person, bool identityInsert = false)
+    public async Task<Person> InsertPersonAsync(Person person, bool identityInsert = false)
     {
-        var conn = GetConnection(config);
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
 
         if (identityInsert && person.PersonId != null)
@@ -143,14 +168,15 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
             var sql = new StringBuilder();
             sql.AppendLine("SET IDENTITY_INSERT [Person] ON;");
             sql.AppendLine(@"INSERT INTO Person (
-                PersonId, DDDId, Notes, ClassificationCode, Comment, DateOfBirth, DeleteFlag, Title, FirstName, 
-                MiddleName, LastName, NickName, MaidenName, Suffix, Gender, LanguagesSpoken, MaritalStatus, Position, WoCode, WorkgroupCode, 
-                IncludeInDirectory, ModifiedByUserName, CreateDateTime, ModifiedDateTime)");
-            sql.AppendLine(@"VALUES (@PersonId, @DDDId, @Notes, @ClassificationCode, @Comment, @DateOfBirth, @DeleteFlag, 
-                @Title, @FirstName, @MiddleName, @LastName, @NickName, @MaidenName, @Suffix, @Gender, @LanguagesSpoken, @MaritalStatus, @Position, @WoCode, 
-                @WorkgroupCode, @IncludeInDirectory, @ModifiedByUserName, @CreateDateTime, @ModifiedDateTime)");
+                PersonId, DDDId, Notes, ClassificationCode, Comment, DateOfBirth, Title, FirstName, 
+                MiddleName, LastName, NickName, MaidenName, Suffix, Gender, LanguagesSpoken, MaritalStatus, SpousePersonId, Position, SupervisorName, WoCode, WorkgroupCode, 
+                FieldOfService, IncludeInDirectory, IsDeleted, IsDeceased, ModifiedByUserName, CreateDateTime, ModifiedDateTime)");
+            sql.AppendLine(@"VALUES (@PersonId, @DDDId, @Notes, @ClassificationCode, @Comment, @DateOfBirth, 
+                @Title, @FirstName, @MiddleName, @LastName, @NickName, @MaidenName, @Suffix, @Gender, @LanguagesSpoken, @MaritalStatus, @SpousePersonId, 
+                @Position, @SupervisorName, @WoCode, @WorkgroupCode, @FieldOfService, @IncludeInDirectory, 
+                @IsDeleted, @IsDeceased, @ModifiedByUserName, @CreateDateTime, @ModifiedDateTime)");
             sql.AppendLine("SELECT SCOPE_IDENTITY()");
-            sql.AppendLine("SET IDENTITY_INSERT [Classification] OFF;");
+            sql.AppendLine("SET IDENTITY_INSERT [Person] OFF;");
 
             DbParameter dateOfBirthParm;
             if (person.DateOfBirth == null)
@@ -197,6 +223,11 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
                 positionParm = cmd.CreateParameter("@Position", DBNull.Value);
             else
                 positionParm = cmd.CreateParameter("@Position", person.Position);
+            DbParameter supervisorNameParm;
+            if (person.SupervisorName == null)
+                supervisorNameParm = cmd.CreateParameter("@SupervisorName", DBNull.Value);
+            else
+                supervisorNameParm = cmd.CreateParameter("@SupervisorName", person.Position);
             DbParameter woCodeParm;
             if (person.WoCode == null)
                 woCodeParm = cmd.CreateParameter("@WoCode", DBNull.Value);
@@ -207,11 +238,21 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
                 maritalStatusParm = cmd.CreateParameter("@MaritalStatus", DBNull.Value);
             else
                 maritalStatusParm = cmd.CreateParameter("@MaritalStatus", person.MaritalStatus);
+            DbParameter spousePersonIdParm;
+            if (person.SpousePersonId == null)
+                spousePersonIdParm = cmd.CreateParameter("@SpousePersonId", DBNull.Value);
+            else
+                spousePersonIdParm = cmd.CreateParameter("@SpousePersonId", person.SpousePersonId);
             DbParameter workgroupCodeParm;
             if (person.WorkgroupCode == null)
                 workgroupCodeParm = cmd.CreateParameter("@WorkgroupCode", DBNull.Value);
             else
                 workgroupCodeParm = cmd.CreateParameter("@WorkgroupCode", person.WorkgroupCode);
+            DbParameter fieldOfServiceParm;
+            if (person.FieldOfService == null)
+                fieldOfServiceParm = cmd.CreateParameter("@FieldOfService", DBNull.Value);
+            else
+                fieldOfServiceParm = cmd.CreateParameter("@FieldOfService", person.FieldOfService);
 
             cmd.SetCommandText(sql.ToString())
                 .AddParameter("@PersonId", person.PersonId)
@@ -219,10 +260,11 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
                 .AddParameter("@Notes", person.Notes)
                 .AddParameter("@ClassificationCode", person.ClassificationCode)
                 .AddParameter("@Comment", person.Comment)
-                .AddParameter("@DeleteFlag", person.DeleteFlag)
                 .AddParameter("@FirstName", person.FirstName)
                 .AddParameter("@Gender", person.Gender)
                 .AddParameter("@IncludeInDirectory", person.IncludeInDirectory)
+                .AddParameter("@IsDeleted", person.IsDeleted)
+                .AddParameter("@IsDeceased", person.IsDeceased)
                 .AddParameter("@ModifiedByUserName", person.ModifiedByUserName)
                 .AddParameter("@CreateDateTime", person.CreateDateTime)
                 .AddParameter("@ModifiedDateTime", person.ModifiedDateTime)
@@ -237,9 +279,12 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
                 .AddParameter(suffixParm)
                 .AddParameter(languagesSpokenParm)
                 .AddParameter(positionParm)
+                .AddParameter(supervisorNameParm)
                 .AddParameter(woCodeParm)
                 .AddParameter(maritalStatusParm)
-                .AddParameter(workgroupCodeParm);
+                .AddParameter(spousePersonIdParm)
+                .AddParameter(workgroupCodeParm)
+                .AddParameter(fieldOfServiceParm);
 
             await cmd.ExecuteScalarAsync<int>();
         }
@@ -252,20 +297,41 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
         return person;
     }
 
-    public async Task<DeliveryCodeLocation> InsertDeliveryCodeLocationAsync<DeliveryCodeLocation>(IConfiguration config, DeliveryCodeLocation deliveryCodeLocation)
+    public async Task<DeliveryCodeLocation> InsertDeliveryCodeLocationAsync(DeliveryCodeLocation deliveryCodeLocation, bool identityInsert = false)
     {
-        var conn = GetConnection(config);
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
 
-        await cmd.GenerateInsertForSqlServer(deliveryCodeLocation, "DeliveryCodeLocation")
-            .ExecuteToObjectAsync<int>();
+        if (identityInsert)
+        {
+            var sql = new StringBuilder();
+            sql.AppendLine("SET IDENTITY_INSERT [DeliveryCodeLocation] ON;");
+            sql.AppendLine(@"INSERT INTO DeliveryCodeLocation (
+                [DeliveryCodeLocationId], [DeliveryCode], [DeliveryLocation], [ModifiedByUserName])
+                VALUES (@DeliveryCodeLocationId, @DeliveryCode, @DeliveryLocation, @ModifiedByUserName)");
+            sql.AppendLine("SELECT SCOPE_IDENTITY()");
+            sql.AppendLine("SET IDENTITY_INSERT [DeliveryCodeLocation] OFF;");
+
+            cmd.SetCommandText(sql.ToString())
+                .AddParameter("@DeliveryCodeLocationId", deliveryCodeLocation.DeliveryCodeLocationId)
+                .AddParameter("@DeliveryCode", deliveryCodeLocation.DeliveryCode)
+                .AddParameter("@DeliveryLocation", deliveryCodeLocation.DeliveryLocation)
+                .AddParameter("@ModifiedByUserName", deliveryCodeLocation.ModifiedByUserName);
+
+            await cmd.ExecuteScalarAsync<int>();
+        }
+        else
+        {
+            deliveryCodeLocation.DeliveryCodeLocationId = await cmd.GenerateInsertForSqlServer(deliveryCodeLocation, "DeliveryCodeLocation")
+                .ExecuteToObjectAsync<int>();
+        }
         return deliveryCodeLocation;
     }
 
-    public async Task<List<ParentChild>> GetParentChildFromParentIdAsync(IConfigurationRoot config, int parentId)
+    public async Task<List<ParentChild>> GetParentChildFromParentIdAsync(int parentId)
     {
         // get all parent child relationships in ParentChild table where ParentId = parentId
-        var conn = GetConnection(config);
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
         var parentChilds = await cmd.SetCommandText("SELECT * FROM ParentChild WHERE ParentId = @ParentId")
             .AddParameter("@ParentId", parentId)
@@ -273,10 +339,10 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
         return parentChilds;
     }
 
-    public async Task<List<ParentChild>> GetParentChildFromChildIdAsync(IConfigurationRoot config, int childId)
+    public async Task<List<ParentChild>> GetParentChildFromChildIdAsync(int childId)
     {
         // get all parent child relationships in ParentChild table where ChildId = childId
-        var conn = GetConnection(config);
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
         var parentChilds = await cmd.SetCommandText("SELECT * FROM ParentChild WHERE ChildId = @ChildId")
             .AddParameter("@ChildId", childId)
@@ -284,10 +350,103 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
         return parentChilds;
     }
 
-    public async Task<List<Person>> GetParentPersonsFromChildAsync(IConfigurationRoot config, int childId)
+    public async Task<PersonFamilyAddressDetails> GetPersonFamilyAddressDetailsAsync(int personId, int? spousePersonId)
+    {
+        var personFamilyAddressDetails = new PersonFamilyAddressDetails();
+
+        var personFamilyDetails = await GetPersonFamilyDetailsAsync(personId, spousePersonId);
+        personFamilyAddressDetails.PersonFamilyDetails = personFamilyDetails;
+
+        var personAddressDetails = await GetPersonAddressDetailsAsync(personId);
+        personFamilyAddressDetails.PersonAddressDetails = personAddressDetails;
+
+        return personFamilyAddressDetails;
+    }
+
+    public async Task<PersonFamilyDetails> GetPersonFamilyDetailsAsync(int personId, int? spousePersonId)
+    {
+        var personFamilyDetails = new PersonFamilyDetails();
+
+        var personEmails = await GetPersonEmailsAsync(personId);
+        personFamilyDetails.PersonEmails.Add(personId, personEmails);
+
+        // Get ParentPersons
+        var parentPersons = await GetParentsForPersonAsync(personId);
+        personFamilyDetails.ParentPersons = parentPersons;
+
+        // Get ChildPersons
+        var childPersons = await GetChildrenForPersonAsync(personId);
+        personFamilyDetails.ChildPersons = childPersons;
+
+        if (spousePersonId != null)
+        {
+            var spouse = await GetRowByIdAsync<Person>((int)spousePersonId, "Person");
+            personFamilyDetails.Spouse = spouse;
+            var spousePersonPhones = await GetPersonPhonesAsync((int)spousePersonId!);
+            personFamilyDetails.PersonPhones.Add((int)spousePersonId, spousePersonPhones);
+            var spousePersonEmails = await GetPersonEmailsAsync((int)spousePersonId!);
+            personFamilyDetails.PersonEmails.Add((int)spousePersonId, spousePersonEmails);
+        }
+
+        if (parentPersons != null && parentPersons.Count > 0)
+        {
+            foreach (var parentPerson in parentPersons)
+            {
+                var parentPersonPhones = await GetPersonPhonesAsync((int)parentPerson.PersonId!);
+                personFamilyDetails.PersonPhones.Add((int)parentPerson.PersonId, parentPersonPhones);
+                var parentPersonEmails = await GetPersonEmailsAsync((int)parentPerson.PersonId!);
+                personFamilyDetails.PersonEmails.Add((int)parentPerson.PersonId, parentPersonEmails);
+            }
+        }
+        if (childPersons != null && childPersons.Count > 0)
+        {
+            foreach (var childPerson in childPersons)
+            {
+                var childPersonPhones = await GetPersonPhonesAsync((int)childPerson.PersonId!);
+                personFamilyDetails.PersonPhones.Add((int)childPerson.PersonId, childPersonPhones);
+                var childPersonEmails = await GetPersonEmailsAsync((int)childPerson.PersonId!);
+                personFamilyDetails.PersonEmails.Add((int)childPerson.PersonId, childPersonEmails);
+            }
+        }
+        return personFamilyDetails;
+    }
+
+    public async Task<PersonAddressDetails> GetPersonAddressDetailsAsync(int personId)
+    {
+        var personAddressDetails = new PersonAddressDetails();
+        // Get PersonHouseholds
+        var personHouseholds = await GetPersonHouseholdsAsync(personId);
+        personAddressDetails.Households = personHouseholds;
+
+        // Get PersonHouseholdAddresses
+        var personHouseholdAddresses = await GetHouseholdAddressesForPersonAsync(personId);
+        personAddressDetails.HouseholdAddresses = personHouseholdAddresses;
+
+        foreach (var pha in personHouseholdAddresses)
+        {
+            if (pha.AddressId != null)
+                pha.Address = await GetRowByIdAsync<Address>(pha.AddressId!.Value, "Address");
+            if (pha.InternalAddressId != null)
+                pha.InternalAddress = await GetRowByIdAsync<InternalAddress>(pha.InternalAddressId!.Value, "InternalAddress");
+        }
+
+        return personAddressDetails;
+    }
+
+    public async Task<IList<Email>> GetPersonEmailsAsync(int personId)
+    {
+        var conn = GetConnection();
+        var cmd = Sqlocity.GetDatabaseCommand(conn);
+        var personEmails = await cmd.SetCommandText("SELECT * FROM Email WHERE PersonId = @PersonId")
+            .AddParameter("@PersonId", personId)
+            .ExecuteToListAsync<Email>();
+        return personEmails;
+    }
+
+    public async Task<List<Person>> GetParentPersonsFromChildAsync(int childId)
     {
         // get all parent child relationships in ParentChild table where ChildId = childId then retrieve person from Person table where PersonId = ParentId
-        var conn = GetConnection(config);
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
         var parents = await cmd.SetCommandText(@"SELECT * FROM Person 
             WHERE PersonId IN (SELECT ParentId FROM ParentChild WHERE ChildId = @ChildId)")
@@ -296,10 +455,32 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
         return parents;
     }
 
-    public async Task<List<Person>> GetChildPersonsForParentAsync(IConfigurationRoot config, int parentId)
+    public async Task<List<PhoneNumber>> GetPersonPhonesAsync(int personId)
+    {
+        var conn = GetConnection();
+        var cmd = Sqlocity.GetDatabaseCommand(conn);
+        var phones = await cmd.SetCommandText(@"SELECT * FROM PhoneNumber 
+            WHERE PersonId = @personId")
+            .AddParameter("@personId", personId)
+            .ExecuteToListAsync<PhoneNumber>();
+        return phones;
+    }
+
+    public async Task<List<PersonHousehold>> GetPersonHouseholdsAsync(int personId)
+    {
+        var conn = GetConnection();
+        var cmd = Sqlocity.GetDatabaseCommand(conn);
+        var personHouseholds = await cmd.SetCommandText(@"SELECT * FROM PersonHousehold 
+            WHERE PersonId = @personId")
+            .AddParameter("@personId", personId)
+            .ExecuteToListAsync<PersonHousehold>();
+        return personHouseholds;
+    }
+
+    public async Task<List<Person>> GetChildPersonsForParentAsync(int parentId)
     {
         // get all parent child relationships in ParentChild table where ChildId = childId then retrieve person from Person table where PersonId = ParentId
-        var conn = GetConnection(config);
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
         var children = await cmd.SetCommandText(@"SELECT * FROM Person 
             WHERE PersonId IN (SELECT ChildId FROM ParentChild WHERE ParentId = @parentId)")
@@ -308,13 +489,13 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
         return children;
     }
 
-    public async Task<InternalAddress> GetInternalAddressForPerson(IConfiguration config, int personId)
+    public async Task<InternalAddress> GetInternalAddressForPersonAsync(int personId)
     {
         var sql = @$"
             SELECT * FROM InternalAddress ia
             WHERE ia.PersonId = @personId";
 
-        var conn = GetConnection(config);
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
         var internalAddress = await cmd.SetCommandText(sql)
             .AddParameter("@personId", personId)
@@ -322,7 +503,7 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
         return internalAddress;
     }
 
-    public async Task<Household> GetHouseholdForPerson(IConfiguration config, int personId)
+    public async Task<Household> GetHouseholdForPersonAsync(int personId)
     {
         var sql = @$"
             SELECT * FROM Household h
@@ -330,7 +511,7 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
             ON ph.HouseholdId = h.HouseholdId
             WHERE ph.PersonId = @personId";
 
-        var conn = GetConnection(config);
+        var conn = GetConnection();
         var cmd = Sqlocity.GetDatabaseCommand(conn);
         var household = await cmd.SetCommandText(sql)
             .AddParameter("@personId", personId)
@@ -338,91 +519,75 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
         return household;
     }
 
-    //public async Task<IList<Address>> FindAddressesAsync(IConfiguration config, string searchTerm)
-    //{
-
-    //}
-
-    // Find any Address or Person that contains the search term
-    //public async Task<IList<SearchResult>> FindAsync(IConfiguration config, string searchTerm)
-    //{
-    //    var conn = GetConnection(config);
-    //    var cmd = Sqlocity.GetDatabaseCommand(conn);
-    //    // Use the AddressWord and PersonWord tables to find any Address or Person that contains the search term
-    //    var results = await cmd.SetCommandText("SELECT * FROM AddressWord WHERE Word LIKE @SearchTerm")
-    //        .AddParameter("@SearchTerm", $"%{searchTerm}%")
-    //        .ExecuteToListAsync<SearchResult>();
-
-    //}
-
-    //private void ParseAndAggregateIncomingAddress(IConfiguration config, Address address, DbConnection conn = null)
-    //{
-    //    conn = conn ?? GetConnection(config);
-    //    // Tokenize and insert each word of the address into the AddressWord table
-    //    // This will allow us to search for addresses by word
-    //    if (address == null)
-    //    {
-    //        throw new ArgumentNullException(nameof(address));
-    //    }
-
-    //    // Get the values of the Address object and add rows to the AddressWord table
-    //    // for each word in the object
-    //    var addressType = address.GetType();
-    //    var properties = addressType.GetProperties();
-    //    foreach (var property in properties)
-    //    {
-    //        var value = property.GetValue(address);
-    //        if (value != null)
-    //        {
-    //            var words = value.ToString().Split(' ');
-    //            foreach (var word in words)
-    //            {
-    //                // Insert the word into the AddressWord table
-    //                Sqlocity.GetDatabaseCommand(conn)
-    //                    .SetCommandText("INSERT INTO AddressWord (AddressId, Word) VALUES (@AddressId, @Word)")
-    //                    .AddParameter("@AddressId", address.AddressId)
-    //                    .AddParameter("@Word", word)
-    //                    .ExecuteNonQueryAsync();
-    //            }
-    //        }
-    //    }
-    //}
-
-    //private void ParseAndAggregateIncomingPerson(IConfiguration config, Person person, DbConnection conn = null)
-    //{
-    //    conn = conn ?? GetConnection(config);
-    //    // Tokenize and insert each word of the person's name into the PersonWord table
-    //    // This will allow us to search for people by name
-    //    if (person == null)
-    //    {
-    //        throw new ArgumentNullException(nameof(person));
-    //    }
-
-    //    // Get the values of the Person object and add rows to the PersonWord table
-    //    // for each word in the object
-    //    var personType = person.GetType();
-    //    var properties = personType.GetProperties();
-    //    foreach (var property in properties)
-    //    {
-    //        var value = property.GetValue(person);
-    //        if (value != null)
-    //        {
-    //            var words = value.ToString().Split(' ');
-    //            foreach (var word in words)
-    //            {
-    //                // Insert the word into the PersonWord table
-    //                Sqlocity.GetDatabaseCommand(conn)
-    //                    .SetCommandText("INSERT INTO PersonWord (PersonId, Word) VALUES (@PersonId, @Word)")
-    //                    .AddParameter("@PersonId", person.PersonId)
-    //                    .AddParameter("@Word", word)
-    //                    .ExecuteNonQueryAsync();
-    //            }
-    //        }
-    //    }
-    //}
-
-    private DbConnection GetConnection(IConfiguration config)
+    // We don't need to get persons from this query since they will be part of the parent / child relationship
+    // but we'll get the personIds
+    public async Task<List<int>> GetPersonIdsForHouseholdAsync(int householdId)
     {
-        return Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
+        var sql = @$"
+            SELECT PersonId FROM PersonHousehold ph
+            WHERE ph.HouseholdId = @householdId";
+
+        var conn = GetConnection();
+        var cmd = Sqlocity.GetDatabaseCommand(conn);
+        var personIds = await cmd.SetCommandText(sql)
+            .AddParameter("@householdId", householdId)
+            .ExecuteToListAsync<int>();
+        return personIds;
+    }
+
+    public async Task<List<HouseholdAddress>> GetHouseholdAddressesForPersonAsync(int personId)
+    {
+        var sql = @$"
+            SELECT * FROM HouseholdAddress ha
+            INNER JOIN PersonHousehold ph ON ph.HouseholdId = ha.HouseholdId
+            WHERE ph.PersonId = @personId";
+
+        var conn = GetConnection();
+        var cmd = Sqlocity.GetDatabaseCommand(conn);
+        var householdAddress = await cmd.SetCommandText(sql)
+            .AddParameter("@personId", personId)
+            .ExecuteToListAsync<HouseholdAddress>();
+        return householdAddress;
+
+        foreach (var ha in householdAddress)
+        {
+            var address = await GetRowByIdAsync<Address>(ha.AddressId.Value, "Address");
+            ha.Address = address;
+        }
+    }
+
+    public async Task<List<Person>> GetChildrenForPersonAsync(int personId)
+    {
+        var sql = @$"
+            SELECT p.* FROM Person p
+            INNER JOIN ParentChild pc ON pc.ChildId = p.PersonId
+            WHERE pc.ParentId = @personId";
+
+        var conn = GetConnection();
+        var cmd = Sqlocity.GetDatabaseCommand(conn);
+        var children = await cmd.SetCommandText(sql)
+            .AddParameter("@personId", personId)
+            .ExecuteToListAsync<Person>();
+        return children;
+    }
+
+    public async Task<List<Person>> GetParentsForPersonAsync(int personId)
+    {
+        var sql = @$"
+            SELECT * FROM Person p
+            INNER JOIN ParentChild pc ON pc.ParentId = p.PersonId
+            WHERE pc.ChildId = @personId";
+
+        var conn = GetConnection();
+        var cmd = Sqlocity.GetDatabaseCommand(conn);
+        var parents = await cmd.SetCommandText(sql)
+            .AddParameter("@personId", personId)
+            .ExecuteToListAsync<Person>();
+        return parents;
+    }
+
+    private DbConnection GetConnection()
+    {
+        return Sqlocity.CreateDbConnection(_config[Constants.CONFIG_CONNECTION_STRING]);
     }
 }

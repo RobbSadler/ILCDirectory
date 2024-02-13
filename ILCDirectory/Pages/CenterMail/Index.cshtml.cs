@@ -7,12 +7,10 @@ namespace ILCDirectory.Pages.CenterMail
     public class IndexModel : PageModel
     {
         private readonly IILCDirectoryRepository _repo;
-        private readonly IConfiguration _cfg;
 
-        public IndexModel(IConfiguration cfg, IILCDirectoryRepository repo)
+        public IndexModel(IILCDirectoryRepository repo)
         {
             _repo = repo;
-            _cfg = cfg;
         }
 
         public IList<Person> Persons { get; set; }
@@ -29,7 +27,7 @@ namespace ILCDirectory.Pages.CenterMail
             //    var lastPersonId = Request.Cookies["lastPersonId"];
 
             //}
-            Persons = await _repo.GetAllRowsAsync<Person>(_cfg, "Person");
+            Persons = await _repo.GetAllRowsAsync<Person>("Person");
         }
 
         //[HttpPost]

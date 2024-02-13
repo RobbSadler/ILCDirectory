@@ -85,6 +85,7 @@
     <Build Include="dbo\Tables\SearchToken.sql" />
     <Build Include="dbo\Tables\SearchTokenAddress.sql" />
     <Build Include="dbo\Tables\SearchTokenPerson.sql" />
+    <Build Include="dbo\Tables\ELMAH_Error.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="ILCDirectory.DB.refactorlog" />

@@ -1,0 +1,48 @@
+﻿@model PersonFamilyAddressDetails
+<p>
+    PersonId: Model.PersonId <br />
+    <b>Address and Family Details:</b> <br />
+    @if (Model.PersonAddressDetails != null && Model.PersonAddressDetails.HouseholdAddresses != null)
+    {
+        @foreach (var ha in Model.PersonAddressDetails.HouseholdAddresses)
+        {
+            @if (ha.Address != null)
+            {
+                <span>@ha.Address.AddressLine1</span>
+
+                <br />
+
+                @if (!string.IsNullOrEmpty(ha.Address.AddressLine2))
+                {
+                    <span>@ha.Address.AddressLine2</span>
+
+                    <br />
+                }
+                <span>@ha.Address.City</span>
+
+                <span>@ha.Address.StateProvince</span> <span>@ha.Address.PostalCode</span>
+            }
+            @if (ha.InternalAddress != null)
+            {
+                <span>Box#: @ha.InternalAddress.BoxNumber</span>
+
+                <br />
+                <span>Spec Hdlg: @ha.InternalAddress.SpecialHandling</span>
+
+                <br />
+                <span>Incl in Sort: @ha.InternalAddress.IncludeInSort</span>
+
+                <br />
+                @if (@ha.InternalAddress.DeliveryCode != null)
+                {
+                    <span>Dlvry Code: @ha.InternalAddress.DeliveryCode</span>
+
+                    <br />
+                }
+                <span>Mail List Flg: @ha.InternalAddress.MailListFlag</span>
+
+                <br />
+            }
+        }
+    }
+</p>

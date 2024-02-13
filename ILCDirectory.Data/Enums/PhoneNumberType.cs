@@ -12,6 +12,7 @@ namespace ILCDirectory.Data.Enums
         Work = 2,
         Mobile = 3,
         Fax = 4,
-        Other = 5
+        LocalILC = 5,
+        Other = 6,
     }
 }

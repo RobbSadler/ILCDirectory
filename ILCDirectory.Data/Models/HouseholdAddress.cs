@@ -22,5 +22,8 @@ namespace ILCDirectory.Data.Models
         public DateTimeOffset CreateDateTime { get; set; }
         public DateTimeOffset ModifiedDateTime { get; set; }
         public string ModifiedByUserName { get; set; }
+
+        public Address? Address { get; set; } = null;
+        public InternalAddress? InternalAddress { get; set; } = null;
     }
 }
