@@ -2,7 +2,7 @@
 {
     public interface ITokenizeAndSearchRepository
     {
-        Task<IList<Person>> SearchForPersonOrAddress(IConfiguration config, string searchString, bool searchPartialWords,
+        Task<(IList<Person>, IList<HouseholdAddress>)> SearchForPersonOrAddress(IConfiguration config, string searchString, bool searchPartialWords,
             bool includeChildren, bool localOnly);
         Task PopulateSearchTokenTables(IConfiguration config);
     }

@@ -8,6 +8,9 @@ namespace ILCDirectory.Data.Models
 {
     public class PersonFamilyAddressDetails
     {
+        // Person Details
+        public Person Person { get; set; }
+
         // Person Family Details
         public PersonFamilyDetails PersonFamilyDetails { get; set; }
 

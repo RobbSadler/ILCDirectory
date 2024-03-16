@@ -354,6 +354,9 @@ public class ILCDirectoryRepository : IILCDirectoryRepository
     {
         var personFamilyAddressDetails = new PersonFamilyAddressDetails();
 
+        var person = await GetRowByIdAsync<Person>(personId, "Person");
+        personFamilyAddressDetails.Person = person;
+
         var personFamilyDetails = await GetPersonFamilyDetailsAsync(personId, spousePersonId);
         personFamilyAddressDetails.PersonFamilyDetails = personFamilyDetails;
 

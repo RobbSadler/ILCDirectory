@@ -1,99 +1,184 @@
 ﻿@model PersonFamilyAddressDetails
 <div class="container">
-    <div class="p-5 g-3 my-4 bg-light rounded-3">
-        <h1>Addresses</h1>
-        <p class="lead">In today's world internet is the most popular way of connecting with the people. At <a href="https://www.tutorialrepublic.com" class="text-success" target="_blank">tutorialrepublic.com</a> you will learn the essential web development technologies along with real life practice examples, so that you can create your own website to connect with the people around the world.</p>
-        <p><a href="https://www.tutorialrepublic.com" target="_blank" class="btn btn-success btn-lg">Get started today</a></p>
-    </div>
-    <div class="row g-3">
-        <div class="col-lg-6 col-xl-4">
-            <h2>HTML</h2>
-            <p>HTML is the standard markup language for describing the structure of the web pages. Our HTML tutorials will help you to understand the basics of latest HTML5 language, so that you can create your own website.</p>
-            <p><a href="https://www.tutorialrepublic.com/html-tutorial/" target="_blank" class="btn btn-success">Learn More &raquo;</a></p>
-        </div>
-        <div class="col-lg-6 col-xl-4">
-            <h2>CSS</h2>
-            <p>CSS is used for describing the presentation of web pages. CSS can save a lot of time and effort. Our CSS tutorials will help you to learn the essentials of latest CSS3, so that you can control the style and layout of your website.</p>
-            <p><a href="https://www.tutorialrepublic.com/css-tutorial/" target="_blank" class="btn btn-success">Learn More &raquo;</a></p>
-        </div>
-        <div class="col-lg-6 col-xl-4">
-            <h2>JavaScript</h2>
-            <p>JavaScript is the most popular and widely used client-side scripting language. Our JavaScript tutorials will provide in-depth knowledge of the JavaScript including ES6 features, so that you can create interactive websites.</p>
-            <p><a href="https://www.tutorialrepublic.com/javascript-tutorial/" target="_blank" class="btn btn-success">Learn More &raquo;</a></p>
-        </div>
-        <div class="col-lg-6 col-xl-4">
-            <h2>Bootstrap</h2>
-            <p>Bootstrap is a powerful front-end framework for faster and easier web development. Our Bootstrap tutorials will help you to learn all the features of latest Bootstrap 4 framework so that you can easily create responsive websites.</p>
-            <p><a href="https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/" target="_blank" class="btn btn-success">Learn More &raquo;</a></p>
-        </div>
-        <div class="col-lg-6 col-xl-4">
-            <h2>PHP</h2>
-            <p>PHP is the most popular server-side scripting language for creating dynamic web pages. Our PHP tutorials will help you to learn all the features of latest PHP7 scripting language so that you can easily create dynamic websites.</p>
-            <p><a href="https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/" target="_blank" class="btn btn-success">Learn More &raquo;</a></p>
-        </div>
-        <div class="col-lg-6 col-xl-4">
-            <h2>SQL</h2>
-            <p>SQL is a standard language designed for managing data in relational database management system. Our SQL tutorials will help you to learn the fundamentals of the SQL language so that you can efficiently manage your databases.</p>
-            <p><a href="https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/" target="_blank" class="btn btn-success">Learn More &raquo;</a></p>
-        </div>
-        <div class="col-lg-6 col-xl-4">
-            <h2>References</h2>
-            <p>Our references section outlines all the standard HTML5 tags and CSS3 properties along with other useful references such as color names and values, character entities, web safe fonts, language codes, HTTP messages, and more.</p>
-            <p><a href="https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/" target="_blank" class="btn btn-success">Learn More &raquo;</a></p>
-        </div>
-        <div class="col-lg-6 col-xl-4">
-            <h2>FAQ</h2>
-            <p>Our Frequently Asked Questions (FAQ) section is an extensive collection of FAQs that provides quick and working solution of common questions and queries related to web design and development with live demo.</p>
-            <p><a href="https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/" target="_blank" class="btn btn-success">Learn More &raquo;</a></p>
+    <div class="row bg-light">
+        <div class="row row-cols-sm-1 row-cols-lg-1 row-cols-xl-2 g-3 m-3">
+            <div class="col"><div class="row"><div class="col float-start">PersonId equal to null: </div><div class="col float-end">@(Model.Person == null)</div></div></div>
+            <div class="col"><div class="row"><div class="col float-start">Name (first middle last): </div><div class="col float-end">@Model.Person.FirstName @Model.Person.MiddleName @Model.Person.LastName</div></div></div>
+            <div class="col"><div class="row"><div class="col float-start">Maiden Name: </div><div class="col float-end">@Model.Person.MaidenName</div></div></div>
+            <div class="col"><div class="row"><div class="col float-start">Nickname: </div><div class="col float-end">@Model.Person.NickName</div></div></div>
+            <div class="col"><div class="row"><div class="col float-start">Marital Status: </div><div class="col float-end">@Model.Person.MaritalStatus</div></div></div>
+            <div class="col"><div class="row"><div class="col float-start">Date of Birth: </div><div class="col float-end">@(Model.Person.DateOfBirth?.ToString("MM/dd/yyyy") ?? "not specified")</div></div></div>
         </div>
     </div>
-</div>
-
-<p>
-    PersonId: Model.PersonId <br />
-    <b>Address and Family Details:</b> <br />
     @if (Model.PersonAddressDetails != null && Model.PersonAddressDetails.HouseholdAddresses != null)
     {
+        <div class="row">
+            <div class="p-2 g-1 my-2 h2">
+                Addresses
+            </div>
+        </div>
         @foreach (var ha in Model.PersonAddressDetails.HouseholdAddresses)
         {
-            @if (ha.Address != null)
-            {
-                <span>@ha.Address.AddressLine1</span>
+            var isCurrent = (ha.ArrivalDate == null || ha.ArrivalDate <= DateTime.Now) && (ha.DepartureDate == null || ha.DepartureDate >= DateTime.Now);
+            var dateBackground = isCurrent ? "bg-success bg-opacity-25" : ""; <!-- green background (lightened by lower opacity) for current address -->
+            <div class="row row-cols-sm-1 row-cols-lg-2 row-cols-xl-3 g-3 m-3">
+                <!-- make a new div for each address -->
+                <div class="col bg-light rounded-3 m-1">
+                    <div class="row">
+                        @if (isCurrent)
+                        {
+                            <div class="col float-start @dateBackground">Current Address</div>
+                        }
+                        else
+						{
+							<div class="col float-start">Historical Address</div>
+						}
+                        <!-- use pencil icon with alt text of edit -->
+                        <div class="col float-end text-end">
+							<a href="">
+                                <span><i style="color:darkblue;" class="fa-solid fa-pencil"></i></span>
+							</a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <span>Arrival Date: @(ha.ArrivalDate?.ToString("MM/dd/yyyy") ?? "")</span>
+                    </div>
+                    <div class="row">
+                        <span>Departure Date: @(ha.DepartureDate?.ToString("MM/dd/yyyy") ?? "")</span>
+                    </div>
+                    <div class="row">
+                        <span>Is Permanent: @ha.IsPermanent</span>
+                    </div>
+                    <div class="row">
+                        <span>Include in Directory: @ha.IncludeInDirectory</span>
+                    </div>
+                    <div class="row">
+                        <span>Mail Only: @ha.MailOnly</span>
+                    </div>
+                </div>
 
-                <br />
-
-                @if (!string.IsNullOrEmpty(ha.Address.AddressLine2))
+                @if (ha.Address != null)
                 {
-                    <span>@ha.Address.AddressLine2</span>
+                    <!-- make a new div for each address -->
+                    <div class="col bg-light rounded-3 m-1">
+                        <!-- make nested rows for each address line -->
 
-                    <br />
+                        <div class="row">
+							<span>@ha.Address.AddressLine1</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(ha.Address.AddressLine2))
+                        {
+                            <div class="row">
+                                <span>@ha.Address.AddressLine2</span>
+                            </div>
+                        }
+                        <div class="row">
+                            <span>@ha.Address.City</span>
+                        </div>
+                        <div class="row">
+                            <span>@ha.Address.StateProvince</span> <span>@ha.Address.PostalCode</span>
+                        </div>
+                    </div>
                 }
-                <span>@ha.Address.City</span>
-
-                <span>@ha.Address.StateProvince</span> <span>@ha.Address.PostalCode</span>
-            }
-            @if (ha.InternalAddress != null)
-            {
-                <span>Box#: @ha.InternalAddress.BoxNumber</span>
-
-                <br />
-                <span>Spec Hdlg: @ha.InternalAddress.SpecialHandling</span>
-
-                <br />
-                <span>Incl in Sort: @ha.InternalAddress.IncludeInSort</span>
-
-                <br />
-                @if (@ha.InternalAddress.DeliveryCode != null)
+                
+                @if (ha.InternalAddress != null)
                 {
-                    <span>Dlvry Code: @ha.InternalAddress.DeliveryCode</span>
+                    <!-- make a new div for each address -->
+                    <div class="col bg-light rounded-3">
+                        <!-- make nested rows for each address line -->
 
-                    <br />
+                        <div class="row">
+                            <h2>Internal Address with date range goes here</h2>
+                        </div>
+                        <div class="row">
+                            <span>Box#: @ha.InternalAddress.BoxNumber</span>
+                        </div>
+                        <div class="row">
+                            <span>Spec Hdlg: @ha.InternalAddress.SpecialHandling</span>
+                        </div>
+                        <div class="row">
+                            <span>Incl in Sort: @ha.InternalAddress.IncludeInSort</span>
+                        </div>
+                        @if (ha.InternalAddress.DeliveryCode != null)
+                        {
+                            <div class="row">
+                                <span>Delivery Code: @ha.InternalAddress.DeliveryCode</span>
+                            </div>
+                        }
+                        <div class="row">
+                            <span>Mail List Flg: @ha.InternalAddress.MailListFlag</span>
+                        </div>
+                    </div>
                 }
-                <span>Mail List Flg: @ha.InternalAddress.MailListFlag</span>
-
-                <br />
-            }
+            </div> 
         }
     }
-</p>
+    <div class="modal fade" id="householdAddressModal-@Model.Person.PersonId" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel-@Model.Person.PersonId" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel-@Model.Person.PersonId">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input class="modalTextInput form-control" placeholder="Text Here" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="saveEdit btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-bordered">
+        <tbody>
+            <tr>
+                <td>Some data here</td>
+                <td>
+                    <button class="btn btn-success btn-sm" data-id="1" data-toggle="modal" data-target="#householdAddressModal-@Model.Person.PersonId">Edit</button>
+                </td>
+            </tr>
+            <tr>
+                <td>Another data here</td>
+                <td>
+                    <button class="btn btn-success btn-sm" data-id="2" data-toggle="modal" data-target="#householdAddressModal-@Model.Person.PersonId">Edit</button>
+                </td>
+            </tr>
+            <tr>
+                <td>More data here</td>
+                <td>
+                    <button class="btn btn-success btn-sm" data-id="3" data-toggle="modal" data-target="#householdAddressModal-@Model.Person.PersonId">Edit</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p class="recentNote"></p>
+
+    <script type="text/javascript">
+
+        $(function () {
+            $('#householdAddressModal@(Model.Person.PersonId)').on('show.bs.modal', function (e) {
+                $('.modalTextInput').val('');
+                let btn = $(e.relatedTarget); // e.related here is the element that opened the modal, specifically the row button
+                let id = btn.data('id'); // this is how you get the value of any `data` attribute of an element
+                $('.saveEdit').data('id', id); // then pass it to the button inside the modal
+            })
+
+            $('.saveEdit').on('click', function () {
+                let id = $(this).data('id'); // the rest is just the same
+                saveNote(id);
+                $('#householdAddressModal@(Model.Person.PersonId)').modal('toggle'); // this is to close the modal after clicking the modal button
+            })
+        })
+
+        function saveNote(id) {
+            let text = $('.modalTextInput').val();
+            $('.recentNote').data('note', text);
+            console.log($('.recentNote').data('note'));
+            console.log(text + ' --> ' + id);
+        }
+    </script>
 </div>

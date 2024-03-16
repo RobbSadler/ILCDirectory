@@ -32,8 +32,8 @@ public class TokenizeAndSearchRepository : ITokenizeAndSearchRepository
         _config = config;
     }
 
-    // search the tokens in the SearchToken table and return the PersonIds and AddressIds that are found
-    public async Task<IList<Person>> SearchForPersonOrAddress(IConfiguration config, string searchString, bool searchPartialWords, 
+    // search the tokens in the SearchToken table and return the Persons and Address rows that are found / related
+    public async Task<(IList<Person>, IList<HouseholdAddress>)> SearchForPersonOrAddress(IConfiguration config, string searchString, bool searchPartialWords, 
         bool includeChildren, bool localOnly)
     {
         searchString = (searchString ?? "").Trim();
@@ -117,37 +117,99 @@ public class TokenizeAndSearchRepository : ITokenizeAndSearchRepository
         }
 
         if (searchString.Length > 0 && personIds.Count == 0) // search returned no results
-            return persons;
+            return (persons, new List<HouseholdAddress>());
 
         // get the persons from the Person table, and filter for the switches that have been set
         // if LocalSearch is true, then only consider zipcodes that start with 75 or 76
         // if IncludeChildren is false, then only consider persons with a birthdate before Today minus 18 years
-        var sqlFinal = @"SELECT * FROM Person ";
+        var sqlPersons = @"SELECT * FROM Person ";
         if (localOnly)
         {
-            sqlFinal += " INNER JOIN PersonHousehold ON Person.PersonId = PersonHousehold.PersonId " +
+            sqlPersons += " INNER JOIN PersonHousehold ON Person.PersonId = PersonHousehold.PersonId " +
                 " INNER JOIN HouseholdAddress ON PersonHousehold.HouseholdId = HouseholdAddress.HouseholdId " +
                 " INNER JOIN Address ON HouseholdAddress.AddressId = Address.AddressId ";
         }
         
         if (personIds.Count > 0 && searchString.Length > 0)
-            sqlFinal += " WHERE PersonId IN (" + string.Join(",", personIds) + @") ";
+            sqlPersons += " WHERE Person.PersonId IN (" + string.Join(",", personIds) + @") ";
         else 
-            sqlFinal += " WHERE 1 = 1 ";
+            sqlPersons += " WHERE 1 = 1 ";
 
         if (localOnly)
-            sqlFinal += " AND Address.Country = 'United States of America' AND (Address.PostalCode LIKE '75%' OR Address.PostalCode LIKE '76%') ";
+            sqlPersons += " AND Address.CountryISO3 = 'USA' AND (Address.PostalCode LIKE '75%' OR Address.PostalCode LIKE '76%') ";
 
         if (!includeChildren)
         {
-            sqlFinal += " AND DateOfBirth < DATEADD(year, -18, GETDATE()) ";
+            sqlPersons += " AND DateOfBirth < DATEADD(year, -18, GETDATE()) ";
         }
-        var connFinal = Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
-        var cmdFinal = Sqlocity.GetDatabaseCommand(connFinal);
-        persons = await cmdFinal.SetCommandText(sqlFinal)
+        var connPersons = Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
+        var cmdPersons = Sqlocity.GetDatabaseCommand(connPersons);
+        persons = await cmdPersons.SetCommandText(sqlPersons)
             .ExecuteToListAsync<Person>();
 
-        return persons;
+        IList<Address> addresses = new List<Address>();
+        IList<InternalAddress> internalAddresses = new List<InternalAddress>();
+        IList<PersonHousehold> personHouseholds = new List<PersonHousehold>();
+        IList<HouseholdAddress> householdAddresses = new List<HouseholdAddress>();
+
+        // get all of the personhouseholds and householdaddresses for the persons
+        if (persons.Count > 0)
+        {
+            personIds = persons.Select(p => (int)p.PersonId!).ToList<int>();
+            if (personIds.Count > 0)
+            {
+                var connPersonHousehold = Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
+                var cmdPersonHousehold = Sqlocity.GetDatabaseCommand(connPersonHousehold);
+                var sql = "SELECT * FROM PersonHousehold WHERE PersonId IN (" + string.Join(",", personIds) + ")";
+                personHouseholds = await cmdPersonHousehold.SetCommandText(sql)
+                    .ExecuteToListAsync<PersonHousehold>();
+            }
+
+            var householdIds = personHouseholds.Select(ph => ph.HouseholdId).ToList();
+            if (householdIds.Count > 0)
+            {
+                var connHouseholdAddress = Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
+                var cmdHouseholdAddress = Sqlocity.GetDatabaseCommand(connHouseholdAddress);
+                var sql = "SELECT * FROM HouseholdAddress WHERE HouseholdId IN (" + string.Join(",", householdIds) + ")";
+                householdAddresses = await cmdHouseholdAddress.SetCommandText(sql)
+                    .ExecuteToListAsync<HouseholdAddress>();
+            }
+
+            var addressIds = householdAddresses.Where(ha => ha.AddressId != null).Select(ha => ha.AddressId).ToList();
+            if (addressIds.Count > 0)
+            {
+                var connAddress = Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
+                var cmdAddress = Sqlocity.GetDatabaseCommand(connAddress);
+                var sql = "SELECT * FROM Address WHERE AddressId IN (" + string.Join(",", addressIds) + ")";
+                addresses = await cmdAddress.SetCommandText(sql)
+                    .ExecuteToListAsync<Address>();
+            }
+
+            var internalAddressIds = householdAddresses.Where(ha => ha.InternalAddressId != null).Select(ha => ha.InternalAddressId).ToList();
+            if (internalAddressIds.Count > 0)
+            {
+                var connInternalAddress = Sqlocity.CreateDbConnection(config[Constants.CONFIG_CONNECTION_STRING]);
+                var cmdInternalAddress = Sqlocity.GetDatabaseCommand(connInternalAddress);
+                var sql = "SELECT * FROM InternalAddress WHERE InternalAddressId IN (" + string.Join(",", internalAddressIds) + ")";
+                internalAddresses = await cmdInternalAddress.SetCommandText(sql)
+                    .ExecuteToListAsync<InternalAddress>();
+            }
+        }
+
+        // now fill in the addresses and internal addresses for the householdaddresses
+        foreach (var ha in householdAddresses)
+        {
+            if (ha.AddressId != null)
+            {
+                ha.Address = addresses.Where(a => a.AddressId == ha.AddressId).FirstOrDefault();
+            }
+            if (ha.InternalAddressId != null)
+            {
+                ha.InternalAddress = internalAddresses.Where(ia => ia.InternalAddressId == ha.InternalAddressId).FirstOrDefault();
+            }
+        }        
+
+        return (persons, householdAddresses);
     }
 
     public async Task PopulateSearchTokenTables(IConfiguration config)
@@ -166,7 +228,7 @@ public class TokenizeAndSearchRepository : ITokenizeAndSearchRepository
             // then insert the SearchTokenId and AddressId into the SearchTokenAddress table
             var regex = new Regex(@"\w+");
             // do for AddressLine1, AddressLine2, City, State, Zip, and Country
-            string[] toParse = { row.AddressLine1, row.AddressLine2, row.City, row.StateProvince, row.PostalCode } ;
+            string?[] toParse = { row.AddressLine1, row.AddressLine2, row.City, row.StateProvince, row.PostalCode } ;
 
             List<string> tokens = new ();
             foreach (var item in toParse)
@@ -259,7 +321,7 @@ public class TokenizeAndSearchRepository : ITokenizeAndSearchRepository
 
                 var searchTokenPersonId = await cmd4.SetCommandText(sql)
                     .AddParameter("@token", token)
-                    .AddParameter("@personId", (int)row.PersonId)
+                    .AddParameter("@personId", (int)row.PersonId!)
                     .ExecuteScalarAsync<int>();
             }
             ++tokenLinesProcessed;

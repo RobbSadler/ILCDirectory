@@ -86,8 +86,6 @@
             // if it is different, then load the new person details
             // get the person id from the row id - it is the last integer of the id after the last dash
 
-            robbUtil.zot();
-
             var personId = parseInt($(this).attr('id').split('-').pop());
             var spousePersonId = parseInt($(this).attr('data-spouse-person-id'));
             if (personId != personIdLoaded) {
