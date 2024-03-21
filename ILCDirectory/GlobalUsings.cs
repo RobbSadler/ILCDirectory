@@ -11,8 +11,9 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.RazorPages;
 global using Microsoft.Extensions.Configuration;
 
-global using Dapper;
-global using DapperGenericRepository;
+global using ILCDirectory.Authentication;
 global using ILCDirectory.Data;
+global using ILCDirectory.Data.Enums;
+global using ILCDirectory.Data.Helpers;
 global using ILCDirectory.Data.Models;
-global using ILCDirectory.Helpers;
+global using ILCDirectory.Data.Repositories;

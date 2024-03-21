@@ -107,3 +107,20 @@ body {
         max-width: 1780px;
     }
 }
+
+.main-table {
+    margin-top: 90px;
+}
+
+.hover-item {
+    cursor: pointer;
+}
+
+.hover-item .tooltip {
+    display: none;
+}
+
+.hover-item:hover .tooltip {
+    display: inline;
+    position: relative;
+}

@@ -1,5 +1,5 @@
 ﻿@page
-@model ILCDirectory.Views.People.DetailsModel
+@model ILCDirectory.Pages.People.DetailsModel
 
 @{
     ViewData["Title"] = "Details";
@@ -12,10 +12,10 @@
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Person.Birthdate)
+            @Html.DisplayNameFor(model => model.Person.DateOfBirth)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Person.Birthdate)
+            @Html.DisplayFor(model => model.Person.DateOfBirth)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Person.Comment)
@@ -84,40 +84,16 @@
             @Html.DisplayFor(model => model.Person.Title)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Person.DeleteFlag)
+            @Html.DisplayNameFor(model => model.Person.ClassificationCode)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Person.DeleteFlag)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Person.StatusCode)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Person.StatusCode)
+            @Html.DisplayFor(model => model.Person.ClassificationCode)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Person.LanguagesSpoken)
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Person.LanguagesSpoken)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Person.AuditTrail)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Person.AuditTrail)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Person.DirectoryCorrectionForm)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Person.DirectoryCorrectionForm)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Person.DirCorrFormNote)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Person.DirCorrFormNote)
         </dd>
     </dl>
 </div>

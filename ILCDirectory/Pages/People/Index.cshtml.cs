@@ -1,21 +1,21 @@
-﻿namespace ILCDirectory.Views.People
+﻿namespace ILCDirectory.Pages.People
 {
     [Authorize]
     public class IndexModel : PageModel
     {
-        private readonly IPersonRepository _personRepo;
+        private readonly IILCDirectoryRepository _repo;
 
-        public IndexModel(IPersonRepository personRepo)
+        public IndexModel(IILCDirectoryRepository repo)
         {
-            _personRepo = personRepo;
+            _repo = repo;
         }
 
         public IList<Person> Persons { get; set; }
-        public Family Family { get; set; }
+        public Household Family { get; set; }
 
         public async Task OnGetAsync()
         {
-            Persons = (IList<Person>)(await _personRepo.GetAllAsync());
+            Persons = await _repo.GetAllRowsAsync<Person>("Person");
         }
     }
 }

@@ -1,12 +1,13 @@
-﻿namespace ILCDirectory.Views.People
+﻿namespace ILCDirectory.Pages.People
 {
+    [Authorize]
     public class EditModel : PageModel
     {
-        private readonly IPersonRepository _personRepo;
+        private readonly IILCDirectoryRepository _repo;
 
-        public EditModel(IPersonRepository personRepo)
+        public EditModel(IILCDirectoryRepository repo)
         {
-            _personRepo = personRepo;
+            _repo = repo;
         }
 
         [BindProperty]
@@ -19,7 +20,7 @@
                 return NotFound();
             }
 
-            Person = await _personRepo.GetAsync(id);
+            Person = await _repo.GetRowByIdAsync<Person>((int)id, "Person");
 
             if (Person == null)
             {
@@ -37,7 +38,7 @@
                 return Page();
             }
 
-            await _personRepo.UpdateAsync(Person);
+            //await _repo.UpdatePersonAsync(Person);
 
             return RedirectToPage("./Index");
         }

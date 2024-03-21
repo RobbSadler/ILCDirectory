@@ -1,0 +1,248 @@
+﻿@page
+@model ILCDirectory.Pages.CenterMail.IndexModel
+@{
+}
+
+<h1>Center Mail</h1>
+
+<div>
+    <h4>Person</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedPerson.DateOfBirth)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedPerson.DateOfBirth)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedPerson.Comment)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedPerson.Comment)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedPerson.FirstName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedPerson.FirstName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedPerson.Gender)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedPerson.Gender)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedPerson.LastName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedPerson.LastName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedPerson.MaidenName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedPerson.MaidenName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedPerson.MaritalStatus)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedPerson.MaritalStatus)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedPerson.MiddleName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedPerson.MiddleName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedPerson.NickName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedPerson.NickName)
+        </dd>
+        <dt class="col-sm-2">
+            <!-- Html.DisplayNameFor(model => model.SelectedPerson.SpouseNameId)-->
+        </dt>
+        <dd class="col-sm-10">
+            <!-- Html.DisplayFor(model => model.SelectedPerson.SpouseNameId)-->
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedPerson.Suffix)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedPerson.Suffix)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedPerson.Title)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedPerson.Title)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedPerson.ClassificationCode)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedPerson.ClassificationCode)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedPerson.LanguagesSpoken)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedPerson.LanguagesSpoken)
+        </dd>
+    </dl>
+</div>
+
+<div class="container shadow min-vh-100 py-2">
+    <div class="container rounded network_wrapper col-sm p-2 ">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" data-bs-tabs="tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="true" data-bs-toggle="tab" href="#person"><i class="fa-solid fa-person-simple"></i><i class="fa-solid fa-person"></i>Person</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#workgroup"><i class="fa-solid fa-people-group"></i><i class="fa-solid fa-people-line"></i> Workgroup</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#address"><i class="fa-solid fa-house-building"></i><i class="fa-solid fa-house"></i><i class="fa-solid fa-people-roof"></i>Address</a>
+                    </li>                    
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#osmail"><i class="fa-solid fa-mailbox"></i><i class="fa-solid fa-envelopes-bulk"></i><i class="fa-solid fa-envelope"></i> O/S Mail</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#family"><i class="fa-solid fa-hands-holding-child"></i><i class="fa-solid fa-children"></i> Family</a>
+                    </li>
+                </ul>
+            </div>
+            <form class="card-body tab-content">
+                <div class="tab-pane" id="workgroup">
+                    <p class=" card-text">Change Static Network settings.</p>
+                </div>
+                <div class="tab-pane" id="address">
+                    <p class=" card-text">Change Static Network settings.</p>
+                </div>
+                <div class="tab-pane" id="osmail">
+                    <p class=" card-text">Change Static Network settings.</p>
+                </div>
+                <div class="tab-pane" id="family">
+                    <p class=" card-text">Change Static Network settings.</p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div>
+    <h4>Address</h4>
+    <hr />
+    <dl class="row">
+@*        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedAddress.IsActive)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedAddress.IsActive)
+        </dd>*@
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedAddress.AddressLine1)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedAddress.AddressLine1)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedAddress.AddressLine2)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedAddress.AddressLine2)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedAddress.City)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedAddress.City)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedAddress.StateProvince)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedAddress.StateProvince)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedAddress.PostalCode)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedAddress.PostalCode)
+        </dd>
+@*        <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.SelectedAddress.BoxNumber)
+        </dt>
+        <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.SelectedAddress.BoxNumber)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedAddress.RoomNumber)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedAddress.RoomNumber)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedAddress.DeliveryCode)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedAddress.DeliveryCode)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedAddress.MailListFlag)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedAddress.MailListFlag)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedAddress.MailOnly)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedAddress.MailOnly)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedAddress.MailSortName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedAddress.MailSortName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedAddress.SpecialContactInfo)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedAddress.SpecialContactInfo)
+        </dd>
+        <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.SelectedAddress.SpecialForwardingInstructions)
+        </dt>
+        <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.SelectedAddress.SpecialForwardingInstructions)
+        </dd>
+        <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.SelectedAddress.SpecialHandlingInstructions)
+        </dt>
+        <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.SelectedAddress.SpecialHandlingInstructions)
+        </dd>
+*@
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedAddress.BuildingCode)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedAddress.BuildingCode)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SelectedAddress.CubicleNumber)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SelectedAddress.CubicleNumber)
+        </dd>
+    </dl>
+</div>
+

@@ -1,0 +1,120 @@
+﻿@model PersonFamilyAddressDetails
+<div class="container">
+    <div class="row bg-light">
+        <div class="row row-cols-sm-1 row-cols-lg-1 row-cols-xl-2 g-3 m-3">
+            <div class="col"></div>
+            <div class="col float-end text-end">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#personModal" data-id="@Model.Person.PersonId">
+                    <i style="color:white;" class="fa-solid fa-pencil"></i>
+                </button>
+            </div>
+            <div class="col"><div class="row"><div class="col float-start">Name (first middle last): </div><div id="first-name-personid-@Model.Person.PersonId" class="col float-end">@Model.Person.FirstName @Model.Person.MiddleName @Model.Person.LastName</div></div></div>
+            <div class="col"><div class="row"><div class="col float-start">Maiden Name: </div><div id="maiden-name-personid-@Model.Person.PersonId" class="col float-end">@Model.Person.MaidenName</div></div></div>
+            <div class="col"><div class="row"><div class="col float-start">Nickname: </div><div id="nick-name-personid-@Model.Person.PersonId" class="col float-end">@Model.Person.NickName</div></div></div>
+            <div class="col"><div class="row"><div class="col float-start">Marital Status: </div><div id="marital-status-personid-@Model.Person.PersonId" class="col float-end">@Model.Person.MaritalStatus</div></div></div>
+            <div class="col"><div class="row"><div class="col float-start">Date of Birth: </div><div id="date-of-birth-personid-@Model.Person.PersonId" class="col float-end">@(Model.Person.DateOfBirth?.ToString("MM/dd/yyyy") ?? "not specified")</div></div></div>
+        </div>
+    </div>
+    @if (Model.PersonAddressDetails != null && Model.PersonAddressDetails.HouseholdAddresses != null)
+    {
+        <div class="row">
+            <div class="p-2 g-1 my-2 h2">
+                Addresses
+            </div>
+        </div>
+        @foreach (var ha in Model.PersonAddressDetails.HouseholdAddresses)
+        {
+            var isCurrent = (ha.ArrivalDate == null || ha.ArrivalDate <= DateTime.Now) && (ha.DepartureDate == null || ha.DepartureDate >= DateTime.Now);
+            var dateBackground = isCurrent ? "bg-success bg-opacity-25" : ""; <!-- green background (lightened by lower opacity) for current address -->
+            <div class="row row-cols-sm-1 row-cols-lg-2 row-cols-xl-3 g-3 m-3">
+                <!-- make a new div for each address -->
+                <div class="col bg-light rounded-3 m-1">
+                    <div class="row">
+                        @if (isCurrent)
+                        {
+                            <div class="col float-start @dateBackground">Current Address</div>
+                        }
+                        else
+						{
+							<div class="col float-start">Historical Address</div>
+						}
+                        <div class="col float-end text-end">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#householdAddressModal" data-id="@Model.Person.PersonId-@ha.HouseholdAddressId">
+                                <i style="color:white;" class="fa-solid fa-pencil"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <span>Arrival Date: @(ha.ArrivalDate?.ToString("MM/dd/yyyy") ?? "")</span>
+                    </div>
+                    <div class="row">
+                        <span>Departure Date: @(ha.DepartureDate?.ToString("MM/dd/yyyy") ?? "")</span>
+                    </div>
+                    <div class="row">
+                        <span>Is Permanent: @ha.IsPermanent</span>
+                    </div>
+                    <div class="row">
+                        <span>Include in Directory: @ha.IncludeInDirectory</span>
+                    </div>
+                    <div class="row">
+                        <span>Mail Only: @ha.MailOnly</span>
+                    </div>
+                </div>
+
+                @if (ha.Address != null)
+                {
+                    <!-- make a new div for each address -->
+                    <div class="col bg-light rounded-3 m-1">
+                        <!-- make nested rows for each address line -->
+
+                        <div class="row">
+							<span>@ha.Address.AddressLine1</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(ha.Address.AddressLine2))
+                        {
+                            <div class="row">
+                                <span>@ha.Address.AddressLine2</span>
+                            </div>
+                        }
+                        <div class="row">
+                            <span>@ha.Address.City</span>
+                        </div>
+                        <div class="row">
+                            <span>@ha.Address.StateProvince</span> <span>@ha.Address.PostalCode</span>
+                        </div>
+                    </div>
+                }
+                
+                @if (ha.InternalAddress != null)
+                {
+                    <!-- make a new div for each address -->
+                    <div class="col bg-light rounded-3">
+                        <!-- make nested rows for each address line -->
+
+                        <div class="row">
+                            <h2>Internal Address with date range goes here</h2>
+                        </div>
+                        <div class="row">
+                            <span>Box#: @ha.InternalAddress.BoxNumber</span>
+                        </div>
+                        <div class="row">
+                            <span>Spec Hdlg: @ha.InternalAddress.SpecialHandling</span>
+                        </div>
+                        <div class="row">
+                            <span>Incl in Sort: @ha.InternalAddress.IncludeInSort</span>
+                        </div>
+                        @if (ha.InternalAddress.DeliveryCode != null)
+                        {
+                            <div class="row">
+                                <span>Delivery Code: @ha.InternalAddress.DeliveryCode</span>
+                            </div>
+                        }
+                        <div class="row">
+                            <span>Mail List Flg: @ha.InternalAddress.MailListFlag</span>
+                        </div>
+                    </div>
+                }
+            </div> 
+        }
+    }
+</div>

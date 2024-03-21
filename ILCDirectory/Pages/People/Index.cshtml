@@ -1,5 +1,5 @@
 ﻿@page
-@model ILCDirectory.Views.People.IndexModel
+@model ILCDirectory.Pages.People.IndexModel
 
 @{
     ViewData["Title"] = "People Index";
@@ -7,13 +7,10 @@
 
 <h1>People</h1><h4>Find Person</h4>
 <p>
-    <div><input /> <button>Search (name, address, workgroup)</button> <input id="localOnlyCheckbox" type="checkbox" /> <label for="localOnlyCheckbox">Local Only</label></div>
+    <div><input /> <button>Search (name, address, workgroup)</button> <input id="localOnlyCheckbox" type="checkbox" /> <label for="localOnlyCheckbox">Local Only</label>&nbsp;<a asp-page="Create">Create New Person</a></div>
 </p>
 
-<p>
-    <a asp-page="Create">Create New Person</a>
-</p>
-<table class="table">
+<table class="personstable table">
     <thead>
         <tr>
             <th>
@@ -22,24 +19,21 @@
             <th>
                 @Html.DisplayNameFor(model => model.Persons[0].LanguagesSpoken)
             </th>
+            
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.Persons) {
+        @foreach (var item in Model.Persons) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.LastName)@Html.DisplayFor(modelItem => item.MaidenName), 
-                @Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.NickName)
-                    
+                @item.LastName@item.MaidenName, @item.FirstName @item.NickName
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.LanguagesSpoken)
+                @item.LanguagesSpoken
             </td>
             <td>
-                <a asp-page="./Edit" asp-route-id="@item.PersonId">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.PersonId">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.PersonId">Delete</a>
+                @*<button asp-action="Delete"><i class="fa-solid " />*@
             </td>
         </tr>
 }

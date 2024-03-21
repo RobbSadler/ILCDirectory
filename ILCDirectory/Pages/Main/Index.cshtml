@@ -1,47 +1,181 @@
 ﻿@page
-@model ILCDirectory.Pages.Main.IndexModel
+@using ILCDirectory.Models
+@model IndexModel
 @{
+    ViewData["Title"] = "People Index";
 }
 
 <div class="container shadow min-vh-100 py-2">
-    <div class="container rounded network_wrapper col-sm p-2 ">
-        <div class="card">
-            <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs" data-bs-tabs="tabs">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="true" data-bs-toggle="tab" href="#person"><i class="fa-solid fa-person-simple"></i><i class="fa-solid fa-person"></i>Person</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#workgroup"><i class="fa-solid fa-people-group"></i><i class="fa-solid fa-people-line"></i> Workgroup</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#address"><i class="fa-solid fa-house-building"></i><i class="fa-solid fa-house"></i><i class="fa-solid fa-people-roof"></i>Address</a>
-                    </li>                    
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#osmail"><i class="fa-solid fa-mailbox"></i><i class="fa-solid fa-envelopes-bulk"></i><i class="fa-solid fa-envelope"></i> O/S Mail</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#family"><i class="fa-solid fa-hands-holding-child"></i><i class="fa-solid fa-children"></i> Family</a>
-                    </li>
-                </ul>
+    <div class="row">
+        <div class="col-lg-1">
+            <div class="display-1 start-0 m-1">
+                <strong><em>People</em></strong>
             </div>
-            <form class="card-body tab-content">
-                <div class="tab-pane active" id="person">
-                    <partial name="MainPersonPartial" />
-                </div>
-                <div class="tab-pane" id="workgroup">
-                    <p class=" card-text">Change Static Network settings.</p>
-                </div>
-                <div class="tab-pane" id="address">
-                    <p class=" card-text">Change Static Network settings.</p>
-                </div>
-                <div class="tab-pane" id="osmail">
-                    <p class=" card-text">Change Static Network settings.</p>
-                </div>
-                <div class="tab-pane" id="family">
-                    <p class=" card-text">Change Static Network settings.</p>
-                </div>
+        </div>
+    </div>
+    <div class="row no-gutters">
+        <div class="col-lg-12">
+            <!-- Search Form - for controller method named OnPostAsync -->
+            <form method="post" class="form-group">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input asp-for="SearchText" class="me-0 pe-0" placeholder="search text" />
+                <button class="btn btn-outline-secondary m-0 border-0 rounded-0 rounded-right" type="button" onclick="document.getElementById('SearchText').value = '';document.getElementById('SearchText').focus();">
+                    <i class="fa fa-times"></i>
+                </button>
+                <button type="submit" class="btn btn-primary rounded-3" asp-page-handler="Search">Search</button>
+                <span class="form-check-inline"><input class="form-check-input" asp-for="LocalSearch" type="checkbox" /><label class="form-check-label" asp-for="LocalSearch">Local</label></span>
+                <span class="form-check-inline"><input class="form-check-input" asp-for="IncludeChildren" type="checkbox" /><label class="form-check-label" asp-for="IncludeChildren">Include Children</label></span>
+                <span class="form-check-inline"><input class="form-check-input" asp-for="SearchPartialWords" type="checkbox" /><label class="form-check-label" asp-for="SearchPartialWords">Partial Words</label></span>
+                <button class="float-end btn btn-light rounded-3" asp-page-handler="CreatePerson">Create Person</button>
             </form>
         </div>
     </div>
+    <div class="row">
+        <div class="table-responsive">
+            <table class="table accordion" id="person-table">
+                <thead>
+                    <tr>
+                        <th scope="col">
+                            Name (Last (Maiden), First (Nickname))
+                        </th>
+                        <th scope="col">
+                            Languages Spoken
+                        </th>
+                        <th scope="col">
+                            
+                        </th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Persons)
+                    {
+                        <tr class="person-row" id="person-row-@item.PersonId" data-spouse-person-id="@item.SpousePersonId" data-bs-toggle="collapse" data-bs-target="#person-detail-@item.PersonId">
+                            <td>
+                                @item.LastName@Html.DisplayFor(modelItem => item.MaidenName),
+                                @item.FirstName @Html.DisplayFor(modelItem => item.NickName)
+                            </td>
+                            <td>
+                                @item.LanguagesSpoken
+                            </td>
+                            <td>
+                                @item.
+                            <td>
+                                <span><i style="color:maroon;" class="fa-solid fa-square-xmark"></i></span>
+                            </td>
+                        </tr>
+                        <tr class="collapse accordion-collapse" data-bs-parent="#person-table" id="person-detail-@item.PersonId">
+                            <td colspan="3">
+                                <div id="person-detail-info-@item.PersonId">
+                                    Details Loading...
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+<!-- householdAddressModal edit household address data -->
+<div class="modal fade" id="householdAddressModal" tabindex="-1" aria-labelledby="householdAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="householdAddressModalLabel">Edit Household Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- personModal edit person data -->
+<div class="modal fade" id="personModal" tabindex="-1" aria-labelledby="personModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="personModalLabel">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Modal Test 2
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        var personIdLoaded = 0;
+        $('.person-row').click(function () {
+            // make sure the person id is different than the value already loaded in the details panes
+            // if it is different, then load the new person details
+            // get the person id from the row id - it is the last integer of the id after the last dash
+
+            var personId = parseInt($(this).attr('id').split('-').pop());
+            var spousePersonId = parseInt($(this).attr('data-spouse-person-id'));
+            if (personId != personIdLoaded) {
+                $('#person-detail-info-' + personId).text("Person Details Loading...");
+                $.ajax({
+                    url: "@Url.Page("/Index")?handler=PersonFamilyAddressDetails",
+                    method: "POST",
+                    data: { personId: personId, spousePersonId: spousePersonId, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (data) {
+                        $('#person-detail-info-' + personId).html(data);
+                    }
+                });
+
+                // load the address details
+                $('#address-details-pane').text("Address Details Loading...");
+                $.ajax({
+                    url: "@Url.Page("/Index")?handler=PersonAddressDetails",
+                    method: "POST",
+                    data: { personId: personId, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (data) {
+                        $('#address-details-pane').html(data);
+                    }
+                });
+
+                // load the family details
+                $('#family-details-pane').text("Family Details Loading...");
+                $.ajax({
+                    url: "@Url.Page("/Index")?handler=PersonFamilyDetails",
+                    method: "POST",
+                    data: { personId: personId, spousePersonId: spousePersonId, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (data) {
+                        $('#family-details-pane').html(data);
+                    }
+                });
+                personIdLoaded = personId;
+            }
+            else {
+                console.log("personId already loaded");
+            }
+        });
+
+        $(function () {
+            const householdAddressModal = document.getElementById('householdAddressModal');
+            householdAddressModal.addEventListener('show.bs.modal', function (event) {
+                console.log("show.bs.modal householdAddressModal"); console.log("id = " + $(event.relatedTarget).data("id"));
+            });
+            
+            const personModal = document.getElementById('personModal');
+            personModal.addEventListener('show.bs.modal', function (event) {
+                console.log("show.bs.modal personModal"); console.log("id = " + $(event.relatedTarget).data("id"));
+            })
+        })
+    </script>
+
+}

@@ -1,12 +1,13 @@
-﻿namespace ILCDirectory.Views.People
+﻿namespace ILCDirectory.Pages.People
 {
+    [Authorize]
     public class DetailsModel : PageModel
     {
-        private readonly IPersonRepository _personRepo;
+        private readonly IILCDirectoryRepository _repo;
 
-        public DetailsModel(IPersonRepository personRepo)
+        public DetailsModel(IConfiguration cfg, IILCDirectoryRepository repo)
         {
-            _personRepo = personRepo;
+            _repo = repo;
         }
 
         public Person Person { get; set; }
@@ -18,7 +19,7 @@
                 return NotFound();
             }
 
-            Person = await _personRepo.GetAsync(id);
+            Person = await _repo.GetRowByIdAsync<Person>((int)id, "Person");
 
             if (Person == null)
             {

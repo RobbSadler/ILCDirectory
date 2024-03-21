@@ -1,14 +1,13 @@
 ﻿namespace ILCDirectory.Pages.Addresses
 {
+    [Authorize]
     public class DetailsModel : PageModel
     {
-        private readonly IAddressRepository _addressRepo;
-        private readonly IConfiguration _configuration;
+        private readonly IILCDirectoryRepository _repo;
 
-        public DetailsModel(IConfiguration configuration, IAddressRepository addressRepo)
+        public DetailsModel(IILCDirectoryRepository repo)
         {
-            _addressRepo = addressRepo;
-            _configuration = configuration;
+            _repo = repo;
         }
 
         public Address Address { get; set; }
@@ -19,12 +18,7 @@
             {
                 return NotFound();
             }
-            var connectionString = _configuration["ILCDirectory:ConnectionString"];
-            using (var connection = new SqlConnection(connectionString))
-            {
-
-            }
-            Address = await _addressRepo.GetAsync(id);
+            Address = await _repo.GetRowByIdAsync<Address>((int)id, "Address");
 
             if (Address == null)
             {

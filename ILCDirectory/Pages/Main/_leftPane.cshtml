@@ -1,0 +1,11 @@
+﻿@model PersonAddressDetails
+
+<div>Household Addresses</div>
+@foreach (var item in Model.HouseholdAddresses)
+{
+    <div>@item.Address.AddressLine1</div>
+    <div>@item.Address.City</div>
+    <div>@item.PurposeOfVisit</div>
+    <div>@item.ArrivalDate</div>
+    <div>@item.DepartureDate</div>
+}

@@ -1,5 +1,5 @@
 ﻿@page
-@model ILCDirectory.Views.People.EditModel
+@model ILCDirectory.Pages.People.EditModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -15,9 +15,9 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Person.PersonId" />
             <div class="form-group">
-                <label asp-for="Person.Birthdate" class="control-label"></label>
-                <input asp-for="Person.Birthdate" class="form-control" />
-                <span asp-validation-for="Person.Birthdate" class="text-danger"></span>
+                <label asp-for="Person.DateOfBirth" class="control-label"></label>
+                <input asp-for="Person.DateOfBirth" class="form-control" />
+                <span asp-validation-for="Person.DateOfBirth" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Person.Comment" class="control-label"></label>
@@ -75,29 +75,14 @@
                 <span asp-validation-for="Person.Title" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Person.StatusCode" class="control-label"></label>
-                <input asp-for="Person.StatusCode" class="form-control" />
-                <span asp-validation-for="Person.StatusCode" class="text-danger"></span>
+                <label asp-for="Person.ClassificationCode" class="control-label"></label>
+                <input asp-for="Person.ClassificationCode" class="form-control" />
+                <span asp-validation-for="Person.ClassificationCode" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Person.LanguagesSpoken" class="control-label"></label>
                 <input asp-for="Person.LanguagesSpoken" class="form-control" />
                 <span asp-validation-for="Person.LanguagesSpoken" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.AuditTrail" class="control-label"></label>
-                <input asp-for="Person.AuditTrail" class="form-control" />
-                <span asp-validation-for="Person.AuditTrail" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.DirectoryCorrectionForm" class="control-label"></label>
-                <input asp-for="Person.DirectoryCorrectionForm" class="form-control" />
-                <span asp-validation-for="Person.DirectoryCorrectionForm" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Person.DirCorrFormNote" class="control-label"></label>
-                <input asp-for="Person.DirCorrFormNote" class="form-control" />
-                <span asp-validation-for="Person.DirCorrFormNote" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

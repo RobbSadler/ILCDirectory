@@ -1,0 +1,51 @@
+﻿@model PersonFamilyDetails
+
+@if (Model.Spouse != null)
+{
+    <span>Spouse: @(Model.Spouse.FirstName) @(Model.Spouse.LastName)</span>
+    <br />
+}
+
+@if (Model.ChildPersons.Count > 0)
+{
+    <div>Children:</div>
+
+    <div class="row">
+        <div class="table-responsive">
+            <table class="table accordion" id="person-table">
+                <thead>
+                    <tr>
+                        <th scope="col">
+                            Name (Last (Maiden), First (Nickname))
+                        </th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ChildPersons)
+                    {
+                        <tr class="person-row" id="person-row-@item.PersonId" data-spouse-person-id="@item.SpousePersonId" data-bs-toggle="collapse" data-bs-target="#person-detail-@item.PersonId">
+                            <td>
+                                @item.LastName@Html.DisplayFor(modelItem => item.MaidenName),
+                                @item.FirstName @Html.DisplayFor(modelItem => item.NickName)
+                            </td>
+                            <td>
+                                <span><i style="color:maroon;" class="fa-solid fa-square-xmark"></i></span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@if (Model.ParentPersons.Count > 0)
+{
+    <div>Parents:</div>
+    @foreach (var item in Model.ParentPersons)
+    {
+        <div>@item.FirstName @item.LastName</div>
+    }
+}
+
