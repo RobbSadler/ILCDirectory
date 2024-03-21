@@ -3,22 +3,22 @@
 <head>
     <meta charset="utf-8" />
     @* <meta name="viewport" content="width=device-width, initial-scale=1.0" /> *@
-    <meta name="viewport" content="width=100vw, initial-scale=1.0" />
+    <meta name="viewport" content="width=100, initial-scale=1.0" />
     <title>@ViewData["Title"] - ILCDirectory</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/fontawesome.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/solid.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ILCDirectory.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/layout-default.min.css" asp-append-version="true" />
+    @* <link rel="stylesheet" href="~/css/layout-default.min.css" asp-append-version="true" /> *@
 	<script src="~/lib/jquery/dist/jquery.min.js"></script>
 	<script src="~/lib/jquery-migrate/jquery-migrate.js"></script>
 	<script src="~/lib/jquery-ui/jquery-ui.js"></script>
 	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="~/lib/jquery-layout/jquery.layout_and_plugins.js"></script>
+	@* <script src="~/lib/jquery-layout/jquery.layout_and_plugins.js"></script> *@
 	<script src="~/js/site.js" asp-append-version="true"></script>
 
-	<script type="text/javascript">
+@* 	<script type="text/javascript">
 
 		var myLayout;
 
@@ -36,11 +36,12 @@
 		});
 
 	</script>
+ *@
 </head>
 <body>
 
 	<!-- manually attach allowOverflow method to pane -->
-	<div class="ui-layout-north overflow-scroll">
+@* 	<div class="ui-layout-north overflow-scroll">
         <header>
             <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white box-shadow mb-1">
                 <div class="container">
@@ -70,26 +71,64 @@
             </nav>
         </header>
     </div>
+ *@
 
-    <div class="ui-layout-west overflow-scroll" id = "address-details-pane">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white box-shadow mb-1">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-page="/Index"><span style="font-weight: 600;font-stretch:condensed">ILC</span><span style="font-style:italic">Directory</span></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="/Main/Index">Person</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="/CenterMail/Index">Mailroom</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="/Directory/Index">Directory</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="/SetupConfiguration/Index">Setup and Configuration</a>
+                        </li>
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+
+
+@*     <div class="ui-layout-west overflow-scroll" id = "address-details-pane">
 		Address Detail Pane
 	</div>
-
-    <div class="ui-layout-south footer text-muted overflow-scroll">
+ *@
+@*     <div class="ui-layout-south footer text-muted overflow-scroll">
         <div class="container">
             &copy; 2022 - ILCDirectory - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
-	</div>
-
-    <div class="ui-layout-east overflow-scroll" id="family-details-pane">
-		Family Detail Pane
-		@*<p><button onclick="myLayout.close('east')">Close Me</button></p>*@
-	</div>
-
-	<div class="ui-layout-center overflow-scroll">
+	</div> *@
+    <div>
         @*<p><button onclick="myLayout.toggle('north')">Collapse Top Pane</button></p>*@
         @RenderBody() <!-- Render the main content of each view -->
     </div>
+
+    <footer>
+        <div class="container">
+            &copy; 2022 - ILCDirectory - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <!--<div class="ui-layout-east overflow-scroll" id="family-details-pane">
+		Family Detail Pane
+    	<p><button onclick="myLayout.close('east')">Close Me</button></p>
+	</div>-->
+
+@* 	<div class="ui-layout-center overflow-scroll"> *@
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

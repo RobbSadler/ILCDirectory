@@ -2,12 +2,17 @@
 <div class="container">
     <div class="row bg-light">
         <div class="row row-cols-sm-1 row-cols-lg-1 row-cols-xl-2 g-3 m-3">
-            <div class="col"><div class="row"><div class="col float-start">PersonId equal to null: </div><div class="col float-end">@(Model.Person == null)</div></div></div>
-            <div class="col"><div class="row"><div class="col float-start">Name (first middle last): </div><div class="col float-end">@Model.Person.FirstName @Model.Person.MiddleName @Model.Person.LastName</div></div></div>
-            <div class="col"><div class="row"><div class="col float-start">Maiden Name: </div><div class="col float-end">@Model.Person.MaidenName</div></div></div>
-            <div class="col"><div class="row"><div class="col float-start">Nickname: </div><div class="col float-end">@Model.Person.NickName</div></div></div>
-            <div class="col"><div class="row"><div class="col float-start">Marital Status: </div><div class="col float-end">@Model.Person.MaritalStatus</div></div></div>
-            <div class="col"><div class="row"><div class="col float-start">Date of Birth: </div><div class="col float-end">@(Model.Person.DateOfBirth?.ToString("MM/dd/yyyy") ?? "not specified")</div></div></div>
+            <div class="col"></div>
+            <div class="col float-end text-end">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#personModal" data-id="@Model.Person.PersonId">
+                    <i style="color:white;" class="fa-solid fa-pencil"></i>
+                </button>
+            </div>
+            <div class="col"><div class="row"><div class="col float-start">Name (first middle last): </div><div id="first-name-personid-@Model.Person.PersonId" class="col float-end">@Model.Person.FirstName @Model.Person.MiddleName @Model.Person.LastName</div></div></div>
+            <div class="col"><div class="row"><div class="col float-start">Maiden Name: </div><div id="maiden-name-personid-@Model.Person.PersonId" class="col float-end">@Model.Person.MaidenName</div></div></div>
+            <div class="col"><div class="row"><div class="col float-start">Nickname: </div><div id="nick-name-personid-@Model.Person.PersonId" class="col float-end">@Model.Person.NickName</div></div></div>
+            <div class="col"><div class="row"><div class="col float-start">Marital Status: </div><div id="marital-status-personid-@Model.Person.PersonId" class="col float-end">@Model.Person.MaritalStatus</div></div></div>
+            <div class="col"><div class="row"><div class="col float-start">Date of Birth: </div><div id="date-of-birth-personid-@Model.Person.PersonId" class="col float-end">@(Model.Person.DateOfBirth?.ToString("MM/dd/yyyy") ?? "not specified")</div></div></div>
         </div>
     </div>
     @if (Model.PersonAddressDetails != null && Model.PersonAddressDetails.HouseholdAddresses != null)
@@ -33,11 +38,10 @@
 						{
 							<div class="col float-start">Historical Address</div>
 						}
-                        <!-- use pencil icon with alt text of edit -->
                         <div class="col float-end text-end">
-							<a href="">
-                                <span><i style="color:darkblue;" class="fa-solid fa-pencil"></i></span>
-							</a>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#householdAddressModal" data-id="@Model.Person.PersonId-@ha.HouseholdAddressId">
+                                <i style="color:white;" class="fa-solid fa-pencil"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="row">
@@ -113,72 +117,4 @@
             </div> 
         }
     }
-    <div class="modal fade" id="householdAddressModal-@Model.Person.PersonId" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel-@Model.Person.PersonId" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel-@Model.Person.PersonId">Modal title</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <input class="modalTextInput form-control" placeholder="Text Here" />
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="saveEdit btn btn-primary">Save changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <table class="table table-bordered">
-        <tbody>
-            <tr>
-                <td>Some data here</td>
-                <td>
-                    <button class="btn btn-success btn-sm" data-id="1" data-toggle="modal" data-target="#householdAddressModal-@Model.Person.PersonId">Edit</button>
-                </td>
-            </tr>
-            <tr>
-                <td>Another data here</td>
-                <td>
-                    <button class="btn btn-success btn-sm" data-id="2" data-toggle="modal" data-target="#householdAddressModal-@Model.Person.PersonId">Edit</button>
-                </td>
-            </tr>
-            <tr>
-                <td>More data here</td>
-                <td>
-                    <button class="btn btn-success btn-sm" data-id="3" data-toggle="modal" data-target="#householdAddressModal-@Model.Person.PersonId">Edit</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <p class="recentNote"></p>
-
-    <script type="text/javascript">
-
-        $(function () {
-            $('#householdAddressModal@(Model.Person.PersonId)').on('show.bs.modal', function (e) {
-                $('.modalTextInput').val('');
-                let btn = $(e.relatedTarget); // e.related here is the element that opened the modal, specifically the row button
-                let id = btn.data('id'); // this is how you get the value of any `data` attribute of an element
-                $('.saveEdit').data('id', id); // then pass it to the button inside the modal
-            })
-
-            $('.saveEdit').on('click', function () {
-                let id = $(this).data('id'); // the rest is just the same
-                saveNote(id);
-                $('#householdAddressModal@(Model.Person.PersonId)').modal('toggle'); // this is to close the modal after clicking the modal button
-            })
-        })
-
-        function saveNote(id) {
-            let text = $('.modalTextInput').val();
-            $('.recentNote').data('note', text);
-            console.log($('.recentNote').data('note'));
-            console.log(text + ' --> ' + id);
-        }
-    </script>
 </div>
